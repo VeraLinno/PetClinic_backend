@@ -1,0 +1,87 @@
+using Microsoft.EntityFrameworkCore;
+using PetClinic.Application;
+using PetClinic.Domain;
+
+namespace PetClinic.Infrastructure;
+
+public class AppointmentService : IAppointmentService
+{
+    private readonly PetClinicDbContext _context;
+    private readonly IUserContextService _userContext;
+
+    public AppointmentService(PetClinicDbContext context, IUserContextService userContext)
+    {
+        _context = context;
+        _userContext = userContext;
+    }
+
+    public async Task<Appointment> CreateAsync(CreateAppointmentDto dto)
+    {
+        // Check if pet belongs to current user
+        var currentUserId = _userContext.GetCurrentUserId();
+        var pet = await _context.Pets.FirstOrDefaultAsync(p => p.Id == dto.PetId && p.OwnerId == currentUserId);
+        if (pet == null)
+        {
+            throw new UnauthorizedAccessException("Pet not found or does not belong to user");
+        }
+
+        // Check vet availability - no overlapping appointments
+        var overlapping = await _context.Appointments
+            .Where(a => a.VeterinarianId == dto.VeterinarianId &&
+                       a.Status != AppointmentStatus.Cancelled &&
+                       ((dto.StartAt < a.EndAt && a.StartAt < dto.EndAt)))
+            .AnyAsync();
+
+        if (overlapping)
+        {
+            throw new InvalidOperationException("Veterinarian is not available at this time");
+        }
+
+        // Use transaction for concurrency
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var appointment = new Appointment
+            {
+                PetId = dto.PetId,
+                VeterinarianId = dto.VeterinarianId,
+                StartAt = dto.StartAt,
+                EndAt = dto.EndAt,
+                Status = AppointmentStatus.Scheduled
+            };
+
+            _context.Appointments.Add(appointment);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return appointment;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task<IEnumerable<Appointment>> GetUserAppointmentsAsync(Guid userId, List<string> roles)
+    {
+        if (roles.Contains("Vet"))
+        {
+            // Vets see their appointments
+            return await _context.Appointments
+                .Include(a => a.Pet)
+                .Include(a => a.Veterinarian)
+                .Where(a => a.VeterinarianId == userId)
+                .ToListAsync();
+        }
+        else
+        {
+            // Owners see their pets' appointments
+            return await _context.Appointments
+                .Include(a => a.Pet)
+                .Include(a => a.Veterinarian)
+                .Where(a => a.Pet.OwnerId == userId)
+                .ToListAsync();
+        }
+    }
+}

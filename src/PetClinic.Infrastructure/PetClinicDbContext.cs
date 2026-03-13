@@ -1,0 +1,84 @@
+using Microsoft.EntityFrameworkCore;
+using PetClinic.Domain;
+
+namespace PetClinic.Infrastructure;
+
+public class PetClinicDbContext : DbContext
+{
+    public PetClinicDbContext(DbContextOptions<PetClinicDbContext> options) : base(options)
+    {
+    }
+
+    public DbSet<Owner> Owners { get; set; } = default!;
+    public DbSet<Pet> Pets { get; set; } = default!;
+    public DbSet<Veterinarian> Veterinarians { get; set; } = default!;
+    public DbSet<Appointment> Appointments { get; set; } = default!;
+    public DbSet<Visit> Visits { get; set; } = default!;
+    public DbSet<Prescription> Prescriptions { get; set; } = default!;
+    public DbSet<MedicationStock> MedicationStocks { get; set; } = default!;
+    public DbSet<Invoice> Invoices { get; set; } = default!;
+    public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // Unique email for Owner
+        modelBuilder.Entity<Owner>()
+            .HasIndex(o => o.Email)
+            .IsUnique();
+
+        // Unique email for Veterinarian
+        modelBuilder.Entity<Veterinarian>()
+            .HasIndex(v => v.Email)
+            .IsUnique();
+
+        // Relations
+        modelBuilder.Entity<Pet>()
+            .HasOne(p => p.Owner)
+            .WithMany(o => o.Pets)
+            .HasForeignKey(p => p.OwnerId);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(a => a.Pet)
+            .WithMany(p => p.Appointments)
+            .HasForeignKey(a => a.PetId);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(a => a.Veterinarian)
+            .WithMany(v => v.Appointments)
+            .HasForeignKey(a => a.VeterinarianId);
+
+        modelBuilder.Entity<Visit>()
+            .HasOne(v => v.Appointment)
+            .WithOne(a => a.Visit)
+            .HasForeignKey<Visit>(v => v.AppointmentId);
+
+        modelBuilder.Entity<Prescription>()
+            .HasOne(p => p.Visit)
+            .WithMany(v => v.Prescriptions)
+            .HasForeignKey(p => p.VisitId);
+
+        modelBuilder.Entity<Invoice>()
+            .HasOne(i => i.Visit)
+            .WithOne(v => v.Invoice)
+            .HasForeignKey<Invoice>(i => i.VisitId);
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasOne(rt => rt.Owner)
+            .WithMany(o => o.RefreshTokens)
+            .HasForeignKey(rt => rt.OwnerId);
+
+        // Enum conversion for AppointmentStatus
+        modelBuilder.Entity<Appointment>()
+            .Property(a => a.Status)
+            .HasConversion<string>();
+
+        // Roles as JSON for Owner
+        modelBuilder.Entity<Owner>()
+            .Property(o => o.Roles)
+            .HasConversion(
+                v => string.Join(',', v),
+                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
+    }
+}

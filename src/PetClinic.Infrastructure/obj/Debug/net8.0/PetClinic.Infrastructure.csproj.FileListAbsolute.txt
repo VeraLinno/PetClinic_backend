@@ -1,0 +1,17 @@
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\bin\Debug\net8.0\PetClinic.Infrastructure.deps.json
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\bin\Debug\net8.0\PetClinic.Infrastructure.runtimeconfig.json
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\bin\Debug\net8.0\PetClinic.Infrastructure.dll
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\bin\Debug\net8.0\PetClinic.Infrastructure.pdb
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\bin\Debug\net8.0\PetClinic.Domain.dll
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\bin\Debug\net8.0\PetClinic.Domain.pdb
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\obj\Debug\net8.0\PetClinic.Infrastructure.csproj.AssemblyReference.cache
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\obj\Debug\net8.0\PetClinic.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\obj\Debug\net8.0\PetClinic.Infrastructure.AssemblyInfoInputs.cache
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\obj\Debug\net8.0\PetClinic.Infrastructure.AssemblyInfo.cs
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\obj\Debug\net8.0\PetClinic.Infrastructure.csproj.CoreCompileInputs.cache
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\obj\Debug\net8.0\PetClini.B3797F43.Up2Date
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\obj\Debug\net8.0\PetClinic.Infrastructure.dll
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\obj\Debug\net8.0\refint\PetClinic.Infrastructure.dll
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\obj\Debug\net8.0\PetClinic.Infrastructure.pdb
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\obj\Debug\net8.0\PetClinic.Infrastructure.genruntimeconfig.cache
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\obj\Debug\net8.0\ref\PetClinic.Infrastructure.dll
