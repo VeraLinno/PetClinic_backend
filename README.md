@@ -42,6 +42,23 @@ The project follows Clean Architecture with the following layers:
    - Run migrations: `dotnet ef database update --project src/PetClinic.Infrastructure`
    - Run the API: `dotnet run --project src/PetClinic.Api`
 
+### Running Tests
+
+1. Unit tests:
+   ```bash
+   dotnet test tests/PetClinic.Tests/PetClinic.Tests.csproj --filter "Category=Unit"
+   ```
+
+2. Integration tests (requires Docker):
+   ```bash
+   dotnet test tests/PetClinic.Tests/PetClinic.Tests.csproj --filter "Category=Integration"
+   ```
+
+3. All tests:
+   ```bash
+   dotnet test
+   ```
+
 ### API Documentation
 
 Swagger UI is available at `http://localhost:5001/swagger` in development.

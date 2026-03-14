@@ -104,4 +104,32 @@ Implement the complete Tier 3 deliverables for the Pet Clinic backend:
 
 ## Tier 4 Prompt
 
-[To be added in next phase]
+Implement the complete Tier 4 deliverables for the Pet Clinic backend:
+
+1. Create xUnit test project with references to all layers.
+
+2. Write unit tests for AppointmentService:
+   - Test availability logic with overlapping appointments (new.Start < existing.End && existing.Start < new.End).
+   - Test successful appointment creation when vet is available.
+   - Test exception when vet is not available.
+   - Test exception when pet does not belong to user.
+
+3. Write unit tests for VisitService:
+   - Test CompleteVisitAsync with sufficient stock: verify invoice creation, stock decrement, prescription creation.
+   - Test CompleteVisitAsync with insufficient stock: verify rollback and exception.
+   - Test authorization checks for vet role.
+
+4. Write integration tests using Testcontainers for PostgreSQL:
+   - Test login endpoint with valid/invalid credentials.
+   - Test health check endpoint.
+   - Use WebApplicationFactory for API testing.
+
+5. Create GitHub Actions CI workflow:
+   - Build on push/PR to main/develop.
+   - Matrix for .NET 8.0.
+   - Restore, build, test.
+   - Build Docker image and test health endpoint.
+
+6. Add health check endpoint at /health.
+
+7. Update README with test running instructions.
