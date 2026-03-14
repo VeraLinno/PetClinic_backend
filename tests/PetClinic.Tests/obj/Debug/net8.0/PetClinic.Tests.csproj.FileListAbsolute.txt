@@ -1,0 +1,8 @@
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net8.0\.msCoverageSourceRootsMapping_PetClinic.Tests
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net8.0\CoverletSourceRootsMapping_PetClinic.Tests
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\tests\PetClinic.Tests\obj\Debug\net8.0\PetClinic.Tests.csproj.AssemblyReference.cache
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\tests\PetClinic.Tests\obj\Debug\net8.0\MvcTestingAppManifest.json
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\tests\PetClinic.Tests\obj\Debug\net8.0\PetClinic.Tests.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\tests\PetClinic.Tests\obj\Debug\net8.0\PetClinic.Tests.AssemblyInfoInputs.cache
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\tests\PetClinic.Tests\obj\Debug\net8.0\PetClinic.Tests.AssemblyInfo.cs
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\tests\PetClinic.Tests\obj\Debug\net8.0\PetClinic.Tests.csproj.CoreCompileInputs.cache

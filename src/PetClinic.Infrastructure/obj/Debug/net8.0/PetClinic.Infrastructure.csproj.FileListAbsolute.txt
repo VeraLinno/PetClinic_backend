@@ -15,3 +15,5 @@ c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure
 c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\obj\Debug\net8.0\PetClinic.Infrastructure.pdb
 c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\obj\Debug\net8.0\PetClinic.Infrastructure.genruntimeconfig.cache
 c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\obj\Debug\net8.0\ref\PetClinic.Infrastructure.dll
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\bin\Debug\net8.0\PetClinic.Application.dll
+c:\Users\vvera\RiderProjects\velinn-petclinic_charp\src\PetClinic.Infrastructure\bin\Debug\net8.0\PetClinic.Application.pdb

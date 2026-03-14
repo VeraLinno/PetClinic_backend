@@ -31,4 +31,4 @@ public class InventoryController : ControllerBase
         var dtos = _mapper.Map<List<MedicationStockDto>>(lowStockItems);
         return Ok(dtos);
     }
-}
+}'using PetClinic.Infrastructure;' 
