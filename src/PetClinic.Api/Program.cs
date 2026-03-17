@@ -49,14 +49,18 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Owner", policy => policy.RequireClaim("roles", "Owner"));
 });
 
-// CORS for development
+// CORS configuration - allows both local and public network origins
+var corsOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>() 
+    ?? new[] { "http://localhost:5173", "http://localhost:3000" };
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowSpecific", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(corsOrigins)
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -66,7 +70,26 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<PetClinicDbContext>();
-    await dbContext.Database.MigrateAsync();
+
+    // Wait for database to be ready
+    var maxRetries = 10;
+    var retryCount = 0;
+    while (retryCount < maxRetries)
+    {
+        try
+        {
+            await dbContext.Database.EnsureCreatedAsync();
+            break;
+        }
+        catch
+        {
+            retryCount++;
+            if (retryCount >= maxRetries)
+                throw;
+            await Task.Delay(2000); // Wait 2 seconds before retry
+        }
+    }
+
     await SeedDataAsync(dbContext);
 }
 
@@ -77,8 +100,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-app.UseCors("AllowAll");
+// Only redirect to HTTPS in production
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
+app.UseCors("AllowSpecific");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PetClinic.Application;
+using PetClinic.Infrastructure;
 
 namespace PetClinic.Api.Controllers;
 
@@ -31,4 +32,4 @@ public class InventoryController : ControllerBase
         var dtos = _mapper.Map<List<MedicationStockDto>>(lowStockItems);
         return Ok(dtos);
     }
-}'using PetClinic.Infrastructure;' 
+}

@@ -9,6 +9,7 @@ COPY ["src/PetClinic.Api/PetClinic.Api.csproj", "src/PetClinic.Api/"]
 COPY ["src/PetClinic.Application/PetClinic.Application.csproj", "src/PetClinic.Application/"]
 COPY ["src/PetClinic.Domain/PetClinic.Domain.csproj", "src/PetClinic.Domain/"]
 COPY ["src/PetClinic.Infrastructure/PetClinic.Infrastructure.csproj", "src/PetClinic.Infrastructure/"]
+COPY ["tests/PetClinic.Tests/PetClinic.Tests.csproj", "tests/PetClinic.Tests/"]
 RUN dotnet restore
 COPY . .
 WORKDIR "/src/src/PetClinic.Api"

@@ -63,25 +63,39 @@ public class AppointmentService : IAppointmentService
         }
     }
 
-    public async Task<IEnumerable<Appointment>> GetUserAppointmentsAsync(Guid userId, List<string> roles)
+    public async Task<IEnumerable<Appointment>> GetUserAppointmentsAsync(Guid userId, List<string> roles, string? date = null, Guid? ownerId = null, Guid? vetId = null)
     {
+        var query = _context.Appointments
+            .Include(a => a.Pet)
+            .Include(a => a.Veterinarian)
+            .AsQueryable();
+
         if (roles.Contains("Vet"))
         {
             // Vets see their appointments
-            return await _context.Appointments
-                .Include(a => a.Pet)
-                .Include(a => a.Veterinarian)
-                .Where(a => a.VeterinarianId == userId)
-                .ToListAsync();
+            query = query.Where(a => a.VeterinarianId == userId);
         }
         else
         {
             // Owners see their pets' appointments
-            return await _context.Appointments
-                .Include(a => a.Pet)
-                .Include(a => a.Veterinarian)
-                .Where(a => a.Pet.OwnerId == userId)
-                .ToListAsync();
+            query = query.Where(a => a.Pet.OwnerId == userId);
         }
+
+        // Additional filters
+        if (!string.IsNullOrEmpty(date))
+        {
+            var filterDate = DateTime.Parse(date).Date;
+            query = query.Where(a => a.StartAt.Date == filterDate);
+        }
+        if (ownerId.HasValue)
+        {
+            query = query.Where(a => a.Pet.OwnerId == ownerId.Value);
+        }
+        if (vetId.HasValue)
+        {
+            query = query.Where(a => a.VeterinarianId == vetId.Value);
+        }
+
+        return await query.ToListAsync();
     }
 }

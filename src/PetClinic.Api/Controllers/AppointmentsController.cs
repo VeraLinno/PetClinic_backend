@@ -43,12 +43,12 @@ public class AppointmentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Get([FromQuery] string? date = null, [FromQuery] Guid? ownerId = null, [FromQuery] Guid? vetId = null)
     {
         var userId = _userContext.GetCurrentUserId();
         var roles = _userContext.GetCurrentUserRoles();
 
-        var appointments = await _appointmentService.GetUserAppointmentsAsync(userId, roles);
+        var appointments = await _appointmentService.GetUserAppointmentsAsync(userId, roles, date, ownerId, vetId);
         var dtos = _mapper.Map<List<AppointmentDto>>(appointments);
         return Ok(dtos);
     }
