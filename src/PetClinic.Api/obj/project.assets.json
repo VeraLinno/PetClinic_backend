@@ -4285,11 +4285,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj",
+      "projectUniqueName": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj",
       "projectName": "PetClinic.Api",
-      "projectPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj",
+      "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj",
       "packagesPath": "C:\\Users\\vvera\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\obj\\",
+      "outputPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\vvera\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -4304,11 +4304,11 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
-              "projectPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj"
+            "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
+              "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj"
             },
-            "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj": {
-              "projectPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj"
+            "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj": {
+              "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj"
             }
           }
         }

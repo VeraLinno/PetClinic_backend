@@ -25,16 +25,19 @@ public class AppointmentService : IAppointmentService
             throw new UnauthorizedAccessException("Pet not found or does not belong to user");
         }
 
-        // Check vet availability - no overlapping appointments
-        var overlapping = await _context.Appointments
-            .Where(a => a.VeterinarianId == dto.VeterinarianId &&
-                       a.Status != AppointmentStatus.Cancelled &&
-                       ((dto.StartAt < a.EndAt && a.StartAt < dto.EndAt)))
-            .AnyAsync();
-
-        if (overlapping)
+        // Check vet availability only if veterinarian is specified
+        if (dto.VeterinarianId.HasValue)
         {
-            throw new InvalidOperationException("Veterinarian is not available at this time");
+            var overlapping = await _context.Appointments
+                .Where(a => a.VeterinarianId == dto.VeterinarianId &&
+                           a.Status != AppointmentStatus.Cancelled &&
+                           ((dto.StartAt < a.EndAt && a.StartAt < dto.EndAt)))
+                .AnyAsync();
+
+            if (overlapping)
+            {
+                throw new InvalidOperationException("Veterinarian is not available at this time");
+            }
         }
 
         // Use transaction for concurrency
@@ -82,9 +85,9 @@ public class AppointmentService : IAppointmentService
         }
 
         // Additional filters
-        if (!string.IsNullOrEmpty(date))
+        if (!string.IsNullOrWhiteSpace(date) && DateTime.TryParse(date, out var parsedDate))
         {
-            var filterDate = DateTime.Parse(date).Date;
+            var filterDate = parsedDate.Date;
             query = query.Where(a => a.StartAt.Date == filterDate);
         }
         if (ownerId.HasValue)

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "aTIDRTo8n6Q=",
+  "dgSpecHash": "CWhR8zCReBg=",
   "success": true,
-  "projectFilePath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj",
+  "projectFilePath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\vvera\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
     "C:\\Users\\vvera\\.nuget\\packages\\bcrypt.net-next\\4.1.0\\bcrypt.net-next.4.1.0.nupkg.sha512",

@@ -6,6 +6,8 @@ public class OwnerDto
 {
     public Guid Id { get; set; }
     public string Email { get; set; } = default!;
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
     public List<string> Roles { get; set; } = new();
 }
 
@@ -14,7 +16,26 @@ public class PetDto
     public Guid Id { get; set; }
     public string Name { get; set; } = default!;
     public string Species { get; set; } = default!;
+    public string Breed { get; set; } = default!;
+    public DateTime? DateOfBirth { get; set; }
     public Guid OwnerId { get; set; }
+}
+
+public class CreatePetDto
+{
+    [Required]
+    [MaxLength(100)]
+    public string Name { get; set; } = default!;
+
+    [Required]
+    [MaxLength(100)]
+    public string Species { get; set; } = default!;
+
+    [Required]
+    [MaxLength(100)]
+    public string Breed { get; set; } = default!;
+
+    public DateTime? DateOfBirth { get; set; }
 }
 
 public class AppointmentDto
@@ -32,8 +53,7 @@ public class CreateAppointmentDto
     [Required]
     public Guid PetId { get; set; }
 
-    [Required]
-    public Guid VeterinarianId { get; set; }
+    public Guid? VeterinarianId { get; set; }
 
     [Required]
     public DateTime StartAt { get; set; }

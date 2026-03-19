@@ -1,7 +1,27 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PetClinic.Domain;
 
 namespace PetClinic.Infrastructure;
+
+// UTC DateTime Converters for PostgreSQL
+public class UtcDateTimeConverter : ValueConverter<DateTime, DateTime>
+{
+    public UtcDateTimeConverter() : base(
+        v => v.Kind == DateTimeKind.Utc ? v : DateTime.SpecifyKind(v, DateTimeKind.Utc),
+        v => DateTime.SpecifyKind(v, DateTimeKind.Utc))
+    {
+    }
+}
+
+public class NullableUtcDateTimeConverter : ValueConverter<DateTime?, DateTime?>
+{
+    public NullableUtcDateTimeConverter() : base(
+        v => v.HasValue ? (v.Value.Kind == DateTimeKind.Utc ? v.Value : DateTime.SpecifyKind(v.Value, DateTimeKind.Utc)) : (DateTime?)null,
+        v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : (DateTime?)null)
+    {
+    }
+}
 
 public class PetClinicDbContext : DbContext
 {
@@ -18,6 +38,18 @@ public class PetClinicDbContext : DbContext
     public DbSet<MedicationStock> MedicationStocks { get; set; } = default!;
     public DbSet<Invoice> Invoices { get; set; } = default!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        // Configure all DateTime properties to use UTC for PostgreSQL
+        configurationBuilder
+            .Properties<DateTime>()
+            .HaveConversion<UtcDateTimeConverter>();
+
+        configurationBuilder
+            .Properties<DateTime?>()
+            .HaveConversion<NullableUtcDateTimeConverter>();
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

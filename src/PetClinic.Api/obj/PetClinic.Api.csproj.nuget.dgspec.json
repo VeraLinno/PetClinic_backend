@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj": {}
+    "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj": {}
   },
   "projects": {
-    "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj": {
+    "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj",
+        "projectUniqueName": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj",
         "projectName": "PetClinic.Api",
-        "projectPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj",
+        "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj",
         "packagesPath": "C:\\Users\\vvera\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\obj\\",
+        "outputPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\vvera\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -26,11 +26,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
-                "projectPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj"
+              "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
+                "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj"
               },
-              "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj": {
-                "projectPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj"
+              "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj"
               }
             }
           }
@@ -113,14 +113,14 @@
         }
       }
     },
-    "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
+    "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj",
+        "projectUniqueName": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj",
         "projectName": "PetClinic.Application",
-        "projectPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj",
+        "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj",
         "packagesPath": "C:\\Users\\vvera\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\obj\\",
+        "outputPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\vvera\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -135,8 +135,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj": {
-                "projectPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj"
+              "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj": {
+                "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj"
               }
             }
           }
@@ -196,14 +196,14 @@
         }
       }
     },
-    "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj": {
+    "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj",
         "projectName": "PetClinic.Domain",
-        "projectPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj",
+        "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj",
         "packagesPath": "C:\\Users\\vvera\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\obj\\",
+        "outputPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\vvera\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -269,14 +269,14 @@
         }
       }
     },
-    "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj": {
+    "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj",
         "projectName": "PetClinic.Infrastructure",
-        "projectPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj",
+        "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\vvera\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\obj\\",
+        "outputPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\vvera\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -291,11 +291,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
-                "projectPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj"
+              "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
+                "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj"
               },
-              "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj": {
-                "projectPath": "c:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj"
+              "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj": {
+                "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj"
               }
             }
           }

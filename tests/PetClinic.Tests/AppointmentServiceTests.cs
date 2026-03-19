@@ -126,4 +126,35 @@ public class AppointmentServiceTests
         // Act & Assert
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _service.CreateAsync(dto));
     }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task GetUserAppointmentsAsync_ShouldIgnoreInvalidDateFilter()
+    {
+        // Arrange
+        var ownerId = Guid.NewGuid();
+        var owner = new Owner { Id = ownerId, Email = "owner-date@test.com" };
+        var pet = new Pet { Id = Guid.NewGuid(), Name = "Shadow", OwnerId = ownerId };
+        var appointment = new Appointment
+        {
+            Id = Guid.NewGuid(),
+            PetId = pet.Id,
+            StartAt = DateTime.UtcNow.AddHours(1),
+            EndAt = DateTime.UtcNow.AddHours(2),
+            Status = AppointmentStatus.Scheduled
+        };
+
+        _context.Owners.Add(owner);
+        _context.Pets.Add(pet);
+        _context.Appointments.Add(appointment);
+        await _context.SaveChangesAsync();
+
+        var roles = new List<string> { "Owner" };
+
+        // Act
+        var result = await _service.GetUserAppointmentsAsync(ownerId, roles, "not-a-date");
+
+        // Assert
+        result.Should().Contain(a => a.Id == appointment.Id);
+    }
 }

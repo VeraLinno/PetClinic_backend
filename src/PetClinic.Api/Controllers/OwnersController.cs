@@ -3,26 +3,27 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PetClinic.Application;
-using PetClinic.Infrastructure;  
-  
-namespace PetClinic.Api.Controllers;  
-  
-[ApiController]  
-[Route("api/v1/owners")]  
-[Authorize]  
-public class OwnersController : ControllerBase  
-{  
-    private readonly PetClinicDbContext _context;  
-    private readonly IUserContextService _userContext;  
-    private readonly IMapper _mapper;  
-  
-    public OwnersController(PetClinicDbContext context, IUserContextService userContext, IMapper mapper)  
-    {  
-        _context = context;  
-        _userContext = userContext;  
-        _mapper = mapper;  
-    }  
-  
+using PetClinic.Domain;
+using PetClinic.Infrastructure;
+
+namespace PetClinic.Api.Controllers;
+
+[ApiController]
+[Route("api/v1/owners")]
+[Authorize]
+public class OwnersController : ControllerBase
+{
+    private readonly PetClinicDbContext _context;
+    private readonly IUserContextService _userContext;
+    private readonly IMapper _mapper;
+
+    public OwnersController(PetClinicDbContext context, IUserContextService userContext, IMapper mapper)
+    {
+        _context = context;
+        _userContext = userContext;
+        _mapper = mapper;
+    }
+
     [HttpGet("me")]
     public async Task<IActionResult> GetMe()
     {
@@ -32,4 +33,63 @@ public class OwnersController : ControllerBase
         var dto = _mapper.Map<OwnerDto>(owner);
         return Ok(dto);
     }
-}  
+
+    [HttpGet("me/pets")]
+    public async Task<IActionResult> GetMyPets()
+    {
+        var userId = _userContext.GetCurrentUserId();
+        var pets = await _context.Pets
+            .Where(p => p.OwnerId == userId)
+            .ToListAsync();
+        var dtos = _mapper.Map<List<PetDto>>(pets);
+        return Ok(dtos);
+    }
+
+    [HttpPost("me/pets")]
+    public async Task<IActionResult> CreatePet([FromBody] CreatePetDto dto)
+    {
+        var userId = _userContext.GetCurrentUserId();
+        var owner = await _context.Owners.FirstOrDefaultAsync(o => o.Id == userId);
+        if (owner == null) return NotFound();
+
+        var pet = _mapper.Map<Pet>(dto);
+        pet.OwnerId = userId;
+
+        _context.Pets.Add(pet);
+        await _context.SaveChangesAsync();
+
+        var result = _mapper.Map<PetDto>(pet);
+        return Created($"api/v1/owners/me/pets/{pet.Id}", result);
+    }
+
+    [HttpPut("me/pets/{petId:guid}")]
+    public async Task<IActionResult> UpdatePet(Guid petId, [FromBody] CreatePetDto dto)
+    {
+        var userId = _userContext.GetCurrentUserId();
+        var pet = await _context.Pets.FirstOrDefaultAsync(p => p.Id == petId && p.OwnerId == userId);
+        if (pet == null) return NotFound();
+
+        pet.Name = dto.Name;
+        pet.Species = dto.Species;
+        pet.Breed = dto.Breed;
+        pet.DateOfBirth = dto.DateOfBirth;
+
+        await _context.SaveChangesAsync();
+
+        var result = _mapper.Map<PetDto>(pet);
+        return Ok(result);
+    }
+
+    [HttpDelete("me/pets/{petId:guid}")]
+    public async Task<IActionResult> DeletePet(Guid petId)
+    {
+        var userId = _userContext.GetCurrentUserId();
+        var pet = await _context.Pets.FirstOrDefaultAsync(p => p.Id == petId && p.OwnerId == userId);
+        if (pet == null) return NotFound();
+
+        _context.Pets.Remove(pet);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+}

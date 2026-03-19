@@ -43,13 +43,42 @@ public class AppointmentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery] string? date = null, [FromQuery] Guid? ownerId = null, [FromQuery] Guid? vetId = null)
+    public async Task<IActionResult> Get([FromQuery] string? date = null, [FromQuery] string? ownerId = null, [FromQuery] string? vetId = null)
     {
         var userId = _userContext.GetCurrentUserId();
         var roles = _userContext.GetCurrentUserRoles();
 
-        var appointments = await _appointmentService.GetUserAppointmentsAsync(userId, roles, date, ownerId, vetId);
+        var normalizedDate = NormalizeNullable(date);
+        var ownerGuid = ParseGuidOrNull(ownerId);
+        var vetGuid = ParseGuidOrNull(vetId);
+
+        var appointments = await _appointmentService.GetUserAppointmentsAsync(userId, roles, normalizedDate, ownerGuid, vetGuid);
         var dtos = _mapper.Map<List<AppointmentDto>>(appointments);
         return Ok(dtos);
+    }
+
+    private static Guid? ParseGuidOrNull(string? value)
+    {
+        var normalized = NormalizeNullable(value);
+        if (string.IsNullOrEmpty(normalized))
+        {
+            return null;
+        }
+
+        return Guid.TryParse(normalized, out var guid) ? guid : null;
+    }
+
+    private static string? NormalizeNullable(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var trimmed = value.Trim();
+        return trimmed.Equals("null", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.Equals("undefined", StringComparison.OrdinalIgnoreCase)
+            ? null
+            : trimmed;
     }
 }

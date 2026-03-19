@@ -32,6 +32,8 @@ public class AuthService : IAuthService
         {
             Email = request.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            FirstName = request.FirstName,
+            LastName = request.LastName,
             Roles = request.Roles
         };
 

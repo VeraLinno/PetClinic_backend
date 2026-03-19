@@ -1,36 +1,36 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\tests\\PetClinic.Tests\\PetClinic.Tests.csproj": {}
+    "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\tests\\PetClinic.Tests\\PetClinic.Tests.csproj": {}
   },
   "projects": {
-    "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj": {
+    "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj",
+        "projectUniqueName": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj",
         "projectName": "PetClinic.Api",
-        "projectPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj",
+        "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj",
         "packagesPath": "C:\\Users\\vvera\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Api\\obj\\",
+        "outputPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\vvera\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net8.0"
+          "net9.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net8.0": {
-            "targetAlias": "net8.0",
+          "net9.0": {
+            "targetAlias": "net9.0",
             "projectReferences": {
-              "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
-                "projectPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj"
+              "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
+                "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj"
               },
-              "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj": {
-                "projectPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj"
+              "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj"
               }
             }
           }
@@ -48,8 +48,8 @@
         "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
+        "net9.0": {
+          "targetAlias": "net9.0",
           "dependencies": {
             "BCrypt.Net-Next": {
               "target": "Package",
@@ -57,11 +57,11 @@
             },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[9.0.0, )"
             },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[9.0.0, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
@@ -86,19 +86,19 @@
           "downloadDependencies": [
             {
               "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[9.0.11, 9.0.11]"
             },
             {
               "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[9.0.11, 9.0.11]"
             },
             {
               "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[9.0.11, 9.0.11]"
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[9.0.11, 9.0.11]"
             }
           ],
           "frameworkReferences": {
@@ -113,30 +113,30 @@
         }
       }
     },
-    "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
+    "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj",
+        "projectUniqueName": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj",
         "projectName": "PetClinic.Application",
-        "projectPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj",
+        "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj",
         "packagesPath": "C:\\Users\\vvera\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Application\\obj\\",
+        "outputPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\vvera\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net8.0"
+          "net9.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net8.0": {
-            "targetAlias": "net8.0",
+          "net9.0": {
+            "targetAlias": "net9.0",
             "projectReferences": {
-              "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj": {
-                "projectPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj"
+              "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj": {
+                "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj"
               }
             }
           }
@@ -154,16 +154,12 @@
         "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
+        "net9.0": {
+          "targetAlias": "net9.0",
           "dependencies": {
             "AutoMapper": {
               "target": "Package",
-              "version": "[12.0.1, )"
-            },
-            "AutoMapper.Extensions.Microsoft.DependencyInjection": {
-              "target": "Package",
-              "version": "[12.0.1, )"
+              "version": "[13.0.1, )"
             }
           },
           "imports": [
@@ -180,15 +176,15 @@
           "downloadDependencies": [
             {
               "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[9.0.11, 9.0.11]"
             },
             {
               "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[9.0.11, 9.0.11]"
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[9.0.11, 9.0.11]"
             }
           ],
           "frameworkReferences": {
@@ -200,27 +196,27 @@
         }
       }
     },
-    "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj": {
+    "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj",
         "projectName": "PetClinic.Domain",
-        "projectPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj",
+        "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj",
         "packagesPath": "C:\\Users\\vvera\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Domain\\obj\\",
+        "outputPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\vvera\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net8.0"
+          "net9.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net8.0": {
-            "targetAlias": "net8.0",
+          "net9.0": {
+            "targetAlias": "net9.0",
             "projectReferences": {}
           }
         },
@@ -237,8 +233,8 @@
         "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
+        "net9.0": {
+          "targetAlias": "net9.0",
           "imports": [
             "net461",
             "net462",
@@ -253,15 +249,15 @@
           "downloadDependencies": [
             {
               "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[9.0.11, 9.0.11]"
             },
             {
               "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[9.0.11, 9.0.11]"
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[9.0.11, 9.0.11]"
             }
           ],
           "frameworkReferences": {
@@ -273,33 +269,33 @@
         }
       }
     },
-    "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj": {
+    "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj",
         "projectName": "PetClinic.Infrastructure",
-        "projectPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj",
+        "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\vvera\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\obj\\",
+        "outputPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\vvera\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net8.0"
+          "net9.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net8.0": {
-            "targetAlias": "net8.0",
+          "net9.0": {
+            "targetAlias": "net9.0",
             "projectReferences": {
-              "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
-                "projectPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj"
+              "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
+                "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj"
               },
-              "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj": {
-                "projectPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj"
+              "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj": {
+                "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj"
               }
             }
           }
@@ -317,8 +313,8 @@
         "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
+        "net9.0": {
+          "targetAlias": "net9.0",
           "dependencies": {
             "BCrypt.Net-Next": {
               "target": "Package",
@@ -334,19 +330,19 @@
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[9.0.0, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[9.0.0, )"
             },
             "Microsoft.Extensions.Http": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[9.0.0, )"
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[9.0.0, )"
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
@@ -367,15 +363,15 @@
           "downloadDependencies": [
             {
               "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[9.0.11, 9.0.11]"
             },
             {
               "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[9.0.11, 9.0.11]"
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[9.0.11, 9.0.11]"
             }
           ],
           "frameworkReferences": {
@@ -387,14 +383,14 @@
         }
       }
     },
-    "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\tests\\PetClinic.Tests\\PetClinic.Tests.csproj": {
+    "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\tests\\PetClinic.Tests\\PetClinic.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\tests\\PetClinic.Tests\\PetClinic.Tests.csproj",
+        "projectUniqueName": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\tests\\PetClinic.Tests\\PetClinic.Tests.csproj",
         "projectName": "PetClinic.Tests",
-        "projectPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\tests\\PetClinic.Tests\\PetClinic.Tests.csproj",
+        "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\tests\\PetClinic.Tests\\PetClinic.Tests.csproj",
         "packagesPath": "C:\\Users\\vvera\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\tests\\PetClinic.Tests\\obj\\",
+        "outputPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\tests\\PetClinic.Tests\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\vvera\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -409,17 +405,17 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj": {
-                "projectPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj"
+              "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj": {
+                "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Api\\PetClinic.Api.csproj"
               },
-              "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
-                "projectPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj"
+              "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj": {
+                "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Application\\PetClinic.Application.csproj"
               },
-              "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj": {
-                "projectPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj"
+              "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj": {
+                "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Domain\\PetClinic.Domain.csproj"
               },
-              "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj": {
-                "projectPath": "c:\\Users\\vvera\\RiderProjects\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj"
+              "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\src\\PetClinic.Infrastructure\\PetClinic.Infrastructure.csproj"
               }
             }
           }

@@ -78,6 +78,8 @@ using (var scope = app.Services.CreateScope())
     {
         try
         {
+            // Drop and recreate to ensure schema is up to date
+            await dbContext.Database.EnsureDeletedAsync();
             await dbContext.Database.EnsureCreatedAsync();
             break;
         }
@@ -122,6 +124,8 @@ async Task SeedDataAsync(PetClinicDbContext context)
     {
         Email = "vet@petclinic.com",
         PasswordHash = BCrypt.Net.BCrypt.HashPassword("password"), // Use proper hashing
+        FirstName = "Dr. Sarah",
+        LastName = "Johnson",
         Roles = new List<string> { "Vet" }
     };
     context.Owners.Add(vet);
@@ -131,12 +135,16 @@ async Task SeedDataAsync(PetClinicDbContext context)
     {
         Email = "owner1@petclinic.com",
         PasswordHash = BCrypt.Net.BCrypt.HashPassword("password"),
+        FirstName = "John",
+        LastName = "Smith",
         Roles = new List<string> { "Owner" }
     };
     var owner2 = new PetClinic.Domain.Owner
     {
         Email = "owner2@petclinic.com",
         PasswordHash = BCrypt.Net.BCrypt.HashPassword("password"),
+        FirstName = "Alice",
+        LastName = "Brown",
         Roles = new List<string> { "Owner" }
     };
     context.Owners.AddRange(owner1, owner2);
@@ -146,12 +154,16 @@ async Task SeedDataAsync(PetClinicDbContext context)
     {
         Name = "Fluffy",
         Species = "Cat",
+        Breed = "Persian",
+        DateOfBirth = new DateTime(2021, 3, 15, 0, 0, 0, DateTimeKind.Utc),
         OwnerId = owner1.Id
     };
     var pet2 = new PetClinic.Domain.Pet
     {
         Name = "Buddy",
         Species = "Dog",
+        Breed = "Golden Retriever",
+        DateOfBirth = new DateTime(2020, 7, 22, 0, 0, 0, DateTimeKind.Utc),
         OwnerId = owner2.Id
     };
     context.Pets.AddRange(pet1, pet2);

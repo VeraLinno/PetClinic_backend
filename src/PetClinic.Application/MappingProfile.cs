@@ -9,6 +9,7 @@ public class MappingProfile : Profile
     {
         CreateMap<Owner, OwnerDto>();
         CreateMap<Pet, PetDto>();
+        CreateMap<CreatePetDto, Pet>();
         CreateMap<Appointment, AppointmentDto>();
         CreateMap<Visit, VisitDto>();
         CreateMap<Invoice, InvoiceDto>();

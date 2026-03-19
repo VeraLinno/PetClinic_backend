@@ -9,6 +9,12 @@ public class Owner : BaseEntity
 
     public string PasswordHash { get; set; } = default!;
 
+    [MaxLength(100)]
+    public string? FirstName { get; set; }
+
+    [MaxLength(100)]
+    public string? LastName { get; set; }
+
     public List<string> Roles { get; set; } = new();
 
     public ICollection<Pet> Pets { get; set; } = new List<Pet>();
