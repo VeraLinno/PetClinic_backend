@@ -17,6 +17,8 @@ public class VisitService : IVisitService
 
     public async Task CompleteVisitAsync(Guid visitId, VisitCompletionDto dto)
     {
+        dto ??= new VisitCompletionDto();
+
         var currentUserId = _userContext.GetCurrentUserId();
         var currentUserRoles = _userContext.GetCurrentUserRoles();
 
@@ -28,14 +30,48 @@ public class VisitService : IVisitService
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
+            // Route ids are historically appointment ids in the UI. Support both ids safely.
             var visit = await _context.Visits
                 .Include(v => v.Appointment)
                 .Include(v => v.Prescriptions)
+                .Include(v => v.Invoice)
                 .FirstOrDefaultAsync(v => v.Id == visitId);
 
             if (visit == null)
             {
-                throw new KeyNotFoundException("Visit not found");
+                var appointment = await _context.Appointments
+                    .Include(a => a.Visit)
+                    .FirstOrDefaultAsync(a => a.Id == visitId);
+
+                if (appointment == null)
+                {
+                    throw new KeyNotFoundException("Visit not found");
+                }
+
+                if (appointment.Visit != null)
+                {
+                    visit = await _context.Visits
+                        .Include(v => v.Appointment)
+                        .Include(v => v.Prescriptions)
+                        .Include(v => v.Invoice)
+                        .FirstAsync(v => v.Id == appointment.Visit.Id);
+                }
+                else
+                {
+                    visit = new Visit
+                    {
+                        AppointmentId = appointment.Id
+                    };
+
+                    _context.Visits.Add(visit);
+                    await _context.SaveChangesAsync();
+
+                    visit = await _context.Visits
+                        .Include(v => v.Appointment)
+                        .Include(v => v.Prescriptions)
+                        .Include(v => v.Invoice)
+                        .FirstAsync(v => v.Id == visit.Id);
+                }
             }
 
             // Check if vet is assigned to this appointment
@@ -44,13 +80,24 @@ public class VisitService : IVisitService
                 throw new UnauthorizedAccessException("Vet not assigned to this visit");
             }
 
+            if (visit.Appointment.Status == AppointmentStatus.Cancelled)
+            {
+                throw new InvalidOperationException("Cannot complete a cancelled appointment");
+            }
+
+            if (visit.CompletedAt.HasValue || visit.Appointment.Status == AppointmentStatus.Completed || visit.Invoice != null)
+            {
+                throw new InvalidOperationException("Visit is already completed");
+            }
+
             // Mark visit complete
             visit.CompletedAt = DateTime.UtcNow;
             visit.Notes = dto.Notes;
+            visit.Appointment.Status = AppointmentStatus.Completed;
 
             // Create prescriptions and check stock
             decimal totalAmount = 0;
-            foreach (var prescriptionDto in dto.Prescriptions)
+            foreach (var prescriptionDto in dto.Prescriptions ?? Enumerable.Empty<PrescriptionDto>())
             {
                 var stock = await _context.MedicationStocks
                     .FirstOrDefaultAsync(m => m.Name == prescriptionDto.Medication);
@@ -71,7 +118,7 @@ public class VisitService : IVisitService
                 // Create prescription
                 var prescription = new Prescription
                 {
-                    VisitId = visitId,
+                    VisitId = visit.Id,
                     Medication = prescriptionDto.Medication,
                     Dosage = prescriptionDto.Dosage,
                     Quantity = prescriptionDto.Quantity
@@ -85,7 +132,7 @@ public class VisitService : IVisitService
             // Create invoice
             var invoice = new Invoice
             {
-                VisitId = visitId,
+                VisitId = visit.Id,
                 Amount = totalAmount + 50, // Base visit fee $50
                 IssuedAt = DateTime.UtcNow
             };

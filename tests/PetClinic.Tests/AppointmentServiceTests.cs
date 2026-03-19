@@ -129,6 +129,35 @@ public class AppointmentServiceTests
 
     [Fact]
     [Trait("Category", "Unit")]
+    public async Task CreateAsync_ShouldThrowException_WhenStartTimeIsInThePast()
+    {
+        // Arrange
+        var owner = new Owner { Id = Guid.NewGuid(), Email = "owner-past@test.com" };
+        var pet = new Pet { Id = Guid.NewGuid(), Name = "Buddy", OwnerId = owner.Id };
+        var vet = new Veterinarian { Id = Guid.NewGuid(), Name = "Dr. Past", Email = "vet-past@test.com" };
+
+        _context.Owners.Add(owner);
+        _context.Pets.Add(pet);
+        _context.Veterinarians.Add(vet);
+        await _context.SaveChangesAsync();
+
+        _userContextMock.Setup(u => u.GetCurrentUserId()).Returns(owner.Id);
+        _userContextMock.Setup(u => u.GetCurrentUserRoles()).Returns(new List<string> { "Owner" });
+
+        var dto = new CreateAppointmentDto
+        {
+            PetId = pet.Id,
+            VeterinarianId = vet.Id,
+            StartAt = DateTime.UtcNow.AddHours(-1),
+            EndAt = DateTime.UtcNow
+        };
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateAsync(dto));
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public async Task GetUserAppointmentsAsync_ShouldIgnoreInvalidDateFilter()
     {
         // Arrange

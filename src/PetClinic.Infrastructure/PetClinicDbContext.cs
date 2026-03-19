@@ -36,6 +36,7 @@ public class PetClinicDbContext : DbContext
     public DbSet<Visit> Visits { get; set; } = default!;
     public DbSet<Prescription> Prescriptions { get; set; } = default!;
     public DbSet<MedicationStock> MedicationStocks { get; set; } = default!;
+    public DbSet<InventoryReorder> InventoryReorders { get; set; } = default!;
     public DbSet<Invoice> Invoices { get; set; } = default!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
 
@@ -95,6 +96,11 @@ public class PetClinicDbContext : DbContext
             .HasOne(i => i.Visit)
             .WithOne(v => v.Invoice)
             .HasForeignKey<Invoice>(i => i.VisitId);
+
+        modelBuilder.Entity<InventoryReorder>()
+            .HasOne(r => r.MedicationStock)
+            .WithMany(m => m.Reorders)
+            .HasForeignKey(r => r.MedicationStockId);
 
         modelBuilder.Entity<RefreshToken>()
             .HasOne(rt => rt.Owner)

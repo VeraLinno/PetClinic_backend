@@ -1,4 +1,5 @@
 using System.Text;
+using System.Net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -23,6 +24,7 @@ builder.Services.AddHttpContextAccessor();
 // Business services
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IVisitService, VisitService>();
+builder.Services.AddHostedService<InventoryDeliveryWorker>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -57,10 +59,32 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecific", policy =>
     {
-        policy.WithOrigins(corsOrigins)
-              .AllowAnyMethod()
+        policy.AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
+
+        if (builder.Environment.IsDevelopment())
+        {
+            policy.SetIsOriginAllowed(origin =>
+            {
+                if (corsOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                {
+                    return false;
+                }
+
+                // Allow HTTP LAN IPs in development, e.g. http://192.168.x.x:5173.
+                return uri.Scheme == Uri.UriSchemeHttp && IPAddress.TryParse(uri.Host, out _);
+            });
+        }
+        else
+        {
+            policy.WithOrigins(corsOrigins);
+        }
     });
 });
 
@@ -130,6 +154,17 @@ async Task SeedDataAsync(PetClinicDbContext context)
     };
     context.Owners.Add(vet);
 
+    // Keep veterinarian profile ID aligned with authenticated vet owner ID.
+    var veterinarian = new PetClinic.Domain.Veterinarian
+    {
+        Id = vet.Id,
+        Name = "Sarah",
+        LastName = "Johnson",
+        Email = vet.Email,
+        LicenseNumber = "VET-001"
+    };
+    context.Veterinarians.Add(veterinarian);
+
     // Create owners
     var owner1 = new PetClinic.Domain.Owner
     {
@@ -172,14 +207,32 @@ async Task SeedDataAsync(PetClinicDbContext context)
     var med1 = new PetClinic.Domain.MedicationStock
     {
         Name = "Aspirin",
-        Quantity = 100
+        Quantity = 100,
+        Unit = "tablets",
+        ReorderLevel = 30
     };
     var med2 = new PetClinic.Domain.MedicationStock
     {
         Name = "Ibuprofen",
-        Quantity = 50
+        Quantity = 50,
+        Unit = "tablets",
+        ReorderLevel = 20
     };
-    context.MedicationStocks.AddRange(med1, med2);
+    var med3 = new PetClinic.Domain.MedicationStock
+    {
+        Name = "Rabies Vaccine",
+        Quantity = 5,
+        Unit = "doses",
+        ReorderLevel = 10
+    };
+    var med4 = new PetClinic.Domain.MedicationStock
+    {
+        Name = "Amoxicillin",
+        Quantity = 2,
+        Unit = "bottles",
+        ReorderLevel = 8
+    };
+    context.MedicationStocks.AddRange(med1, med2, med3, med4);
 
     await context.SaveChangesAsync();
 }

@@ -45,6 +45,43 @@ public class OwnersController : ControllerBase
         return Ok(dtos);
     }
 
+    [HttpGet("vets")]
+    public async Task<IActionResult> GetVeterinarians()
+    {
+        var vets = await _context.Veterinarians
+            .Select(v => new VeterinarianOptionDto
+            {
+                Id = v.Id,
+                Name = ((v.Name ?? string.Empty) + " " + (v.LastName ?? string.Empty)).Trim(),
+                Email = v.Email
+            })
+            .ToListAsync();
+
+        foreach (var vet in vets.Where(v => string.IsNullOrWhiteSpace(v.Name)))
+        {
+            vet.Name = vet.Email;
+        }
+
+        return Ok(vets);
+    }
+
+    [HttpGet("pets")]
+    public async Task<IActionResult> GetAllPetsForVet()
+    {
+        var roles = _userContext.GetCurrentUserRoles();
+        if (!roles.Contains("Vet"))
+        {
+            return Forbid();
+        }
+
+        var pets = await _context.Pets
+            .OrderBy(p => p.Name)
+            .ToListAsync();
+
+        var dtos = _mapper.Map<List<PetDto>>(pets);
+        return Ok(dtos);
+    }
+
     [HttpPost("me/pets")]
     public async Task<IActionResult> CreatePet([FromBody] CreatePetDto dto)
     {

@@ -42,10 +42,19 @@ public class AppointmentDto
 {
     public Guid Id { get; set; }
     public Guid PetId { get; set; }
-    public Guid VeterinarianId { get; set; }
+    public string? PetName { get; set; }
+    public Guid? VeterinarianId { get; set; }
+    public string? VeterinarianName { get; set; }
     public DateTime StartAt { get; set; }
     public DateTime EndAt { get; set; }
     public string Status { get; set; } = default!;
+}
+
+public class VeterinarianOptionDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = default!;
+    public string Email { get; set; } = default!;
 }
 
 public class CreateAppointmentDto
@@ -97,4 +106,22 @@ public class MedicationStockDto
     public Guid Id { get; set; }
     public string Name { get; set; } = default!;
     public int Quantity { get; set; }
+    public string Unit { get; set; } = default!;
+    public int ReorderLevel { get; set; }
+}
+
+public class ReorderMedicationRequestDto
+{
+    [Range(1, int.MaxValue)]
+    public int Quantity { get; set; }
+}
+
+public class ReorderMedicationResponseDto
+{
+    public Guid MedicationId { get; set; }
+    public string MedicationName { get; set; } = default!;
+    public int OrderedQuantity { get; set; }
+    public int CurrentQuantity { get; set; }
+    public DateTime DeliveryAtUtc { get; set; }
+    public string Message { get; set; } = default!;
 }

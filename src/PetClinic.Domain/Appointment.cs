@@ -11,13 +11,14 @@ public class Appointment : BaseEntity
     public DateTime StartAt { get; set; }
     public DateTime EndAt { get; set; }
 
-    public AppointmentStatus Status { get; set; } = AppointmentStatus.Scheduled;
+    public AppointmentStatus Status { get; set; } = AppointmentStatus.Pending;
 
     public Visit? Visit { get; set; }
 }
 
 public enum AppointmentStatus
 {
+    Pending,
     Scheduled,
     Completed,
     Cancelled

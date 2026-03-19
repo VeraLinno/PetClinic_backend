@@ -30,7 +30,7 @@ public class AppointmentsController : ControllerBase
         {
             var appointment = await _appointmentService.CreateAsync(dto);
             var result = _mapper.Map<AppointmentDto>(appointment);
-            return CreatedAtAction(nameof(Get), new { id = appointment.Id }, result);
+            return CreatedAtAction(nameof(GetById), new { id = appointment.Id }, result);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -55,6 +55,67 @@ public class AppointmentsController : ControllerBase
         var appointments = await _appointmentService.GetUserAppointmentsAsync(userId, roles, normalizedDate, ownerGuid, vetGuid);
         var dtos = _mapper.Map<List<AppointmentDto>>(appointments);
         return Ok(dtos);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var userId = _userContext.GetCurrentUserId();
+        var roles = _userContext.GetCurrentUserRoles();
+
+        var appointments = await _appointmentService.GetUserAppointmentsAsync(userId, roles);
+        var appointment = appointments.FirstOrDefault(a => a.Id == id);
+        if (appointment == null)
+        {
+            return NotFound();
+        }
+
+        var dto = _mapper.Map<AppointmentDto>(appointment);
+        return Ok(dto);
+    }
+
+    [HttpPatch("{id:guid}/cancel")]
+    public async Task<IActionResult> Cancel(Guid id)
+    {
+        try
+        {
+            await _appointmentService.CancelAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPatch("{id:guid}/confirm")]
+    public async Task<IActionResult> Confirm(Guid id)
+    {
+        try
+        {
+            await _appointmentService.ConfirmAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     private static Guid? ParseGuidOrNull(string? value)

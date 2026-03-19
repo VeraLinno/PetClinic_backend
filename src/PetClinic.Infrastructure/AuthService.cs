@@ -23,14 +23,20 @@ public class AuthService : IAuthService
 
     public async Task<AuthResult> RegisterAsync(RegisterRequest request)
     {
-        if (await _context.Owners.AnyAsync(o => o.Email == request.Email))
+        var normalizedEmail = NormalizeEmail(request.Email);
+        if (string.IsNullOrEmpty(normalizedEmail))
+        {
+            return new AuthResult { Success = false, Error = "Email is required" };
+        }
+
+        if (await _context.Owners.AnyAsync(o => o.Email.ToLower() == normalizedEmail))
         {
             return new AuthResult { Success = false, Error = "Email already exists" };
         }
 
         var owner = new Owner
         {
-            Email = request.Email,
+            Email = normalizedEmail,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             FirstName = request.FirstName,
             LastName = request.LastName,
@@ -45,7 +51,13 @@ public class AuthService : IAuthService
 
     public async Task<AuthResult> LoginAsync(LoginRequest request)
     {
-        var owner = await _context.Owners.FirstOrDefaultAsync(o => o.Email == request.Email);
+        var normalizedEmail = NormalizeEmail(request.Email);
+        if (string.IsNullOrEmpty(normalizedEmail))
+        {
+            return new AuthResult { Success = false, Error = "Invalid credentials" };
+        }
+
+        var owner = await _context.Owners.FirstOrDefaultAsync(o => o.Email.ToLower() == normalizedEmail);
         if (owner == null || !BCrypt.Net.BCrypt.Verify(request.Password, owner.PasswordHash))
         {
             return new AuthResult { Success = false, Error = "Invalid credentials" };
@@ -152,5 +164,10 @@ public class AuthService : IAuthService
             var hash = sha256.ComputeHash(bytes);
             return Convert.ToBase64String(hash);
         }
+    }
+
+    private static string NormalizeEmail(string? email)
+    {
+        return string.IsNullOrWhiteSpace(email) ? string.Empty : email.Trim().ToLowerInvariant();
     }
 }

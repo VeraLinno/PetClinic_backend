@@ -10,7 +10,12 @@ public class MappingProfile : Profile
         CreateMap<Owner, OwnerDto>();
         CreateMap<Pet, PetDto>();
         CreateMap<CreatePetDto, Pet>();
-        CreateMap<Appointment, AppointmentDto>();
+        CreateMap<Appointment, AppointmentDto>()
+            .ForMember(d => d.PetName, opt => opt.MapFrom(s => s.Pet.Name))
+            .ForMember(
+                d => d.VeterinarianName,
+                opt => opt.MapFrom(s => s.Veterinarian != null ? $"{s.Veterinarian.Name} {s.Veterinarian.LastName}".Trim() : null)
+            );
         CreateMap<Visit, VisitDto>();
         CreateMap<Invoice, InvoiceDto>();
         CreateMap<MedicationStock, MedicationStockDto>();
