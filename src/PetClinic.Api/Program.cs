@@ -207,6 +207,7 @@ async Task SeedDataAsync(PetClinicDbContext context)
     var med1 = new PetClinic.Domain.MedicationStock
     {
         Name = "Aspirin",
+        UnitPrice = 12.50m,
         Quantity = 100,
         Unit = "tablets",
         ReorderLevel = 30
@@ -214,6 +215,7 @@ async Task SeedDataAsync(PetClinicDbContext context)
     var med2 = new PetClinic.Domain.MedicationStock
     {
         Name = "Ibuprofen",
+        UnitPrice = 9.75m,
         Quantity = 50,
         Unit = "tablets",
         ReorderLevel = 20
@@ -221,6 +223,7 @@ async Task SeedDataAsync(PetClinicDbContext context)
     var med3 = new PetClinic.Domain.MedicationStock
     {
         Name = "Rabies Vaccine",
+        UnitPrice = 47.00m,
         Quantity = 5,
         Unit = "doses",
         ReorderLevel = 10
@@ -228,6 +231,7 @@ async Task SeedDataAsync(PetClinicDbContext context)
     var med4 = new PetClinic.Domain.MedicationStock
     {
         Name = "Amoxicillin",
+        UnitPrice = 18.25m,
         Quantity = 2,
         Unit = "bottles",
         ReorderLevel = 8
@@ -236,3 +240,5 @@ async Task SeedDataAsync(PetClinicDbContext context)
 
     await context.SaveChangesAsync();
 }
+
+public partial class Program { }

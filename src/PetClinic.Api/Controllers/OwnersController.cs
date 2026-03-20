@@ -34,6 +34,30 @@ public class OwnersController : ControllerBase
         return Ok(dto);
     }
 
+    [HttpPut("me")]
+    public async Task<IActionResult> UpdateMe([FromBody] UpdateOwnerProfileDto dto)
+    {
+        var userId = _userContext.GetCurrentUserId();
+        var owner = await _context.Owners.FirstOrDefaultAsync(o => o.Id == userId);
+        if (owner == null) return NotFound();
+
+        var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
+        var emailInUse = await _context.Owners.AnyAsync(o => o.Id != userId && o.Email.ToLower() == normalizedEmail);
+        if (emailInUse)
+        {
+            return Conflict(new { message = "Email is already in use." });
+        }
+
+        owner.Email = normalizedEmail;
+        owner.FirstName = string.IsNullOrWhiteSpace(dto.FirstName) ? null : dto.FirstName.Trim();
+        owner.LastName = string.IsNullOrWhiteSpace(dto.LastName) ? null : dto.LastName.Trim();
+
+        await _context.SaveChangesAsync();
+
+        var result = _mapper.Map<OwnerDto>(owner);
+        return Ok(result);
+    }
+
     [HttpGet("me/pets")]
     public async Task<IActionResult> GetMyPets()
     {

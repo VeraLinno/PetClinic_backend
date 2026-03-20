@@ -7,6 +7,9 @@ public class MedicationStock : BaseEntity
     [MaxLength(100)]
     public string Name { get; set; } = default!;
 
+    [Range(0, 9999999.99)]
+    public decimal UnitPrice { get; set; }
+
     public int Quantity { get; set; }
 
     [MaxLength(20)]

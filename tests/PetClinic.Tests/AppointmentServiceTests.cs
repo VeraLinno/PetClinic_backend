@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using PetClinic.Application;
 using PetClinic.Domain;
@@ -17,8 +18,10 @@ public class AppointmentServiceTests
     public AppointmentServiceTests()
     {
         _userContextMock = new Mock<IUserContextService>();
+        _userContextMock.Setup(u => u.GetCurrentUserRoles()).Returns(new List<string> { "Owner" });
         var options = new DbContextOptionsBuilder<PetClinicDbContext>()
-            .UseInMemoryDatabase("TestDb")
+            .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+            .UseInMemoryDatabase($"AppointmentTests-{Guid.NewGuid()}")
             .Options;
         _context = new PetClinicDbContext(options);
         _service = new AppointmentService(_context, _userContextMock.Object);
@@ -29,9 +32,9 @@ public class AppointmentServiceTests
     public async Task CreateAsync_ShouldCreateAppointment_WhenVetIsAvailable()
     {
         // Arrange
-        var owner = new Owner { Id = Guid.NewGuid(), Email = "owner@test.com" };
-        var pet = new Pet { Id = Guid.NewGuid(), Name = "Fluffy", OwnerId = owner.Id };
-        var vet = new Veterinarian { Id = Guid.NewGuid(), Name = "Dr. Smith", Email = "vet@test.com" };
+        var owner = new Owner { Id = Guid.NewGuid(), Email = "owner@test.com", PasswordHash = "hash" };
+        var pet = new Pet { Id = Guid.NewGuid(), Name = "Fluffy", Species = "Cat", Breed = "Persian", OwnerId = owner.Id };
+        var vet = new Veterinarian { Id = Guid.NewGuid(), Name = "Dr.", LastName = "Smith", Email = "vet@test.com", LicenseNumber = "VET-001" };
 
         _context.Owners.Add(owner);
         _context.Pets.Add(pet);
@@ -55,7 +58,7 @@ public class AppointmentServiceTests
         result.Should().NotBeNull();
         result.PetId.Should().Be(pet.Id);
         result.VeterinarianId.Should().Be(vet.Id);
-        result.Status.Should().Be(AppointmentStatus.Scheduled);
+        result.Status.Should().Be(AppointmentStatus.Pending);
     }
 
     [Fact]
@@ -63,9 +66,9 @@ public class AppointmentServiceTests
     public async Task CreateAsync_ShouldThrowException_WhenVetIsNotAvailable()
     {
         // Arrange
-        var owner = new Owner { Id = Guid.NewGuid(), Email = "owner@test.com" };
-        var pet = new Pet { Id = Guid.NewGuid(), Name = "Fluffy", OwnerId = owner.Id };
-        var vet = new Veterinarian { Id = Guid.NewGuid(), Name = "Dr. Smith", Email = "vet@test.com" };
+        var owner = new Owner { Id = Guid.NewGuid(), Email = "owner@test.com", PasswordHash = "hash" };
+        var pet = new Pet { Id = Guid.NewGuid(), Name = "Fluffy", Species = "Cat", Breed = "Persian", OwnerId = owner.Id };
+        var vet = new Veterinarian { Id = Guid.NewGuid(), Name = "Dr.", LastName = "Smith", Email = "vet@test.com", LicenseNumber = "VET-001" };
 
         _context.Owners.Add(owner);
         _context.Pets.Add(pet);
@@ -103,10 +106,10 @@ public class AppointmentServiceTests
     public async Task CreateAsync_ShouldThrowException_WhenPetDoesNotBelongToUser()
     {
         // Arrange
-        var owner = new Owner { Id = Guid.NewGuid(), Email = "owner@test.com" };
-        var otherOwner = new Owner { Id = Guid.NewGuid(), Email = "other@test.com" };
-        var pet = new Pet { Id = Guid.NewGuid(), Name = "Fluffy", OwnerId = otherOwner.Id };
-        var vet = new Veterinarian { Id = Guid.NewGuid(), Name = "Dr. Smith", Email = "vet@test.com" };
+        var owner = new Owner { Id = Guid.NewGuid(), Email = "owner@test.com", PasswordHash = "hash" };
+        var otherOwner = new Owner { Id = Guid.NewGuid(), Email = "other@test.com", PasswordHash = "hash" };
+        var pet = new Pet { Id = Guid.NewGuid(), Name = "Fluffy", Species = "Cat", Breed = "Persian", OwnerId = otherOwner.Id };
+        var vet = new Veterinarian { Id = Guid.NewGuid(), Name = "Dr.", LastName = "Smith", Email = "vet@test.com", LicenseNumber = "VET-001" };
 
         _context.Owners.AddRange(owner, otherOwner);
         _context.Pets.Add(pet);
@@ -132,9 +135,9 @@ public class AppointmentServiceTests
     public async Task CreateAsync_ShouldThrowException_WhenStartTimeIsInThePast()
     {
         // Arrange
-        var owner = new Owner { Id = Guid.NewGuid(), Email = "owner-past@test.com" };
-        var pet = new Pet { Id = Guid.NewGuid(), Name = "Buddy", OwnerId = owner.Id };
-        var vet = new Veterinarian { Id = Guid.NewGuid(), Name = "Dr. Past", Email = "vet-past@test.com" };
+        var owner = new Owner { Id = Guid.NewGuid(), Email = "owner-past@test.com", PasswordHash = "hash" };
+        var pet = new Pet { Id = Guid.NewGuid(), Name = "Buddy", Species = "Dog", Breed = "Mixed", OwnerId = owner.Id };
+        var vet = new Veterinarian { Id = Guid.NewGuid(), Name = "Dr.", LastName = "Past", Email = "vet-past@test.com", LicenseNumber = "VET-PAST" };
 
         _context.Owners.Add(owner);
         _context.Pets.Add(pet);
@@ -162,8 +165,8 @@ public class AppointmentServiceTests
     {
         // Arrange
         var ownerId = Guid.NewGuid();
-        var owner = new Owner { Id = ownerId, Email = "owner-date@test.com" };
-        var pet = new Pet { Id = Guid.NewGuid(), Name = "Shadow", OwnerId = ownerId };
+        var owner = new Owner { Id = ownerId, Email = "owner-date@test.com", PasswordHash = "hash" };
+        var pet = new Pet { Id = Guid.NewGuid(), Name = "Shadow", Species = "Cat", Breed = "Siamese", OwnerId = ownerId };
         var appointment = new Appointment
         {
             Id = Guid.NewGuid(),

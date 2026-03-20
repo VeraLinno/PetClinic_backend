@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using PetClinic.Application;
 using PetClinic.Domain;
@@ -18,7 +19,8 @@ public class VisitServiceTests
     {
         _userContextMock = new Mock<IUserContextService>();
         var options = new DbContextOptionsBuilder<PetClinicDbContext>()
-            .UseInMemoryDatabase("TestDb")
+            .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+            .UseInMemoryDatabase($"VisitTests-{Guid.NewGuid()}")
             .Options;
         _context = new PetClinicDbContext(options);
         _service = new VisitService(_context, _userContextMock.Object);
@@ -30,9 +32,9 @@ public class VisitServiceTests
     {
         // Arrange
         var vetId = Guid.NewGuid();
-        var owner = new Owner { Id = Guid.NewGuid(), Email = "owner@test.com" };
-        var pet = new Pet { Id = Guid.NewGuid(), Name = "Fluffy", OwnerId = owner.Id };
-        var vet = new Veterinarian { Id = vetId, Name = "Dr. Smith", Email = "vet@test.com" };
+        var owner = new Owner { Id = Guid.NewGuid(), Email = "owner@test.com", PasswordHash = "hash" };
+        var pet = new Pet { Id = Guid.NewGuid(), Name = "Fluffy", Species = "Cat", Breed = "Persian", OwnerId = owner.Id };
+        var vet = new Veterinarian { Id = vetId, Name = "Dr.", LastName = "Smith", Email = "vet@test.com", LicenseNumber = "VET-001" };
         var appointment = new Appointment
         {
             Id = Guid.NewGuid(),
@@ -103,9 +105,9 @@ public class VisitServiceTests
     {
         // Arrange
         var vetId = Guid.NewGuid();
-        var owner = new Owner { Id = Guid.NewGuid(), Email = "owner@test.com" };
-        var pet = new Pet { Id = Guid.NewGuid(), Name = "Fluffy", OwnerId = owner.Id };
-        var vet = new Veterinarian { Id = vetId, Name = "Dr. Smith", Email = "vet@test.com" };
+        var owner = new Owner { Id = Guid.NewGuid(), Email = "owner@test.com", PasswordHash = "hash" };
+        var pet = new Pet { Id = Guid.NewGuid(), Name = "Fluffy", Species = "Cat", Breed = "Persian", OwnerId = owner.Id };
+        var vet = new Veterinarian { Id = vetId, Name = "Dr.", LastName = "Smith", Email = "vet@test.com", LicenseNumber = "VET-001" };
         var appointment = new Appointment
         {
             Id = Guid.NewGuid(),
@@ -161,7 +163,24 @@ public class VisitServiceTests
     {
         // Arrange
         var ownerId = Guid.NewGuid();
-        var visit = new Visit { Id = Guid.NewGuid(), CreatedAt = DateTime.UtcNow };
+        var owner = new Owner { Id = ownerId, Email = "owner-authz@test.com", PasswordHash = "hash" };
+        var vet = new Veterinarian { Id = Guid.NewGuid(), Name = "Dr.", LastName = "Assigned", Email = "assigned-vet@test.com", LicenseNumber = "VET-ASSIGNED" };
+        var pet = new Pet { Id = Guid.NewGuid(), Name = "Rex", Species = "Dog", Breed = "Mixed", OwnerId = ownerId };
+        var appointment = new Appointment
+        {
+            Id = Guid.NewGuid(),
+            PetId = pet.Id,
+            VeterinarianId = vet.Id,
+            StartAt = DateTime.UtcNow,
+            EndAt = DateTime.UtcNow.AddHours(1),
+            Status = AppointmentStatus.Scheduled
+        };
+        var visit = new Visit { Id = Guid.NewGuid(), AppointmentId = appointment.Id, CreatedAt = DateTime.UtcNow };
+
+        _context.Owners.Add(owner);
+        _context.Veterinarians.Add(vet);
+        _context.Pets.Add(pet);
+        _context.Appointments.Add(appointment);
         _context.Visits.Add(visit);
         await _context.SaveChangesAsync();
 

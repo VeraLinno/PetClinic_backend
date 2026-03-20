@@ -63,6 +63,43 @@ public class InventoryController : ControllerBase
         return Ok(dtos);
     }
 
+    [HttpPut("{medicationId:guid}")]
+    [Authorize]
+    public async Task<IActionResult> UpdateMedication(Guid medicationId, [FromBody] UpdateMedicationStockDto dto)
+    {
+        if (!IsCurrentUserVet())
+        {
+            return Forbid();
+        }
+
+        var normalizedName = dto.Name?.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedName))
+        {
+            return BadRequest("Medication name is required.");
+        }
+
+        if (dto.UnitPrice < 0)
+        {
+            return BadRequest("Unit price must be greater than or equal to zero.");
+        }
+
+        var medication = await _context.MedicationStocks
+            .FirstOrDefaultAsync(m => m.Id == medicationId);
+
+        if (medication == null)
+        {
+            return NotFound("Medication not found.");
+        }
+
+        medication.Name = normalizedName;
+        medication.UnitPrice = dto.UnitPrice;
+
+        await _context.SaveChangesAsync();
+
+        var response = _mapper.Map<MedicationStockDto>(medication);
+        return Ok(response);
+    }
+
     [HttpPost("{medicationId:guid}/reorder")]
     [Authorize]
     public async Task<IActionResult> ReorderMedication(Guid medicationId, [FromBody] ReorderMedicationRequestDto dto)
@@ -108,6 +145,66 @@ public class InventoryController : ControllerBase
         };
 
         return Ok(response);
+    }
+
+    [HttpGet("incoming")]
+    [Authorize]
+    public async Task<IActionResult> GetIncomingReorders()
+    {
+        if (!IsCurrentUserVet())
+        {
+            return Forbid();
+        }
+
+        await ApplyDueReordersAsync();
+
+        var currentUserId = _userContext.GetCurrentUserId();
+        var pending = await _context.InventoryReorders
+            .Include(r => r.MedicationStock)
+            .Where(r => r.ReceivedAtUtc == null && r.OrderedByVetId == currentUserId)
+            .OrderBy(r => r.ScheduledForUtc)
+            .Select(r => new PendingInventoryReorderDto
+            {
+                ReorderId = r.Id,
+                MedicationId = r.MedicationStockId,
+                MedicationName = r.MedicationStock.Name,
+                Quantity = r.Quantity,
+                DeliveryAtUtc = r.ScheduledForUtc
+            })
+            .ToListAsync();
+
+        return Ok(pending);
+    }
+
+    [HttpGet("delivered")]
+    [Authorize]
+    public async Task<IActionResult> GetDeliveredReorders()
+    {
+        if (!IsCurrentUserVet())
+        {
+            return Forbid();
+        }
+
+        await ApplyDueReordersAsync();
+
+        var currentUserId = _userContext.GetCurrentUserId();
+        var delivered = await _context.InventoryReorders
+            .Include(r => r.MedicationStock)
+            .Where(r => r.ReceivedAtUtc != null && r.OrderedByVetId == currentUserId)
+            .OrderByDescending(r => r.ReceivedAtUtc)
+            .Take(20)
+            .Select(r => new DeliveredInventoryReorderDto
+            {
+                ReorderId = r.Id,
+                MedicationId = r.MedicationStockId,
+                MedicationName = r.MedicationStock.Name,
+                Quantity = r.Quantity,
+                DeliveryAtUtc = r.ScheduledForUtc,
+                ReceivedAtUtc = r.ReceivedAtUtc!.Value
+            })
+            .ToListAsync();
+
+        return Ok(delivered);
     }
 
     private async Task ApplyDueReordersAsync()

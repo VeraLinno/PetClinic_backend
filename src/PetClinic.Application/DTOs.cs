@@ -11,6 +11,20 @@ public class OwnerDto
     public List<string> Roles { get; set; } = new();
 }
 
+public class UpdateOwnerProfileDto
+{
+    [Required]
+    [MaxLength(256)]
+    [EmailAddress]
+    public string Email { get; set; } = default!;
+
+    [MaxLength(100)]
+    public string? FirstName { get; set; }
+
+    [MaxLength(100)]
+    public string? LastName { get; set; }
+}
+
 public class PetDto
 {
     public Guid Id { get; set; }
@@ -105,9 +119,20 @@ public class MedicationStockDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = default!;
+    public decimal UnitPrice { get; set; }
     public int Quantity { get; set; }
     public string Unit { get; set; } = default!;
     public int ReorderLevel { get; set; }
+}
+
+public class UpdateMedicationStockDto
+{
+    [Required]
+    [MaxLength(100)]
+    public string Name { get; set; } = default!;
+
+    [Range(0, 9999999.99)]
+    public decimal UnitPrice { get; set; }
 }
 
 public class ReorderMedicationRequestDto
@@ -124,4 +149,23 @@ public class ReorderMedicationResponseDto
     public int CurrentQuantity { get; set; }
     public DateTime DeliveryAtUtc { get; set; }
     public string Message { get; set; } = default!;
+}
+
+public class PendingInventoryReorderDto
+{
+    public Guid ReorderId { get; set; }
+    public Guid MedicationId { get; set; }
+    public string MedicationName { get; set; } = default!;
+    public int Quantity { get; set; }
+    public DateTime DeliveryAtUtc { get; set; }
+}
+
+public class DeliveredInventoryReorderDto
+{
+    public Guid ReorderId { get; set; }
+    public Guid MedicationId { get; set; }
+    public string MedicationName { get; set; } = default!;
+    public int Quantity { get; set; }
+    public DateTime DeliveryAtUtc { get; set; }
+    public DateTime ReceivedAtUtc { get; set; }
 }

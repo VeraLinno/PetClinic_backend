@@ -102,6 +102,10 @@ public class PetClinicDbContext : DbContext
             .WithMany(m => m.Reorders)
             .HasForeignKey(r => r.MedicationStockId);
 
+        modelBuilder.Entity<MedicationStock>()
+            .Property(m => m.UnitPrice)
+            .HasPrecision(10, 2);
+
         modelBuilder.Entity<RefreshToken>()
             .HasOne(rt => rt.Owner)
             .WithMany(o => o.RefreshTokens)

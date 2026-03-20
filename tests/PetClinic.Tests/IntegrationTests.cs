@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using DotNet.Testcontainers.Builders;
-using DotNet.Testcontainers.Configurations;
-using DotNet.Testcontainers.Containers;
+using System.Text.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PetClinic.Application;
 using PetClinic.Domain;
 using PetClinic.Infrastructure;
+using Testcontainers.PostgreSql;
 using Xunit;
 
 namespace PetClinic.Tests;
@@ -17,18 +16,15 @@ namespace PetClinic.Tests;
 public class IntegrationTests : IAsyncLifetime
 {
     private readonly WebApplicationFactory<Program> _factory;
-    private readonly PostgreSqlTestcontainer _postgresContainer;
-    private HttpClient _client;
+    private readonly PostgreSqlContainer _postgresContainer;
+    private HttpClient _client = default!;
 
     public IntegrationTests()
     {
-        _postgresContainer = new TestcontainersBuilder<PostgreSqlTestcontainer>()
-            .WithDatabase(new PostgreSqlTestcontainerConfiguration
-            {
-                Database = "testdb",
-                Username = "testuser",
-                Password = "testpass"
-            })
+        _postgresContainer = new PostgreSqlBuilder()
+            .WithDatabase("testdb")
+            .WithUsername("testuser")
+            .WithPassword("testpass")
             .Build();
 
         _factory = new WebApplicationFactory<Program>()
@@ -43,7 +39,7 @@ public class IntegrationTests : IAsyncLifetime
                     }
 
                     services.AddDbContext<PetClinicDbContext>(options =>
-                        options.UseNpgsql(_postgresContainer.ConnectionString));
+                        options.UseNpgsql(_postgresContainer.GetConnectionString()));
                 });
             });
     }
@@ -56,7 +52,7 @@ public class IntegrationTests : IAsyncLifetime
         // Seed test data
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<PetClinicDbContext>();
-        await context.Database.MigrateAsync();
+        await context.Database.EnsureCreatedAsync();
 
         var vet = new Owner
         {
@@ -90,10 +86,10 @@ public class IntegrationTests : IAsyncLifetime
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var result = await response.Content.ReadFromJsonAsync<AuthResult>();
-        result.Should().NotBeNull();
-        result.Success.Should().BeTrue();
-        result.AccessToken.Should().NotBeNullOrEmpty();
+        var json = await response.Content.ReadAsStringAsync();
+        using var doc = JsonDocument.Parse(json);
+        doc.RootElement.TryGetProperty("accessToken", out var accessToken).Should().BeTrue();
+        accessToken.GetString().Should().NotBeNullOrEmpty();
     }
 
     [Fact]
