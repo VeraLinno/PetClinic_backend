@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -29,6 +30,12 @@ public class AuthService : IAuthService
             return new AuthResult { Success = false, Error = "Email is required" };
         }
 
+        var requestedRoles = NormalizeRoles(request.Roles);
+        if (requestedRoles.Any(role => role.Equals("Vet", StringComparison.OrdinalIgnoreCase)))
+        {
+            return new AuthResult { Success = false, Error = "Vet accounts can only be created by existing veterinarians" };
+        }
+
         if (await _context.Owners.AnyAsync(o => o.Email.ToLower() == normalizedEmail))
         {
             return new AuthResult { Success = false, Error = "Email already exists" };
@@ -40,13 +47,102 @@ public class AuthService : IAuthService
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             FirstName = request.FirstName,
             LastName = request.LastName,
-            Roles = request.Roles
+            Roles = new List<string> { "Owner" }
         };
 
         _context.Owners.Add(owner);
         await _context.SaveChangesAsync();
 
         return new AuthResult { Success = true };
+    }
+
+    public async Task<AuthResult> CreateVetAccountAsync(CreateVetAccountRequest request)
+    {
+        var normalizedEmail = NormalizeEmail(request.Email);
+        if (string.IsNullOrEmpty(normalizedEmail))
+        {
+            return new AuthResult { Success = false, Error = "Email is required" };
+        }
+
+        var firstName = request.FirstName?.Trim() ?? string.Empty;
+        var lastName = request.LastName?.Trim() ?? string.Empty;
+        var licenseNumber = request.LicenseNumber?.Trim() ?? string.Empty;
+        if (firstName.Length == 0 || lastName.Length == 0)
+        {
+            return new AuthResult { Success = false, Error = "First and last name are required" };
+        }
+
+        if (licenseNumber.Length == 0)
+        {
+            return new AuthResult { Success = false, Error = "License number is required" };
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 8)
+        {
+            return new AuthResult { Success = false, Error = "Password must be at least 8 characters" };
+        }
+
+        var phoneNumber = string.IsNullOrWhiteSpace(request.PhoneNumber) ? null : request.PhoneNumber.Trim();
+        if (!string.IsNullOrEmpty(phoneNumber) && !Regex.IsMatch(phoneNumber, @"^[+0-9()\-\s]{7,20}$"))
+        {
+            return new AuthResult { Success = false, Error = "Phone number format is invalid" };
+        }
+
+        var ownerEmailExists = await _context.Owners.AnyAsync(o => o.Email.ToLower() == normalizedEmail);
+        if (ownerEmailExists)
+        {
+            return new AuthResult { Success = false, Error = "Email already exists" };
+        }
+
+        var vetEmailExists = await _context.Veterinarians.AnyAsync(v => v.Email.ToLower() == normalizedEmail);
+        if (vetEmailExists)
+        {
+            return new AuthResult { Success = false, Error = "Email already exists" };
+        }
+
+        var licenseExists = await _context.Veterinarians.AnyAsync(v => v.LicenseNumber.ToLower() == licenseNumber.ToLower());
+        if (licenseExists)
+        {
+            return new AuthResult { Success = false, Error = "License number already exists" };
+        }
+
+        using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            var vetOwner = new Owner
+            {
+                Email = normalizedEmail,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                FirstName = firstName,
+                LastName = lastName,
+                Roles = new List<string> { "Vet" }
+            };
+
+            _context.Owners.Add(vetOwner);
+
+            var vetProfile = new Veterinarian
+            {
+                Id = vetOwner.Id,
+                Name = firstName,
+                LastName = lastName,
+                Email = normalizedEmail,
+                PhoneNumber = phoneNumber,
+                LicenseNumber = licenseNumber
+            };
+
+            _context.Veterinarians.Add(vetProfile);
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return new AuthResult { Success = true };
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task<AuthResult> LoginAsync(LoginRequest request)
@@ -169,5 +265,19 @@ public class AuthService : IAuthService
     private static string NormalizeEmail(string? email)
     {
         return string.IsNullOrWhiteSpace(email) ? string.Empty : email.Trim().ToLowerInvariant();
+    }
+
+    private static List<string> NormalizeRoles(IEnumerable<string>? roles)
+    {
+        if (roles == null)
+        {
+            return new List<string>();
+        }
+
+        return roles
+            .Where(role => !string.IsNullOrWhiteSpace(role))
+            .Select(role => role.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 }

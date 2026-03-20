@@ -71,6 +71,40 @@ public class VeterinarianOptionDto
     public string Email { get; set; } = default!;
 }
 
+public class VetAccountDto
+{
+    public Guid Id { get; set; }
+    public string Email { get; set; } = default!;
+    public string FirstName { get; set; } = default!;
+    public string LastName { get; set; } = default!;
+    public string LicenseNumber { get; set; } = default!;
+    public string? PhoneNumber { get; set; }
+}
+
+public class UpdateVetAccountDto
+{
+    [Required]
+    [EmailAddress]
+    [MaxLength(256)]
+    public string Email { get; set; } = default!;
+
+    [Required]
+    [MaxLength(100)]
+    public string FirstName { get; set; } = default!;
+
+    [Required]
+    [MaxLength(100)]
+    public string LastName { get; set; } = default!;
+
+    [Required]
+    [MaxLength(50)]
+    public string LicenseNumber { get; set; } = default!;
+
+    [Phone]
+    [MaxLength(20)]
+    public string? PhoneNumber { get; set; }
+}
+
 public class CreateAppointmentDto
 {
     [Required]

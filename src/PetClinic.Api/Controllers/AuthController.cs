@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using PetClinic.Application;
 
 namespace PetClinic.Api.Controllers;
@@ -8,10 +9,12 @@ namespace PetClinic.Api.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IUserContextService _userContext;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IUserContextService userContext)
     {
         _authService = authService;
+        _userContext = userContext;
     }
 
     [HttpPost("register")]
@@ -22,6 +25,25 @@ public class AuthController : ControllerBase
         {
             return BadRequest(new { error = result.Error });
         }
+        return Ok();
+    }
+
+    [Authorize]
+    [HttpPost("register-vet")]
+    public async Task<IActionResult> RegisterVet([FromBody] CreateVetAccountRequest request)
+    {
+        var roles = _userContext.GetCurrentUserRoles();
+        if (!roles.Contains("Vet"))
+        {
+            return Forbid();
+        }
+
+        var result = await _authService.CreateVetAccountAsync(request);
+        if (!result.Success)
+        {
+            return BadRequest(new { error = result.Error });
+        }
+
         return Ok();
     }
 
