@@ -3,27 +3,9 @@ stages:
 
 deploy:
   stage: deploy
-  image: docker:27.5.1
-  services:
-    - docker:27.5.1-dind
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
   only:
     - main
   tags:
-    - petclinic-runner
+    - shared
   script:
-    - apk add --no-cache git
-    - |
-      DEPLOY_SERVICES="api"
-      if [ ! -d ../velinn-petclinic_js/.git ]; then
-        git clone "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.proxy.itcollege.ee/2025-2026-spring/velinn-petclinic_js.git" ../velinn-petclinic_js || \
-        git clone "https://oauth2:${FRONTEND_REPO_TOKEN}@gitlab.proxy.itcollege.ee/2025-2026-spring/velinn-petclinic_js.git" ../velinn-petclinic_js || \
-        echo "Frontend project access is not available from this pipeline. Continuing with backend deploy only."
-      fi
-      if [ -d ../velinn-petclinic_js/.git ]; then
-        DEPLOY_SERVICES="web api"
-      fi
-      echo "Deploying services: ${DEPLOY_SERVICES}"
-      docker compose -p test up --build --remove-orphans --detach ${DEPLOY_SERVICES}
+    - docker compose -p test up --build --remove-orphans --detach

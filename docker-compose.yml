@@ -1,29 +1,6 @@
 services:
   web:
-    build:
-      context: ../velinn-petclinic_js
-      dockerfile: Dockerfile
-    restart: unless-stopped
+    build: .
     container_name: nginx-demo
     ports:
       - "80:80"
-
-  api:
-    build:
-      context: .
-      dockerfile: src/PetClinic.Api/Dockerfile
-    restart: unless-stopped
-    container_name: petclinic-api
-    ports:
-      - "5001:5000"
-
-  gitlab-runner:
-    image: gitlab/gitlab-runner:alpine-v17.11.0
-    container_name: petclinic-gitlab-runner
-    restart: unless-stopped
-    volumes:
-      - gitlab_runner_config:/etc/gitlab-runner
-      - /var/run/docker.sock:/var/run/docker.sock
-
-volumes:
-  gitlab_runner_config:
