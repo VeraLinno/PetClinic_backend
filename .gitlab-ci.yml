@@ -3,9 +3,14 @@ stages:
 
 deploy:
   stage: deploy
-  only:
-    - main
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
   tags:
     - shared
+  variables:
+    COMPOSE_PROJECT_NAME: petclinic
   script:
-    - docker compose -p test up --build --remove-orphans --detach
+    - docker info
+    - docker compose version
+    - docker compose --env-file .env up --build --remove-orphans --detach
+    - docker compose ps

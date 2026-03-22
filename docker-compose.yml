@@ -1,6 +1,46 @@
 services:
-  web:
-    build: .
-    container_name: nginx-demo
+  db:
+    image: postgres:16
+    container_name: petclinic-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-petclinicdb}
+      POSTGRES_USER: ${POSTGRES_USER:-pguser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pgpassword}
+    ports:
+      - "5432:5432"
+    volumes:
+      - petclinic-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pguser} -d ${POSTGRES_DB:-petclinicdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: src/PetClinic.Api/Dockerfile
+    container_name: petclinic-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ASPNETCORE_URLS: ${ASPNETCORE_URLS:-http://+:5000}
+      Jwt__Secret: ${JWT_SECRET:-YourSuperSecretKeyThatIsAtLeast32CharactersLongForHMACSHA256}
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB:-petclinicdb};Username=${POSTGRES_USER:-pguser};Password=${POSTGRES_PASSWORD:-pgpassword}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5001:5000"
+
+  frontend:
+    build:
+      context: ../velinn-petclinic_js
+      dockerfile: Dockerfile
+    container_name: petclinic-frontend
+    depends_on:
+      - api
     ports:
       - "80:80"
+
+volumes:
+  petclinic-db-data:
