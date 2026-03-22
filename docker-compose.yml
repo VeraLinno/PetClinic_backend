@@ -34,7 +34,7 @@ services:
 
   frontend:
     build:
-      context: ../velinn-petclinic_js
+      context: ${FRONTEND_CONTEXT:-../velinn-petclinic_js}
       dockerfile: Dockerfile
     container_name: petclinic-frontend
     depends_on:

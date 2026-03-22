@@ -9,7 +9,11 @@ deploy:
     - petclinic-runner
   variables:
     COMPOSE_PROJECT_NAME: petclinic
+    FRONTEND_CONTEXT: ./velinn-petclinic_js
+    FRONTEND_REPO_URL: https://oauth2:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_NAMESPACE}/velinn-petclinic_js.git
   script:
+    - rm -rf velinn-petclinic_js
+    - git clone --depth 1 --branch main "$FRONTEND_REPO_URL" velinn-petclinic_js
     - docker info
     - docker compose version
     - docker compose --env-file .env up --build --remove-orphans --detach
