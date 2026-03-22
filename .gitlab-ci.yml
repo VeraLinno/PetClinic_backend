@@ -5,6 +5,8 @@ deploy:
   stage: deploy
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
+  tags:
+    - petclinic-runner
   variables:
     COMPOSE_PROJECT_NAME: petclinic
   script:
