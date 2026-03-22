@@ -1,35 +1,15 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: petclinic-postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+  web:
+    build: .
+    restart: unless-stopped
+    container_name: nginx-demo
     ports:
-      - "5432:5432"
+      - "80:80"
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine-v17.11.0
+    container_name: petclinic-gitlab-runner
+    restart: unless-stopped
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  api:
-    build:
-      context: .
-      dockerfile: src/PetClinic.Api/Dockerfile
-    container_name: petclinic-api
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      ASPNETCORE_URLS: http://+:5000
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
-      Jwt__Secret: ${JWT_SECRET}
-    ports:
-      - "5001:5000"
-
-volumes:
-  postgres_data:
+      - ./gitlab-runner/config:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
