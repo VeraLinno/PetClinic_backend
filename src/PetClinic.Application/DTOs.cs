@@ -153,6 +153,7 @@ public class MedicationStockDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = default!;
+    public string Category { get; set; } = default!;
     public decimal UnitPrice { get; set; }
     public int Quantity { get; set; }
     public string Unit { get; set; } = default!;
@@ -164,6 +165,10 @@ public class UpdateMedicationStockDto
     [Required]
     [MaxLength(100)]
     public string Name { get; set; } = default!;
+
+    [Required]
+    [MaxLength(50)]
+    public string Category { get; set; } = default!;
 
     [Range(0, 9999999.99)]
     public decimal UnitPrice { get; set; }

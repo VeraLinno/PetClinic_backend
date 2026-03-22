@@ -207,6 +207,7 @@ async Task SeedDataAsync(PetClinicDbContext context)
     var med1 = new PetClinic.Domain.MedicationStock
     {
         Name = "Aspirin",
+        Category = "Antibiotics",
         UnitPrice = 12.50m,
         Quantity = 100,
         Unit = "tablets",
@@ -215,6 +216,7 @@ async Task SeedDataAsync(PetClinicDbContext context)
     var med2 = new PetClinic.Domain.MedicationStock
     {
         Name = "Ibuprofen",
+        Category = "Antibiotics",
         UnitPrice = 9.75m,
         Quantity = 50,
         Unit = "tablets",
@@ -223,6 +225,7 @@ async Task SeedDataAsync(PetClinicDbContext context)
     var med3 = new PetClinic.Domain.MedicationStock
     {
         Name = "Rabies Vaccine",
+        Category = "Vaccines",
         UnitPrice = 47.00m,
         Quantity = 5,
         Unit = "doses",
@@ -231,6 +234,7 @@ async Task SeedDataAsync(PetClinicDbContext context)
     var med4 = new PetClinic.Domain.MedicationStock
     {
         Name = "Amoxicillin",
+        Category = "Antibiotics",
         UnitPrice = 18.25m,
         Quantity = 2,
         Unit = "bottles",

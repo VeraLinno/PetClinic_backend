@@ -73,9 +73,15 @@ public class InventoryController : ControllerBase
         }
 
         var normalizedName = dto.Name?.Trim();
+        var normalizedCategory = dto.Category?.Trim();
         if (string.IsNullOrWhiteSpace(normalizedName))
         {
             return BadRequest("Medication name is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(normalizedCategory))
+        {
+            return BadRequest("Medication category is required.");
         }
 
         if (dto.UnitPrice < 0)
@@ -92,6 +98,7 @@ public class InventoryController : ControllerBase
         }
 
         medication.Name = normalizedName;
+    medication.Category = normalizedCategory;
         medication.UnitPrice = dto.UnitPrice;
 
         await _context.SaveChangesAsync();
