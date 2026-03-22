@@ -15,5 +15,15 @@ deploy:
     - petclinic-runner
   script:
     - apk add --no-cache git
-    - if [ ! -d ../velinn-petclinic_js ]; then git clone "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.proxy.itcollege.ee/2025-2026-spring/velinn-petclinic_js.git" ../velinn-petclinic_js; fi
-    - docker compose -p test up --build --remove-orphans --detach web api
+    - |
+      DEPLOY_SERVICES="api"
+      if [ ! -d ../velinn-petclinic_js/.git ]; then
+        git clone "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.proxy.itcollege.ee/2025-2026-spring/velinn-petclinic_js.git" ../velinn-petclinic_js || \
+        git clone "https://oauth2:${FRONTEND_REPO_TOKEN}@gitlab.proxy.itcollege.ee/2025-2026-spring/velinn-petclinic_js.git" ../velinn-petclinic_js || \
+        echo "Frontend project access is not available from this pipeline. Continuing with backend deploy only."
+      fi
+      if [ -d ../velinn-petclinic_js/.git ]; then
+        DEPLOY_SERVICES="web api"
+      fi
+      echo "Deploying services: ${DEPLOY_SERVICES}"
+      docker compose -p test up --build --remove-orphans --detach ${DEPLOY_SERVICES}
