@@ -1,11 +1,66 @@
 stages:
+  - build
+  - test
   - deploy
 
-deploy:
-  stage: deploy
-  only:
-    - main
+variables:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
+  NUGET_PACKAGES: "$CI_PROJECT_DIR/.nuget/packages"
+
+cache:
+  key: "$CI_PROJECT_NAME-nuget"
+  paths:
+    - .nuget/packages
+
+build:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:9.0
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
   tags:
     - shared
   script:
-    - docker compose -p test up --build --remove-orphans --detach
+    - dotnet restore PetClinic.sln
+    - dotnet build PetClinic.sln --configuration Release --no-restore
+  artifacts:
+    paths:
+      - src/**/bin/Release/
+      - tests/**/bin/Release/
+    expire_in: 1 hour
+
+test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:9.0
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
+  tags:
+    - shared
+  needs:
+    - build
+  script:
+    - dotnet test tests/PetClinic.Tests/PetClinic.Tests.csproj --configuration Release --no-build --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
+  artifacts:
+    when: always
+    paths:
+      - tests/PetClinic.Tests/TestResults/
+    expire_in: 1 week
+
+deploy:
+  stage: deploy
+  image: docker:27.5.1
+  services:
+    - docker:27.5.1-dind
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  tags:
+    - shared
+  needs:
+    - test
+  script:
+    - docker version
+    - docker compose version
+    - docker compose -p myapp up --build --remove-orphans --detach
