@@ -3,9 +3,17 @@ stages:
 
 deploy:
   stage: deploy
+  image: docker:27.5.1
+  services:
+    - docker:27.5.1-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
   only:
     - main
   tags:
     - petclinic-runner
   script:
+    - apk add --no-cache git
+    - if [ ! -d ../velinn-petclinic_js ]; then git clone "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.proxy.itcollege.ee/2025-2026-spring/velinn-petclinic_js.git" ../velinn-petclinic_js; fi
     - docker compose -p test up --build --remove-orphans --detach web api
