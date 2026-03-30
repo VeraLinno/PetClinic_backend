@@ -52,12 +52,13 @@ try
     // AutoMapper
     builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-    // API Versioning
+    // API Versioning - URL based (e.g., /api/v1/appointments)
     builder.Services.AddApiVersioning(options =>
     {
         options.DefaultApiVersion = new ApiVersion(1, 0);
         options.AssumeDefaultVersionWhenUnspecified = true;
         options.ReportApiVersions = true;  // Adds API-Version header to responses
+        options.ApiVersionReader = new UrlSegmentApiVersionReader();  // Read version from URL
     })
     .AddMvc();
 
