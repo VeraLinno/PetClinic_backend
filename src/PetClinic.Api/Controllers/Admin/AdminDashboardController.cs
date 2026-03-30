@@ -38,11 +38,10 @@ public class AdminDashboardController : Controller
             var metrics = await _adminService.GetDashboardMetricsAsync();
             var health = await _adminService.GetSystemHealthAsync();
 
-            return View(new
-            {
-                Metrics = metrics,
-                Health = health
-            });
+            ViewBag.Metrics = metrics;
+            ViewBag.Health = health;
+
+            return View();
         }
         catch (Exception ex)
         {
