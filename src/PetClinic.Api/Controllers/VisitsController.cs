@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 using PetClinic.Application;
 
 namespace PetClinic.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/visits")]
+[Route("api/[controller]")]
+[ApiVersion("1.0")]
 [Authorize]
 public class VisitsController : ControllerBase
 {

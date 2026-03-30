@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Asp.Versioning;
 using PetClinic.Application;
 using PetClinic.Domain;
 using PetClinic.Infrastructure;
@@ -9,7 +10,8 @@ using PetClinic.Infrastructure;
 namespace PetClinic.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/inventory")]
+[Route("api/[controller]")]
+[ApiVersion("1.0")]
 [Authorize]
 public class InventoryController : ControllerBase
 {

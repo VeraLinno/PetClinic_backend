@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Asp.Versioning;
 using PetClinic.Infrastructure;
 using PetClinic.Domain;
 using PetClinic.Application;
@@ -8,7 +9,8 @@ using PetClinic.Application;
 namespace PetClinic.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/vet")]
+[Route("api/[controller]")]
+[ApiVersion("1.0")]
 [Authorize]
 public class VetController : ControllerBase
 {

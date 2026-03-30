@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using PetClinic.Application;
 using PetClinic.Domain;
@@ -15,11 +16,13 @@ public class AuthService : IAuthService
 {
     private readonly PetClinicDbContext _context;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<AuthService> _logger;
 
-    public AuthService(PetClinicDbContext context, IConfiguration configuration)
+    public AuthService(PetClinicDbContext context, IConfiguration configuration, ILogger<AuthService> logger)
     {
         _context = context;
         _configuration = configuration;
+        _logger = logger;
     }
 
     public async Task<AuthResult> RegisterAsync(RegisterRequest request)
@@ -53,6 +56,7 @@ public class AuthService : IAuthService
         _context.Owners.Add(owner);
         await _context.SaveChangesAsync();
 
+        _logger.LogInformation("User registered successfully: {Email}", normalizedEmail);
         return new AuthResult { Success = true };
     }
 
@@ -150,18 +154,21 @@ public class AuthService : IAuthService
         var normalizedEmail = NormalizeEmail(request.Email);
         if (string.IsNullOrEmpty(normalizedEmail))
         {
+            _logger.LogWarning("Login attempted with invalid email format");
             return new AuthResult { Success = false, Error = "Invalid credentials" };
         }
 
         var owner = await _context.Owners.FirstOrDefaultAsync(o => o.Email.ToLower() == normalizedEmail);
         if (owner == null || !BCrypt.Net.BCrypt.Verify(request.Password, owner.PasswordHash))
         {
+            _logger.LogWarning("Failed login attempt for email: {Email}", normalizedEmail);
             return new AuthResult { Success = false, Error = "Invalid credentials" };
         }
 
         var accessToken = GenerateAccessToken(owner);
         var refreshToken = await GenerateRefreshTokenAsync(owner);
 
+        _logger.LogInformation("User logged in successfully: {Email} ({UserId})", normalizedEmail, owner.Id);
         return new AuthResult
         {
             Success = true,
@@ -179,6 +186,7 @@ public class AuthService : IAuthService
 
         if (storedToken == null || storedToken.Expires < DateTime.UtcNow)
         {
+            _logger.LogWarning("Failed token refresh: Invalid or expired token");
             return new AuthResult { Success = false, Error = "Invalid or expired refresh token" };
         }
 
@@ -190,6 +198,7 @@ public class AuthService : IAuthService
 
         var accessToken = GenerateAccessToken(storedToken.Owner);
 
+        _logger.LogInformation("Token refreshed successfully for user: {UserId}", storedToken.Owner.Id);
         return new AuthResult
         {
             Success = true,
@@ -208,6 +217,7 @@ public class AuthService : IAuthService
         {
             storedToken.RevokedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
+            _logger.LogInformation("User logged out successfully: {UserId}", storedToken.OwnerId);
         }
     }
 
@@ -222,9 +232,13 @@ public class AuthService : IAuthService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        // Security: 5-minute expiration balances security (short window for token theft) with UX
+        // (auto-refresh handles seamlessly). Industry standard: OIDC/OAuth 2.0 recommend 5-10 min.
+        // If token is intercepted (XSS, MITM), attacker has only 5-min window vs 15-min (3x reduction).
+        // Frontend auto-refresh ensures no UX impact - users don't notice the shorter token lifetime.
         var token = new JwtSecurityToken(
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(15),
+            expires: DateTime.UtcNow.AddMinutes(5),
             signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);

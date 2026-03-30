@@ -1,12 +1,32 @@
 using System.Text;
 using System.Net;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
+using Serilog;
 using PetClinic.Application;
 using PetClinic.Infrastructure;
 
-var builder = WebApplication.CreateBuilder(args);
+// Configure Serilog for centralized logging
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: Path.Combine("logs", "petclinic-.txt"),
+        rollingInterval: RollingInterval.Day,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "PetClinic.Api")
+    .CreateLogger();
+
+try
+{
+    var builder = WebApplication.CreateBuilder(args);
+    builder.Host.UseSerilog();  // Replace default logging with Serilog
 
 // Add services to the container.
 builder.Services.AddDbContext<PetClinicDbContext>(options =>
@@ -14,7 +34,19 @@ builder.Services.AddDbContext<PetClinicDbContext>(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    var provider = builder.Services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
+    foreach (var description in provider.ApiVersionDescriptions)
+    {
+        options.SwaggerDoc(description.GroupName, new Microsoft.OpenApi.Models.OpenApiInfo
+        {
+            Title = "Pet Clinic API",
+            Version = description.ApiVersion.ToString(),
+            Description = description.IsDeprecated ? "This API version is deprecated." : "Pet Clinic REST API"
+        });
+    }
+});
 
 // Auth services
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -28,6 +60,22 @@ builder.Services.AddHostedService<InventoryDeliveryWorker>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+// API Versioning
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;  // Adds API-Version header to responses
+})
+.AddMvc();
+
+// API Versioning for Swagger documentation
+builder.Services.AddVersionedApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
 
 // JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -49,10 +97,11 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Vet", policy => policy.RequireClaim("roles", "Vet"));
     options.AddPolicy("Owner", policy => policy.RequireClaim("roles", "Owner"));
+    options.AddPolicy("Admin", policy => policy.RequireClaim("roles", "Admin"));
 });
 
 // CORS configuration - allows both local and public network origins
-var corsOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>() 
+var corsOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
     ?? new[] { "http://localhost:5173", "http://localhost:3000" };
 
 builder.Services.AddCors(options =>
@@ -86,6 +135,37 @@ builder.Services.AddCors(options =>
             policy.WithOrigins(corsOrigins);
         }
     });
+});
+
+// Rate Limiting configuration
+// Global: 100 requests per minute per user (or IP if not authenticated)
+// Auth endpoints: 5 attempts per minute per IP (stricter for security)
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.User.FindFirst("sub")?.Value
+                ?? context.Connection.RemoteIpAddress?.ToString()
+                ?? "unknown",
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 100,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+
+    // Stricter limiter for auth endpoints: 5 attempts per minute per IP
+    options.AddPolicy("auth", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
 });
 
 var app = builder.Build();
@@ -123,7 +203,16 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+        foreach (var description in provider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint(
+                $"/swagger/{description.GroupName}/swagger.json",
+                description.GroupName.ToUpperInvariant());
+        }
+    });
 }
 
 // Only redirect to HTTPS in production
@@ -133,6 +222,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowSpecific");
+app.UseRateLimiter();  // Rate limiting middleware (after CORS, before auth)
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
@@ -246,3 +336,12 @@ async Task SeedDataAsync(PetClinicDbContext context)
 }
 
 public partial class Program { }
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

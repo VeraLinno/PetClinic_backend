@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
+using Asp.Versioning;
 using PetClinic.Application;
 
 namespace PetClinic.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/auth")]
+[Route("api/[controller]")]
+[ApiVersion("1.0")]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
@@ -18,6 +21,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var result = await _authService.RegisterAsync(request);
@@ -30,6 +34,7 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpPost("register-vet")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> RegisterVet([FromBody] CreateVetAccountRequest request)
     {
         var roles = _userContext.GetCurrentUserRoles();
@@ -48,6 +53,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var result = await _authService.LoginAsync(request);
@@ -62,6 +68,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Refresh()
     {
         var refreshToken = Request.Cookies["refreshToken"];
@@ -82,6 +89,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("logout")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Logout()
     {
         var refreshToken = Request.Cookies["refreshToken"];
