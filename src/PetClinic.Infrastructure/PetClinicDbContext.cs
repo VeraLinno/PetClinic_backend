@@ -40,6 +40,7 @@ public class PetClinicDbContext : DbContext
     public DbSet<Invoice> Invoices { get; set; } = default!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
     public DbSet<VetUnavailability> VetUnavailabilities { get; set; } = default!;
+    public DbSet<Translation> Translations { get; set; } = default!;
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -128,5 +129,38 @@ public class PetClinicDbContext : DbContext
             .HasConversion(
                 v => string.Join(',', v),
                 v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
+
+        // Translation entity configuration
+        modelBuilder.Entity<Translation>()
+            .HasKey(t => t.Id);
+
+        modelBuilder.Entity<Translation>()
+            .Property(t => t.LanguageCode)
+            .HasMaxLength(10);
+
+        modelBuilder.Entity<Translation>()
+            .Property(t => t.Category)
+            .HasMaxLength(100);
+
+        modelBuilder.Entity<Translation>()
+            .HasIndex(t => new { t.LanguageCode, t.IsActive })
+            .HasDatabaseName("IX_Translations_LanguageCode_IsActive");
+
+        modelBuilder.Entity<Translation>()
+            .HasIndex(t => new { t.LanguageCode, t.Category, t.IsActive })
+            .HasDatabaseName("IX_Translations_LanguageCode_Category_IsActive");
+
+        modelBuilder.Entity<Translation>()
+            .HasIndex(t => new { t.LanguageCode, t.Category, t.Key })
+            .IsUnique()
+            .HasDatabaseName("IX_Translations_LanguageCode_Category_Key");
+
+        modelBuilder.Entity<Translation>()
+            .HasIndex(t => t.Category)
+            .HasDatabaseName("IX_Translations_Category");
+
+        modelBuilder.Entity<Translation>()
+            .HasIndex(t => t.Key)
+            .HasDatabaseName("IX_Translations_Key");
     }
 }
