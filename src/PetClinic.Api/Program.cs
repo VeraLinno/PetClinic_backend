@@ -39,6 +39,7 @@ try
     // Auth services
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<IUserContextService, UserContextService>();
+    builder.Services.AddScoped<ILocalizationService, LocalizationService>();
     builder.Services.AddHttpContextAccessor();
 
     // Business services

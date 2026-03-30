@@ -18,12 +18,14 @@ public class OwnersController : ControllerBase
     private readonly PetClinicDbContext _context;
     private readonly IUserContextService _userContext;
     private readonly IMapper _mapper;
+    private readonly ILocalizationService _localizationService;
 
-    public OwnersController(PetClinicDbContext context, IUserContextService userContext, IMapper mapper)
+    public OwnersController(PetClinicDbContext context, IUserContextService userContext, IMapper mapper, ILocalizationService localizationService)
     {
         _context = context;
         _userContext = userContext;
         _mapper = mapper;
+        _localizationService = localizationService;
     }
 
     [HttpGet("me")]
@@ -64,10 +66,12 @@ public class OwnersController : ControllerBase
     public async Task<IActionResult> GetMyPets()
     {
         var userId = _userContext.GetCurrentUserId();
+        var language = _localizationService.GetCurrentLanguage();
         var pets = await _context.Pets
             .Where(p => p.OwnerId == userId)
             .ToListAsync();
         var dtos = _mapper.Map<List<PetDto>>(pets);
+        ApplyPetLocalization(dtos, language);
         return Ok(dtos);
     }
 
@@ -100,11 +104,13 @@ public class OwnersController : ControllerBase
             return Forbid();
         }
 
+        var language = _localizationService.GetCurrentLanguage();
         var pets = await _context.Pets
             .OrderBy(p => p.Name)
             .ToListAsync();
 
         var dtos = _mapper.Map<List<PetDto>>(pets);
+        ApplyPetLocalization(dtos, language);
         return Ok(dtos);
     }
 
@@ -112,6 +118,7 @@ public class OwnersController : ControllerBase
     public async Task<IActionResult> CreatePet([FromBody] CreatePetDto dto)
     {
         var userId = _userContext.GetCurrentUserId();
+        var language = _localizationService.GetCurrentLanguage();
         var owner = await _context.Owners.FirstOrDefaultAsync(o => o.Id == userId);
         if (owner == null) return NotFound();
 
@@ -122,6 +129,7 @@ public class OwnersController : ControllerBase
         await _context.SaveChangesAsync();
 
         var result = _mapper.Map<PetDto>(pet);
+        ApplyPetLocalization(result, language);
         return Created($"api/v1/owners/me/pets/{pet.Id}", result);
     }
 
@@ -129,6 +137,7 @@ public class OwnersController : ControllerBase
     public async Task<IActionResult> UpdatePet(Guid petId, [FromBody] CreatePetDto dto)
     {
         var userId = _userContext.GetCurrentUserId();
+        var language = _localizationService.GetCurrentLanguage();
         var pet = await _context.Pets.FirstOrDefaultAsync(p => p.Id == petId && p.OwnerId == userId);
         if (pet == null) return NotFound();
 
@@ -140,7 +149,22 @@ public class OwnersController : ControllerBase
         await _context.SaveChangesAsync();
 
         var result = _mapper.Map<PetDto>(pet);
+        ApplyPetLocalization(result, language);
         return Ok(result);
+    }
+
+    private void ApplyPetLocalization(IEnumerable<PetDto> pets, string language)
+    {
+        foreach (var pet in pets)
+        {
+            ApplyPetLocalization(pet, language);
+        }
+    }
+
+    private void ApplyPetLocalization(PetDto pet, string language)
+    {
+        pet.SpeciesLocalized = _localizationService.LocalizePetSpecies(pet.Species, language);
+        pet.BreedLocalized = _localizationService.LocalizePetBreed(pet.Breed, language);
     }
 
     [HttpDelete("me/pets/{petId:guid}")]

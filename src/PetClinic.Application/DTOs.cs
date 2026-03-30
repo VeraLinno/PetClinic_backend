@@ -30,7 +30,9 @@ public class PetDto
     public Guid Id { get; set; }
     public string Name { get; set; } = default!;
     public string Species { get; set; } = default!;
+    public string? SpeciesLocalized { get; set; }
     public string Breed { get; set; } = default!;
+    public string? BreedLocalized { get; set; }
     public DateTime? DateOfBirth { get; set; }
     public Guid OwnerId { get; set; }
 }
@@ -62,6 +64,7 @@ public class AppointmentDto
     public DateTime StartAt { get; set; }
     public DateTime EndAt { get; set; }
     public string Status { get; set; } = default!;
+    public string? StatusLocalized { get; set; }
 }
 
 public class VeterinarianOptionDto
@@ -126,6 +129,8 @@ public class VisitDto
     public string? Notes { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? CompletedAt { get; set; }
+    public string Status { get; set; } = "Open";
+    public string? StatusLocalized { get; set; }
 }
 
 public class VisitCompletionDto
@@ -246,6 +251,7 @@ public class AdminAppointmentDto
     public DateTime StartAt { get; set; }
     public DateTime EndAt { get; set; }
     public string Status { get; set; } = default!;
+    public string? StatusLocalized { get; set; }
 }
 
 public class AdminAuditLogDto

@@ -17,12 +17,14 @@ public class AppointmentsController : ControllerBase
     private readonly IAppointmentService _appointmentService;
     private readonly IUserContextService _userContext;
     private readonly IMapper _mapper;
+    private readonly ILocalizationService _localizationService;
 
-    public AppointmentsController(IAppointmentService appointmentService, IUserContextService userContext, IMapper mapper)
+    public AppointmentsController(IAppointmentService appointmentService, IUserContextService userContext, IMapper mapper, ILocalizationService localizationService)
     {
         _appointmentService = appointmentService;
         _userContext = userContext;
         _mapper = mapper;
+        _localizationService = localizationService;
     }
 
     [HttpPost]
@@ -30,8 +32,10 @@ public class AppointmentsController : ControllerBase
     {
         try
         {
+            var language = _localizationService.GetCurrentLanguage();
             var appointment = await _appointmentService.CreateAsync(dto);
             var result = _mapper.Map<AppointmentDto>(appointment);
+            ApplyAppointmentLocalization(result, language);
             return CreatedAtAction(nameof(GetById), new { id = appointment.Id }, result);
         }
         catch (UnauthorizedAccessException ex)
@@ -49,6 +53,7 @@ public class AppointmentsController : ControllerBase
     {
         var userId = _userContext.GetCurrentUserId();
         var roles = _userContext.GetCurrentUserRoles();
+        var language = _localizationService.GetCurrentLanguage();
 
         var normalizedDate = NormalizeNullable(date);
         var ownerGuid = ParseGuidOrNull(ownerId);
@@ -56,6 +61,7 @@ public class AppointmentsController : ControllerBase
 
         var appointments = await _appointmentService.GetUserAppointmentsAsync(userId, roles, normalizedDate, ownerGuid, vetGuid);
         var dtos = _mapper.Map<List<AppointmentDto>>(appointments);
+        ApplyAppointmentLocalization(dtos, language);
         return Ok(dtos);
     }
 
@@ -64,6 +70,7 @@ public class AppointmentsController : ControllerBase
     {
         var userId = _userContext.GetCurrentUserId();
         var roles = _userContext.GetCurrentUserRoles();
+        var language = _localizationService.GetCurrentLanguage();
 
         var appointments = await _appointmentService.GetUserAppointmentsAsync(userId, roles);
         var appointment = appointments.FirstOrDefault(a => a.Id == id);
@@ -73,7 +80,21 @@ public class AppointmentsController : ControllerBase
         }
 
         var dto = _mapper.Map<AppointmentDto>(appointment);
+        ApplyAppointmentLocalization(dto, language);
         return Ok(dto);
+    }
+
+    private void ApplyAppointmentLocalization(IEnumerable<AppointmentDto> appointments, string language)
+    {
+        foreach (var appointment in appointments)
+        {
+            ApplyAppointmentLocalization(appointment, language);
+        }
+    }
+
+    private void ApplyAppointmentLocalization(AppointmentDto appointment, string language)
+    {
+        appointment.StatusLocalized = _localizationService.LocalizeAppointmentStatus(appointment.Status, language);
     }
 
     [HttpPatch("{id:guid}/cancel")]
