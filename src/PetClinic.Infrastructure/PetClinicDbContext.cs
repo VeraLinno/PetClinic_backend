@@ -39,6 +39,7 @@ public class PetClinicDbContext : DbContext
     public DbSet<InventoryReorder> InventoryReorders { get; set; } = default!;
     public DbSet<Invoice> Invoices { get; set; } = default!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
+    public DbSet<VetUnavailability> VetUnavailabilities { get; set; } = default!;
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -110,6 +111,11 @@ public class PetClinicDbContext : DbContext
             .HasOne(rt => rt.Owner)
             .WithMany(o => o.RefreshTokens)
             .HasForeignKey(rt => rt.OwnerId);
+
+        modelBuilder.Entity<VetUnavailability>()
+            .HasOne(vu => vu.Veterinarian)
+            .WithMany(v => v.Unavailabilities)
+            .HasForeignKey(vu => vu.VeterinarianId);
 
         // Enum conversion for AppointmentStatus
         modelBuilder.Entity<Appointment>()

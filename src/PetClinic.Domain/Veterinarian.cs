@@ -26,4 +26,5 @@ public class Veterinarian : BaseEntity
     public string LicenseNumber { get; set; } = default!;
 
     public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+    public ICollection<VetUnavailability> Unavailabilities { get; set; } = new List<VetUnavailability>();
 }
