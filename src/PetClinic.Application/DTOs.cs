@@ -208,3 +208,87 @@ public class DeliveredInventoryReorderDto
     public DateTime DeliveryAtUtc { get; set; }
     public DateTime ReceivedAtUtc { get; set; }
 }
+
+// ========== ADMIN DTOs ==========
+
+public class AdminUserDto
+{
+    public Guid Id { get; set; }
+    public string Email { get; set; } = default!;
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public List<string> Roles { get; set; } = new();
+    public DateTime CreatedAt { get; set; }
+    public DateTime? LastLoginAt { get; set; }
+    public bool IsActive { get; set; } = true;
+}
+
+public class AdminVeterinarianDto
+{
+    public Guid Id { get; set; }
+    public string Email { get; set; } = default!;
+    public string Name { get; set; } = default!;
+    public string LastName { get; set; } = default!;
+    public string LicenseNumber { get; set; } = default!;
+    public string? PhoneNumber { get; set; }
+    public int TotalAppointments { get; set; }
+    public bool IsActive { get; set; } = true;
+}
+
+public class AdminAppointmentDto
+{
+    public Guid Id { get; set; }
+    public Guid PetId { get; set; }
+    public string? PetName { get; set; }
+    public string? OwnerEmail { get; set; }
+    public Guid? VeterinarianId { get; set; }
+    public string? VeterinarianName { get; set; }
+    public DateTime StartAt { get; set; }
+    public DateTime EndAt { get; set; }
+    public string Status { get; set; } = default!;
+}
+
+public class AdminAuditLogDto
+{
+    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
+    public string UserEmail { get; set; } = default!;
+    public string Action { get; set; } = default!;
+    public string Endpoint { get; set; } = default!;
+    public int StatusCode { get; set; }
+    public DateTime Timestamp { get; set; }
+    public string? Details { get; set; }
+}
+
+public class AdminDashboardMetricsDto
+{
+    public int TotalUsers { get; set; }
+    public int TotalVeterinarians { get; set; }
+    public int TotalPets { get; set; }
+    public int TotalAppointmentsThisMonth { get; set; }
+    public int CompletedVisitsThisMonth { get; set; }
+    public decimal TotalRevenueThisMonth { get; set; }
+    public int LowStockMedications { get; set; }
+    public DateTime GeneratedAt { get; set; }
+}
+
+public class AdminInventoryReportDto
+{
+    public Guid MedicationId { get; set; }
+    public string MedicationName { get; set; } = default!;
+    public string Category { get; set; } = default!;
+    public int CurrentQuantity { get; set; }
+    public int ReorderLevel { get; set; }
+    public string Unit { get; set; } = default!;
+    public decimal UnitPrice { get; set; }
+    public int UsedThisMonth { get; set; }
+    public bool IsLowStock { get; set; }
+}
+
+public class UpdateUserRoleDto
+{
+    [Required]
+    public List<string> Roles { get; set; } = new();
+
+    public bool IsActive { get; set; } = true;
+}

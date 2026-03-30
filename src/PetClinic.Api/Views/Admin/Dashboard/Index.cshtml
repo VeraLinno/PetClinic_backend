@@ -1,0 +1,178 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var metrics = ViewBag.Metrics as PetClinic.Application.AdminDashboardMetricsDto;
+    var health = ViewBag.Health as PetClinic.Application.AdminSystemHealthDto;
+}
+
+<div class="admin-header">
+    <div>
+        <h1>Dashboard</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/admin/admindashboard">Home</a></li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+@if (metrics != null)
+{
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Total Users</p>
+                            <h3 class="mb-0">@metrics.TotalUsers</h3>
+                        </div>
+                        <i class="bi bi-people" style="font-size: 2rem; color: #0ea5e9; opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Veterinarians</p>
+                            <h3 class="mb-0">@metrics.TotalVeterinarians</h3>
+                        </div>
+                        <i class="bi bi-stethoscope" style="font-size: 2rem; color: #22c55e; opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Total Pets</p>
+                            <h3 class="mb-0">@metrics.TotalPets</h3>
+                        </div>
+                        <i class="bi bi-heart" style="font-size: 2rem; color: #f59e0b; opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">This Month Revenue</p>
+                            <h3 class="mb-0">$@metrics.TotalRevenueThisMonth.ToString("F2")</h3>
+                        </div>
+                        <i class="bi bi-currency-dollar" style="font-size: 2rem; color: #dc2626; opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Activity -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>This Month Activity</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Appointments:</strong> @metrics.TotalAppointmentsThisMonth</p>
+                    <p><strong>Completed Visits:</strong> @metrics.CompletedVisitsThisMonth</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Inventory Status</span>
+                </div>
+                <div class="card-body">
+                    @if (metrics.LowStockMedications > 0)
+                    {
+                        <p class="text-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>@metrics.LowStockMedications medications</strong> low in stock
+                        </p>
+                        <a href="/admin/admininventory/lowstock" class="btn btn-sm btn-warning">View Low Stock</a>
+                    }
+                    else
+                    {
+                        <p class="text-success">
+                            <i class="bi bi-check-circle"></i> All inventory levels normal
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (health != null)
+{
+    <!-- System Health -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>System Health</span>
+                    <span class="badge @(health.Status == "Healthy" ? "bg-success" : "bg-danger")">@health.Status</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <p class="text-muted mb-1">Status</p>
+                            <span class="badge @(health.Status == "Healthy" ? "bg-success" : "bg-danger")">@health.Status</span>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="text-muted mb-1">Database Connections</p>
+                            <strong>@health.DatabaseConnections</strong>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="text-muted mb-1">Active Users</p>
+                            <strong>@health.ActiveUsers</strong>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="text-muted mb-1">Last Checked</p>
+                            <small>@health.CheckedAt.ToString("g")</small>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(health.Issues))
+                    {
+                        <div class="alert alert-danger mt-3">
+                            <i class="bi bi-exclamation-circle"></i> @health.Issues
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">Quick Actions</div>
+            <div class="card-body">
+                <a href="/admin/adminusers" class="btn btn-primary btn-sm">
+                    <i class="bi bi-people"></i> Manage Users
+                </a>
+                <a href="/admin/adminappointments" class="btn btn-primary btn-sm">
+                    <i class="bi bi-calendar-event"></i> View Appointments
+                </a>
+                <a href="/admin/adminfinance/reports" class="btn btn-primary btn-sm">
+                    <i class="bi bi-graph-up"></i> Financial Reports
+                </a>
+                <a href="/admin/admininventory" class="btn btn-primary btn-sm">
+                    <i class="bi bi-box"></i> Check Inventory
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

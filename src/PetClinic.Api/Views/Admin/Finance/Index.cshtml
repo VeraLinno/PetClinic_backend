@@ -1,0 +1,69 @@
+@{
+    ViewData["Title"] = "Invoices Management";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var invoices = Model as List<PetClinic.Application.InvoiceDto>;
+}
+
+<div class="admin-header">
+    <div>
+        <h1>Invoices Management</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/admin/admindashboard">Dashboard</a></li>
+                <li class="breadcrumb-item active">Invoices</li>
+            </ol>
+        </nav>
+    </div>
+    <div>
+        <a href="/admin/adminfinance/reports" class="btn btn-info">
+            <i class="bi bi-graph-up"></i> View Reports
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>All Invoices (@(invoices?.Count ?? 0))</span>
+    </div>
+    <div class="card-body">
+        @if (invoices?.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Invoice ID</th>
+                            <th>Visit ID</th>
+                            <th>Amount</th>
+                            <th>Issued Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var invoice in invoices)
+                        {
+                            <tr>
+                                <td>@invoice.Id.ToString().Substring(0, 8).ToUpper()</td>
+                                <td>@invoice.VisitId</td>
+                                <td><strong>$@invoice.Amount.ToString("F2")</strong></td>
+                                <td>@invoice.IssuedAt.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <a href="/admin/adminfinance/invoices/@invoice.Id" class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                    <a href="/admin/adminfinance/adjust/@invoice.Id" class="btn btn-sm btn-warning">
+                                        <i class="bi bi-pencil"></i> Adjust
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted text-center">No invoices found</p>
+        }
+    </div>
+</div>

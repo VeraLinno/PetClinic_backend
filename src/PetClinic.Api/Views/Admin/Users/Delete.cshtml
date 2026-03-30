@@ -1,0 +1,51 @@
+@{
+    ViewData["Title"] = "Delete User";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var user = Model as PetClinic.Application.AdminUserDto;
+}
+
+<div class="admin-header">
+    <div>
+        <h1>Delete User</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/admin/admindashboard">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/admin/adminusers">Users</a></li>
+                <li class="breadcrumb-item active">Delete</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <i class="bi bi-exclamation-triangle"></i> Confirm Deletion
+            </div>
+            <div class="card-body">
+                <p class="text-danger"><strong>This action cannot be undone!</strong></p>
+                <p>Are you sure you want to delete the following user?</p>
+
+                <div class="alert alert-warning">
+                    <p class="mb-1"><strong>Email:</strong> @user.Email</p>
+                    <p class="mb-1"><strong>Name:</strong> @user.FirstName @user.LastName</p>
+                    <p class="mb-0"><strong>Created:</strong> @user.CreatedAt.ToString("MMM dd, yyyy")</p>
+                </div>
+
+                <form method="post" action="/admin/adminusers/delete/@user.Id">
+                    @Html.AntiForgeryToken()
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Delete User
+                        </button>
+                        <a href="/admin/adminusers/details/@user.Id" class="btn btn-secondary">
+                            <i class="bi bi-x"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

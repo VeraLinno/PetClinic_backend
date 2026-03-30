@@ -540,3 +540,16 @@ C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetC
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\obj\Debug\net9.0\PetClinic.Tests.pdb
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\obj\Debug\net9.0\PetClinic.Tests.genruntimeconfig.cache
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\obj\Debug\net9.0\ref\PetClinic.Tests.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Asp.Versioning.Abstractions.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Asp.Versioning.Http.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Asp.Versioning.Mvc.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Asp.Versioning.Mvc.ApiExplorer.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Serilog.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Serilog.AspNetCore.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Serilog.Extensions.Hosting.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Serilog.Extensions.Logging.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Serilog.Formatting.Compact.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Serilog.Settings.Configuration.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Serilog.Sinks.Console.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Serilog.Sinks.Debug.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Serilog.Sinks.File.dll

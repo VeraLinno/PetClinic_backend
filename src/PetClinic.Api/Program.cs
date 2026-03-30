@@ -28,206 +28,189 @@ try
     var builder = WebApplication.CreateBuilder(args);
     builder.Host.UseSerilog();  // Replace default logging with Serilog
 
-// Add services to the container.
-builder.Services.AddDbContext<PetClinicDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    // Add services to the container.
+    builder.Services.AddDbContext<PetClinicDbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    var provider = builder.Services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
-    foreach (var description in provider.ApiVersionDescriptions)
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+
+    // Auth services
+    builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<IUserContextService, UserContextService>();
+    builder.Services.AddHttpContextAccessor();
+
+    // Business services
+    builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+    builder.Services.AddScoped<IVisitService, VisitService>();
+    builder.Services.AddScoped<IAdminService, AdminService>();
+    builder.Services.AddHostedService<InventoryDeliveryWorker>();
+
+    // AutoMapper
+    builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+    // API Versioning
+    builder.Services.AddApiVersioning(options =>
     {
-        options.SwaggerDoc(description.GroupName, new Microsoft.OpenApi.Models.OpenApiInfo
+        options.DefaultApiVersion = new ApiVersion(1, 0);
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.ReportApiVersions = true;  // Adds API-Version header to responses
+    })
+    .AddMvc();
+
+    // JWT Authentication
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
         {
-            Title = "Pet Clinic API",
-            Version = description.ApiVersion.ToString(),
-            Description = description.IsDeprecated ? "This API version is deprecated." : "Pet Clinic REST API"
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!)),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
         });
-    }
-});
 
-// Auth services
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IUserContextService, UserContextService>();
-builder.Services.AddHttpContextAccessor();
-
-// Business services
-builder.Services.AddScoped<IAppointmentService, AppointmentService>();
-builder.Services.AddScoped<IVisitService, VisitService>();
-builder.Services.AddHostedService<InventoryDeliveryWorker>();
-
-// AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-
-// API Versioning
-builder.Services.AddApiVersioning(options =>
-{
-    options.DefaultApiVersion = new ApiVersion(1, 0);
-    options.AssumeDefaultVersionWhenUnspecified = true;
-    options.ReportApiVersions = true;  // Adds API-Version header to responses
-})
-.AddMvc();
-
-// API Versioning for Swagger documentation
-builder.Services.AddVersionedApiExplorer(options =>
-{
-    options.GroupNameFormat = "'v'VVV";
-    options.SubstituteApiVersionInUrl = true;
-});
-
-// JWT Authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+    // Authorization policies
+    builder.Services.AddAuthorization(options =>
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!)),
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
-        };
+        options.AddPolicy("Vet", policy => policy.RequireClaim("roles", "Vet"));
+        options.AddPolicy("Owner", policy => policy.RequireClaim("roles", "Owner"));
+        options.AddPolicy("Admin", policy => policy.RequireClaim("roles", "Admin"));
     });
 
-// Authorization policies
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("Vet", policy => policy.RequireClaim("roles", "Vet"));
-    options.AddPolicy("Owner", policy => policy.RequireClaim("roles", "Owner"));
-    options.AddPolicy("Admin", policy => policy.RequireClaim("roles", "Admin"));
-});
+    // CORS configuration - allows both local and public network origins
+    var corsOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
+        ?? new[] { "http://localhost:5173", "http://localhost:3000" };
 
-// CORS configuration - allows both local and public network origins
-var corsOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
-    ?? new[] { "http://localhost:5173", "http://localhost:3000" };
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecific", policy =>
+    builder.Services.AddCors(options =>
     {
-        policy.AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
-
-        if (builder.Environment.IsDevelopment())
+        options.AddPolicy("AllowSpecific", policy =>
         {
-            policy.SetIsOriginAllowed(origin =>
+            policy.AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+
+            if (builder.Environment.IsDevelopment())
             {
-                if (corsOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+                policy.SetIsOriginAllowed(origin =>
                 {
-                    return true;
-                }
+                    if (corsOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
 
-                if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri))
-                {
-                    return false;
-                }
+                    if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                    {
+                        return false;
+                    }
 
-                // Allow HTTP LAN IPs in development, e.g. http://192.168.x.x:5173.
-                return uri.Scheme == Uri.UriSchemeHttp && IPAddress.TryParse(uri.Host, out _);
-            });
-        }
-        else
-        {
-            policy.WithOrigins(corsOrigins);
-        }
+                    // Allow HTTP LAN IPs in development, e.g. http://192.168.x.x:5173.
+                    return uri.Scheme == Uri.UriSchemeHttp && IPAddress.TryParse(uri.Host, out _);
+                });
+            }
+            else
+            {
+                policy.WithOrigins(corsOrigins);
+            }
+        });
     });
-});
 
-// Rate Limiting configuration
-// Global: 100 requests per minute per user (or IP if not authenticated)
-// Auth endpoints: 5 attempts per minute per IP (stricter for security)
-builder.Services.AddRateLimiter(options =>
-{
-    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: context.User.FindFirst("sub")?.Value
-                ?? context.Connection.RemoteIpAddress?.ToString()
-                ?? "unknown",
-            factory: partition => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 100,
-                Window = TimeSpan.FromMinutes(1),
-                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit = 0
-            }));
-
-    // Stricter limiter for auth endpoints: 5 attempts per minute per IP
-    options.AddPolicy("auth", context =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-            factory: partition => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 5,
-                Window = TimeSpan.FromMinutes(1),
-                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit = 0
-            }));
-});
-
-var app = builder.Build();
-
-// Seed data
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<PetClinicDbContext>();
-
-    // Wait for database to be ready
-    var maxRetries = 10;
-    var retryCount = 0;
-    while (retryCount < maxRetries)
+    // Rate Limiting configuration
+    // Global: 100 requests per minute per user (or IP if not authenticated)
+    // Auth endpoints: 5 attempts per minute per IP (stricter for security)
+    builder.Services.AddRateLimiter(options =>
     {
-        try
+        options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: context.User.FindFirst("sub")?.Value
+                    ?? context.Connection.RemoteIpAddress?.ToString()
+                    ?? "unknown",
+                factory: partition => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 100,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    QueueLimit = 0
+                }));
+
+        // Stricter limiter for auth endpoints: 5 attempts per minute per IP
+        options.AddPolicy("auth", context =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: partition => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 5,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    QueueLimit = 0
+                }));
+    });
+
+    var app = builder.Build();
+
+    // Seed data
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<PetClinicDbContext>();
+
+        // Wait for database to be ready
+        var maxRetries = 10;
+        var retryCount = 0;
+        while (retryCount < maxRetries)
         {
-            // Drop and recreate to ensure schema is up to date
-            await dbContext.Database.EnsureDeletedAsync();
-            await dbContext.Database.EnsureCreatedAsync();
-            break;
+            try
+            {
+                // Drop and recreate to ensure schema is up to date
+                await dbContext.Database.EnsureDeletedAsync();
+                await dbContext.Database.EnsureCreatedAsync();
+                break;
+            }
+            catch
+            {
+                retryCount++;
+                if (retryCount >= maxRetries)
+                    throw;
+                await Task.Delay(2000); // Wait 2 seconds before retry
+            }
         }
-        catch
-        {
-            retryCount++;
-            if (retryCount >= maxRetries)
-                throw;
-            await Task.Delay(2000); // Wait 2 seconds before retry
-        }
+
+        await SeedDataAsync(dbContext);
     }
 
-    await SeedDataAsync(dbContext);
-}
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
     {
-        var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-        foreach (var description in provider.ApiVersionDescriptions)
-        {
-            options.SwaggerEndpoint(
-                $"/swagger/{description.GroupName}/swagger.json",
-                description.GroupName.ToUpperInvariant());
-        }
-    });
-}
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 
-// Only redirect to HTTPS in production
-if (!app.Environment.IsDevelopment())
+    // Only redirect to HTTPS in production
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHttpsRedirection();
+    }
+
+    app.UseCors("AllowSpecific");
+    app.UseRateLimiter();  // Rate limiting middleware (after CORS, before auth)
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.MapControllers();
+
+    app.Run();
+}
+catch (Exception ex)
 {
-    app.UseHttpsRedirection();
+    Log.Fatal(ex, "Application terminated unexpectedly");
+    throw;
 }
-
-app.UseCors("AllowSpecific");
-app.UseRateLimiter();  // Rate limiting middleware (after CORS, before auth)
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
-
-app.Run();
+finally
+{
+    Log.CloseAndFlush();
+}
 
 async Task SeedDataAsync(PetClinicDbContext context)
 {
@@ -336,12 +319,3 @@ async Task SeedDataAsync(PetClinicDbContext context)
 }
 
 public partial class Program { }
-}
-catch (Exception ex)
-{
-    Log.Fatal(ex, "Application terminated unexpectedly");
-}
-finally
-{
-    Log.CloseAndFlush();
-}

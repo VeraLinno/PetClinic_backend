@@ -1,0 +1,88 @@
+@{
+    ViewData["Title"] = "Medication Usage";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var usage = Model as PetClinic.Application.AdminMedicationUsageReportDto;
+}
+
+<div class="admin-header">
+    <div>
+        <h1>@usage?.MedicationName Usage Report</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/admin/admindashboard">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/admin/admininventory">Inventory</a></li>
+                <li class="breadcrumb-item active">Medication Usage</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+@if (usage != null)
+{
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Current Stock</p>
+                    <h3 class="mb-0">@usage.CurrentStock</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Reorder Level</p>
+                    <h3 class="mb-0">@usage.ReorderLevel</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Monthly Usage</p>
+                    <h3 class="mb-0">@usage.AverageUsagePerMonth</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Total Used</p>
+                    <h3 class="mb-0">@usage.TotalUsed</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Medication Details</div>
+        <div class="card-body">
+            <p><strong>Name:</strong> @usage.MedicationName</p>
+            <p><strong>Current Stock Level:</strong> @usage.CurrentStock units</p>
+            <p><strong>Reorder Level:</strong> @usage.ReorderLevel units</p>
+            <p><strong>Total Used:</strong> @usage.TotalUsed units</p>
+            <p><strong>Last Used:</strong> @usage.LastUsed.ToString("MMM dd, yyyy HH:mm")</p>
+            <p><strong>Estimated Months Until Stockout:</strong> ~@usage.EstimatedMonthsUntilStockout months</p>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-header">Usage Trend</div>
+        <div class="card-body">
+            <p class="text-muted">Average monthly usage: @usage.AverageUsagePerMonth units</p>
+            <p class="text-muted">At current usage rate, stock will reach reorder level in approximately @usage.EstimatedMonthsUntilStockout month(s)</p>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a href="/admin/admininventory" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Inventory
+        </a>
+    </div>
+}
+else
+{
+    <div class="alert alert-danger">
+        Medication not found
+    </div>
+}

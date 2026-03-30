@@ -1,0 +1,96 @@
+@{
+    ViewData["Title"] = "Veterinarians Management";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var vets = Model as List<PetClinic.Application.AdminVeterinarianDto>;
+}
+
+<div class="admin-header">
+    <div>
+        <h1>Veterinarians Management</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/admin/admindashboard">Dashboard</a></li>
+                <li class="breadcrumb-item active">Veterinarians</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>All Veterinarians (@(vets?.Count ?? 0))</span>
+        <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search name..." style="width: 250px;">
+    </div>
+    <div class="card-body">
+        @if (vets?.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>License</th>
+                            <th>Phone</th>
+                            <th>Appointments</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vetsTable">
+                        @foreach (var vet in vets)
+                        {
+                            <tr>
+                                <td>@vet.Name @vet.LastName</td>
+                                <td>@vet.Email</td>
+                                <td>@vet.LicenseNumber</td>
+                                <td>@(vet.PhoneNumber ?? "-")</td>
+                                <td>@vet.TotalAppointments</td>
+                                <td><span class="badge @(vet.IsActive ? "bg-success" : "bg-danger")">@(vet.IsActive ? "Active" : "Inactive")</span></td>
+                                <td>
+                                    <a href="/admin/adminveterinarians/details/@vet.Id" class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                    @if (vet.IsActive)
+                                    {
+                                        <form method="post" action="/admin/adminveterinarians/deactivate/@vet.Id" style="display: inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Deactivate this veterinarian?')">
+                                                <i class="bi bi-pause"></i> Deactivate
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form method="post" action="/admin/adminveterinarians/reactivate/@vet.Id" style="display: inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <i class="bi bi-play"></i> Reactivate
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted text-center">No veterinarians found</p>
+        }
+    </div>
+</div>
+
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const filter = this.value.toLowerCase();
+    const rows = document.getElementById('vetsTable').getElementsByTagName('tr');
+
+    Array.from(rows).forEach(row => {
+        const name = row.cells[0]?.textContent.toLowerCase() || '';
+        row.style.display = name.includes(filter) ? '' : 'none';
+    });
+});
+</script>

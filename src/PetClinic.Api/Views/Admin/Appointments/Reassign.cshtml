@@ -1,0 +1,71 @@
+@{
+    ViewData["Title"] = "Reassign Appointment";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var appt = Model as PetClinic.Application.AdminAppointmentDto;
+    var vets = ViewBag.Vets as List<PetClinic.Application.AdminVeterinarianDto>;
+}
+
+<div class="admin-header">
+    <div>
+        <h1>Reassign Appointment</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/admin/admindashboard">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/admin/adminappointments">Appointments</a></li>
+                <li class="breadcrumb-item active">Reassign</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Reassign to Different Veterinarian</div>
+            <form method="post" action="/admin/adminappointments/reassign/@appt.Id">
+                @Html.AntiForgeryToken()
+
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Current Appointment</label>
+                        <input type="text" class="form-control" value="@appt.PetName with @appt.VeterinarianName" disabled>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">New Veterinarian</label>
+                        <select name="newVeterinarianId" class="form-select" required>
+                            <option value="">-- Select Veterinarian --</option>
+                            @if (vets != null)
+                            {
+                                @foreach (var vet in vets)
+                                {
+                                    @if (!vet.Id.Equals(appt.VeterinarianId))
+                                    {
+                                        <option value="@vet.Id">@vet.Name @vet.LastName (@vet.LicenseNumber)</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Appointment Details</label>
+                        <p class="form-control-static">
+                            <strong>Scheduled:</strong> @appt.StartAt.ToString("MMM dd, yyyy HH:mm")<br>
+                            <strong>Duration:</strong> @((appt.EndAt - appt.StartAt).TotalMinutes) minutes
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card-footer d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check"></i> Reassign
+                    </button>
+                    <a href="/admin/adminappointments/details/@appt.Id" class="btn btn-secondary">
+                        <i class="bi bi-x"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

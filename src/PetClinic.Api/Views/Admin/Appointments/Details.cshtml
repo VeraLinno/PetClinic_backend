@@ -1,0 +1,50 @@
+@{
+    ViewData["Title"] = "Appointment Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var appt = Model as PetClinic.Application.AdminAppointmentDto;
+}
+
+<div class="admin-header">
+    <div>
+        <h1>Appointment Details</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/admin/admindashboard">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/admin/adminappointments">Appointments</a></li>
+                <li class="breadcrumb-item active">Details</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Appointment Information</div>
+            <div class="card-body">
+                <p><strong>Pet:</strong> @appt.PetName</p>
+                <p><strong>Owner Email:</strong> @appt.OwnerEmail</p>
+                <p><strong>Veterinarian:</strong> @appt.VeterinarianName</p>
+                <p><strong>Start Time:</strong> @appt.StartAt.ToString("MMM dd, yyyy HH:mm:ss")</p>
+                <p><strong>End Time:</strong> @appt.EndAt.ToString("MMM dd, yyyy HH:mm:ss")</p>
+                <p><strong>Status:</strong> <span class="badge bg-info">@appt.Status</span></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Actions</div>
+            <div class="card-body">
+                <a href="/admin/adminappointments/reassign/@appt.Id" class="btn btn-warning btn-sm w-100 mb-2">
+                    <i class="bi bi-arrow-repeat"></i> Reassign Veterinarian
+                </a>
+                <a href="/admin/adminappointments/cancel/@appt.Id" class="btn btn-danger btn-sm w-100 mb-2">
+                    <i class="bi bi-x"></i> Cancel Appointment
+                </a>
+                <a href="/admin/adminappointments" class="btn btn-secondary btn-sm w-100">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

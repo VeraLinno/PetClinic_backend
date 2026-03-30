@@ -1,0 +1,79 @@
+@{
+    ViewData["Title"] = "Low Stock Medications";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var medications = Model as List<PetClinic.Application.AdminInventoryReportDto>;
+}
+
+<div class="admin-header">
+    <div>
+        <h1>Low Stock Medications</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/admin/admindashboard">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/admin/admininventory">Inventory</a></li>
+                <li class="breadcrumb-item active">Low Stock</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+@if (medications?.Count > 0)
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i>
+        <strong>@medications.Count medication(s)</strong> below reorder level - Action required!
+    </div>
+
+    <div class="card">
+        <div class="card-header">Medications Below Reorder Level</div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Medication</th>
+                            <th>Category</th>
+                            <th>Current Stock</th>
+                            <th>Reorder Level</th>
+                            <th>Unit Price</th>
+                            <th>Urgency</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var med in medications)
+                        {
+                            var percentOfReorder = med.CurrentQuantity > 0 ? (med.CurrentQuantity / (decimal)med.ReorderLevel * 100) : 0;
+                            var urgency = percentOfReorder < 25 ? "Critical" : percentOfReorder < 50 ? "High" : "Medium";
+                            var urgencyColor = percentOfReorder < 25 ? "danger" : percentOfReorder < 50 ? "warning" : "info";
+
+                            <tr>
+                                <td>@med.MedicationName</td>
+                                <td>@med.Category</td>
+                                <td>@med.CurrentQuantity @med.Unit</td>
+                                <td>@med.ReorderLevel @med.Unit</td>
+                                <td>$@med.UnitPrice.ToString("F2")</td>
+                                <td><span class="badge bg-@urgencyColor">@urgency</span></td>
+                                <td>
+                                    <a href="/admin/admininventory/medication/@med.MedicationId" class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i> All medications are in stock - No action required
+    </div>
+
+    <a href="/admin/admininventory" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Inventory
+    </a>
+}

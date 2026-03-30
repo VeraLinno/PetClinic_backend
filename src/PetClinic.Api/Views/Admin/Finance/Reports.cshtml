@@ -1,0 +1,69 @@
+@{
+    ViewData["Title"] = "Financial Reports";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var report = Model as PetClinic.Application.AdminFinancialReportDto;
+}
+
+<div class="admin-header">
+    <div>
+        <h1>Financial Reports</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/admin/admindashboard">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/admin/adminfinance">Invoices</a></li>
+                <li class="breadcrumb-item active">Reports</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+@if (report != null)
+{
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Total Revenue</p>
+                    <h3 class="mb-0">$@report.TotalRevenue.ToString("F2")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Total Invoices</p>
+                    <h3 class="mb-0">@report.TotalInvoices</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Paid Invoices</p>
+                    <h3 class="mb-0">@report.PaidInvoices</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Average Invoice</p>
+                    <h3 class="mb-0">$@report.AverageInvoiceAmount.ToString("F2")</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Report Details</div>
+        <div class="card-body">
+            <p><strong>Period:</strong> @report.PeriodStart.ToString("MMM dd, yyyy") - @report.PeriodEnd.ToString("MMM dd, yyyy")</p>
+            <p><strong>Overdue Invoices:</strong> @report.OverdueInvoices</p>
+            <p><strong>Outstanding Amount:</strong> $@report.OutstandingAmount.ToString("F2")</p>
+            <hr>
+            <a href="/admin/adminfinance" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Invoices
+            </a>
+        </div>
+    </div>
+}

@@ -1,0 +1,74 @@
+@{
+    ViewData["Title"] = "User Activity Timeline";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var activities = Model as List<PetClinic.Application.AdminAuditLogDto>;
+    var userId = ViewBag.UserId as Guid?;
+    var days = ViewBag.Days as int? ?? 30;
+}
+
+<div class="admin-header">
+    <div>
+        <h1>User Activity Timeline</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/admin/admindashboard">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/admin/adminaudit">Audit Logs</a></li>
+                <li class="breadcrumb-item active">User Activity</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <p class="mb-1"><strong>Viewing last @days days of activity</strong></p>
+                <small class="text-muted">User ID: @userId</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (activities?.Count > 0)
+{
+    <div class="card">
+        <div class="card-header">Activity Timeline (@activities.Count events)</div>
+        <div class="card-body">
+            <div class="timeline">
+                @foreach (var log in activities.OrderByDescending(l => l.Timestamp))
+                {
+                    <div class="timeline-item mb-4 pb-4" style="border-bottom: 1px solid #e2e8f0;">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">@log.Action</h6>
+                                <p class="text-muted mb-2">
+                                    <i class="bi bi-calendar"></i>
+                                    @log.Timestamp.ToString("MMM dd, yyyy HH:mm:ss")
+                                </p>
+                                <p class="mb-2">
+                                    <strong>Endpoint:</strong> <code>@log.Endpoint</code>
+                                </p>
+                            </div>
+                            <span class="badge @(log.StatusCode == 200 ? "bg-success" : log.StatusCode >= 400 && log.StatusCode < 500 ? "bg-warning" : "bg-danger")">
+                                @log.StatusCode
+                            </span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No activity found for this user in the last @days days
+    </div>
+}
+
+<div class="mt-3">
+    <a href="/admin/adminaudit" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Audit Logs
+    </a>
+</div>
