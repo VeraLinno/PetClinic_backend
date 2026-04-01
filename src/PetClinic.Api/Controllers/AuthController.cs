@@ -67,7 +67,10 @@ public class AuthController : ControllerBase
             return Unauthorized(new { error = result.Error });
         }
 
-        Response.Cookies.Append("refreshToken", result.RefreshToken!, BuildRefreshCookieOptions());
+        if (!string.IsNullOrWhiteSpace(result.RefreshToken))
+        {
+            Response.Cookies.Append("refreshToken", result.RefreshToken, BuildRefreshCookieOptions());
+        }
 
         return Ok(new { accessToken = result.AccessToken });
     }

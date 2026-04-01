@@ -32,37 +32,45 @@ public class AuthService : IAuthService
 
     public async Task<AuthResult> RegisterAsync(RegisterRequest request)
     {
-        var normalizedEmail = NormalizeEmail(request.Email);
-        if (string.IsNullOrEmpty(normalizedEmail))
+        try
         {
-            return new AuthResult { Success = false, Error = "Email is required" };
+            var normalizedEmail = NormalizeEmail(request.Email);
+            if (string.IsNullOrEmpty(normalizedEmail))
+            {
+                return new AuthResult { Success = false, Error = "Email is required" };
+            }
+
+            var requestedRoles = NormalizeRoles(request.Roles);
+            if (requestedRoles.Any(role => role.Equals("Vet", StringComparison.OrdinalIgnoreCase)))
+            {
+                return new AuthResult { Success = false, Error = "Vet accounts can only be created by existing veterinarians" };
+            }
+
+            if (await _context.Owners.AnyAsync(o => o.Email.ToLower() == normalizedEmail))
+            {
+                return new AuthResult { Success = false, Error = "Email already exists" };
+            }
+
+            var owner = new Owner
+            {
+                Email = normalizedEmail,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Roles = new List<string> { "Owner" }
+            };
+
+            _context.Owners.Add(owner);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("User registered successfully: {Email}", normalizedEmail);
+            return new AuthResult { Success = true };
         }
-
-        var requestedRoles = NormalizeRoles(request.Roles);
-        if (requestedRoles.Any(role => role.Equals("Vet", StringComparison.OrdinalIgnoreCase)))
+        catch (Exception ex)
         {
-            return new AuthResult { Success = false, Error = "Vet accounts can only be created by existing veterinarians" };
+            _logger.LogError(ex, "Registration failed unexpectedly for email: {Email}", request.Email);
+            return new AuthResult { Success = false, Error = "Registration failed" };
         }
-
-        if (await _context.Owners.AnyAsync(o => o.Email.ToLower() == normalizedEmail))
-        {
-            return new AuthResult { Success = false, Error = "Email already exists" };
-        }
-
-        var owner = new Owner
-        {
-            Email = normalizedEmail,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            Roles = new List<string> { "Owner" }
-        };
-
-        _context.Owners.Add(owner);
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("User registered successfully: {Email}", normalizedEmail);
-        return new AuthResult { Success = true };
     }
 
     public async Task<AuthResult> CreateVetAccountAsync(CreateVetAccountRequest request)
@@ -179,64 +187,98 @@ public class AuthService : IAuthService
 
     public async Task<AuthResult> LoginAsync(LoginRequest request)
     {
-        var normalizedEmail = NormalizeEmail(request.Email);
-        if (string.IsNullOrEmpty(normalizedEmail))
+        try
         {
-            _logger.LogWarning("Login attempted with invalid email format");
-            return new AuthResult { Success = false, Error = "Invalid credentials" };
-        }
-
-        var owner = await _context.Owners.FirstOrDefaultAsync(o => o.Email.ToLower() == normalizedEmail);
-        if (owner == null || !BCrypt.Net.BCrypt.Verify(request.Password, owner.PasswordHash))
-        {
-            _logger.LogWarning("Failed login attempt for email: {Email}", normalizedEmail);
-            return new AuthResult { Success = false, Error = "Invalid credentials" };
-        }
-
-        var configuredAdminEmail = NormalizeEmail(_configuration["AdminAccess:AdminEmail"]);
-        var ownerRoles = owner.Roles ?? new List<string>();
-        var isAdminUser = ownerRoles.Contains("Admin", StringComparer.OrdinalIgnoreCase);
-        var isConfiguredAdmin = !string.IsNullOrWhiteSpace(configuredAdminEmail)
-            && normalizedEmail.Equals(configuredAdminEmail, StringComparison.OrdinalIgnoreCase);
-
-        if (isAdminUser && !isConfiguredAdmin)
-        {
-            _logger.LogWarning("Blocked admin login for non-allowlisted account: {Email}", normalizedEmail);
-            return new AuthResult { Success = false, Error = "This account is not allowed to access admin features" };
-        }
-
-        var requireAdminMfa = _configuration.GetValue<bool?>("AdminAccess:RequireMfa") ?? true;
-        if (isConfiguredAdmin && isAdminUser && requireAdminMfa)
-        {
-            var mfaSecret = _configuration["AdminAccess:MfaSecret"]?.Trim();
-            if (string.IsNullOrWhiteSpace(mfaSecret))
+            var normalizedEmail = NormalizeEmail(request.Email);
+            if (string.IsNullOrEmpty(normalizedEmail))
             {
-                _logger.LogError("Admin MFA is enabled but AdminAccess:MfaSecret is not configured");
-                return new AuthResult { Success = false, Error = "Admin MFA is not configured on the server" };
+                _logger.LogWarning("Login attempted with invalid email format");
+                return new AuthResult { Success = false, Error = "Invalid credentials" };
             }
 
-            if (string.IsNullOrWhiteSpace(request.MfaCode))
+            var owner = await _context.Owners.FirstOrDefaultAsync(o => o.Email.ToLower() == normalizedEmail);
+            if (owner == null)
             {
-                return new AuthResult { Success = false, MfaRequired = true, Error = "MFA code is required" };
+                _logger.LogWarning("Failed login attempt for email: {Email}", normalizedEmail);
+                return new AuthResult { Success = false, Error = "Invalid credentials" };
             }
 
-            if (!ValidateTotpCode(mfaSecret, request.MfaCode))
+            var passwordHash = owner.PasswordHash ?? string.Empty;
+            var incomingPassword = request.Password ?? string.Empty;
+            var isValidPassword = false;
+            try
             {
-                _logger.LogWarning("Invalid MFA code for admin login: {Email}", normalizedEmail);
-                return new AuthResult { Success = false, Error = "Invalid MFA code" };
+                isValidPassword = BCrypt.Net.BCrypt.Verify(incomingPassword, passwordHash);
             }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Password hash verification failed for user {UserId}", owner.Id);
+            }
+
+            if (!isValidPassword)
+            {
+                _logger.LogWarning("Failed login attempt for email: {Email}", normalizedEmail);
+                return new AuthResult { Success = false, Error = "Invalid credentials" };
+            }
+
+            var configuredAdminEmail = NormalizeEmail(_configuration["AdminAccess:AdminEmail"]);
+            var ownerRoles = owner.Roles ?? new List<string>();
+            var isAdminUser = ownerRoles.Contains("Admin", StringComparer.OrdinalIgnoreCase);
+            var isConfiguredAdmin = !string.IsNullOrWhiteSpace(configuredAdminEmail)
+                && normalizedEmail.Equals(configuredAdminEmail, StringComparison.OrdinalIgnoreCase);
+
+            if (isAdminUser && !isConfiguredAdmin)
+            {
+                _logger.LogWarning("Blocked admin login for non-allowlisted account: {Email}", normalizedEmail);
+                return new AuthResult { Success = false, Error = "This account is not allowed to access admin features" };
+            }
+
+            var requireAdminMfa = _configuration.GetValue<bool?>("AdminAccess:RequireMfa") ?? true;
+            if (isConfiguredAdmin && isAdminUser && requireAdminMfa)
+            {
+                var mfaSecret = _configuration["AdminAccess:MfaSecret"]?.Trim();
+                if (string.IsNullOrWhiteSpace(mfaSecret))
+                {
+                    _logger.LogError("Admin MFA is enabled but AdminAccess:MfaSecret is not configured");
+                    return new AuthResult { Success = false, Error = "Admin MFA is not configured on the server" };
+                }
+
+                if (string.IsNullOrWhiteSpace(request.MfaCode))
+                {
+                    return new AuthResult { Success = false, MfaRequired = true, Error = "MFA code is required" };
+                }
+
+                if (!ValidateTotpCode(mfaSecret, request.MfaCode))
+                {
+                    _logger.LogWarning("Invalid MFA code for admin login: {Email}", normalizedEmail);
+                    return new AuthResult { Success = false, Error = "Invalid MFA code" };
+                }
+            }
+
+            var accessToken = GenerateAccessToken(owner);
+            string? refreshToken = null;
+            try
+            {
+                refreshToken = await GenerateRefreshTokenAsync(owner);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to persist refresh token for user {UserId}", owner.Id);
+            }
+
+            _logger.LogInformation("User logged in successfully: {Email} ({UserId})", normalizedEmail, owner.Id);
+            return new AuthResult
+            {
+                Success = true,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
         }
-
-        var accessToken = GenerateAccessToken(owner);
-        var refreshToken = await GenerateRefreshTokenAsync(owner);
-
-        _logger.LogInformation("User logged in successfully: {Email} ({UserId})", normalizedEmail, owner.Id);
-        return new AuthResult
+        catch (Exception ex)
         {
-            Success = true,
-            AccessToken = accessToken,
-            RefreshToken = refreshToken
-        };
+            _logger.LogError(ex, "Login failed unexpectedly for email: {Email}", request.Email);
+            return new AuthResult { Success = false, Error = "Login failed" };
+        }
     }
 
     public async Task<AuthResult> RefreshTokenAsync(string refreshToken)
