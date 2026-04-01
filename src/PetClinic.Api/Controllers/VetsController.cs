@@ -16,10 +16,10 @@ public class VetsController : ControllerBase
     private const string MainVetEmail = "vet@petclinic.com";
 
     private readonly PetClinicDbContext _context;
-    private readonly IUserContextService _userContext;
+    private readonly IUserContextService? _userContext;
     private readonly IAuthService _authService;
 
-    public VetsController(PetClinicDbContext context, IUserContextService userContext, IAuthService authService)
+    public VetsController(PetClinicDbContext context, IAuthService authService, IUserContextService? userContext = null)
     {
         _context = context;
         _userContext = userContext;
@@ -111,28 +111,34 @@ public class VetsController : ControllerBase
             return Conflict(new { error = "License number is already in use" });
         }
 
-        var currentUserId = _userContext.GetCurrentUserId();
-        var currentUserRoles = _userContext.GetCurrentUserRoles();
+        var currentUserId = _userContext?.GetCurrentUserId() ?? Guid.Empty;
+        var currentUserRoles = _userContext?.GetCurrentUserRoles() ?? new List<string>();
         var rolesCsv = string.Join(",", currentUserRoles);
         var now = DateTime.UtcNow;
 
         owner.Email = normalizedEmail;
         owner.FirstName = normalizedFirstName;
         owner.LastName = normalizedLastName;
-        // Capture update metadata
-        owner.VetAccountUpdatedAtUtc = now;
-        owner.VetAccountUpdatedByUserId = currentUserId;
-        owner.VetAccountUpdatedByRolesCsv = rolesCsv;
+        // Capture update metadata (only if user context is available)
+        if (_userContext != null)
+        {
+            owner.VetAccountUpdatedAtUtc = now;
+            owner.VetAccountUpdatedByUserId = currentUserId != Guid.Empty ? currentUserId : null;
+            owner.VetAccountUpdatedByRolesCsv = !string.IsNullOrEmpty(rolesCsv) ? rolesCsv : null;
+        }
 
         vetProfile.Email = normalizedEmail;
         vetProfile.Name = normalizedFirstName;
         vetProfile.LastName = normalizedLastName;
         vetProfile.LicenseNumber = normalizedLicense;
         vetProfile.PhoneNumber = normalizedPhone;
-        // Capture update metadata
-        vetProfile.VetAccountUpdatedAtUtc = now;
-        vetProfile.VetAccountUpdatedByUserId = currentUserId;
-        vetProfile.VetAccountUpdatedByRolesCsv = rolesCsv;
+        // Capture update metadata (only if user context is available)
+        if (_userContext != null)
+        {
+            vetProfile.VetAccountUpdatedAtUtc = now;
+            vetProfile.VetAccountUpdatedByUserId = currentUserId != Guid.Empty ? currentUserId : null;
+            vetProfile.VetAccountUpdatedByRolesCsv = !string.IsNullOrEmpty(rolesCsv) ? rolesCsv : null;
+        }
 
         await _context.SaveChangesAsync();
 
@@ -201,19 +207,19 @@ public class VetsController : ControllerBase
 
     private bool IsCurrentUserVet()
     {
-        var roles = _userContext.GetCurrentUserRoles();
+        var roles = _userContext?.GetCurrentUserRoles() ?? new List<string>();
         return roles.Contains("Vet") || roles.Contains("Admin");
     }
 
     private bool IsCurrentUserAdmin()
     {
-        var roles = _userContext.GetCurrentUserRoles();
+        var roles = _userContext?.GetCurrentUserRoles() ?? new List<string>();
         return roles.Contains("Admin");
     }
 
     private async Task<bool> IsCurrentUserMainVetAsync()
     {
-        var currentUserId = _userContext.GetCurrentUserId();
+        var currentUserId = _userContext?.GetCurrentUserId() ?? Guid.Empty;
         if (currentUserId == Guid.Empty)
         {
             return false;

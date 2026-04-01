@@ -18,11 +18,11 @@ public class AuthService : IAuthService
     private readonly PetClinicDbContext _context;
     private readonly IConfiguration _configuration;
     private readonly ILogger<AuthService> _logger;
-    private readonly IUserContextService _userContext;
+    private readonly IUserContextService? _userContext;
     private const int TotpTimeStepSeconds = 30;
     private const int TotpDigits = 6;
 
-    public AuthService(PetClinicDbContext context, IConfiguration configuration, ILogger<AuthService> logger, IUserContextService userContext)
+    public AuthService(PetClinicDbContext context, IConfiguration configuration, ILogger<AuthService> logger, IUserContextService? userContext = null)
     {
         _context = context;
         _configuration = configuration;
@@ -119,8 +119,9 @@ public class AuthService : IAuthService
 
         try
         {
-            var currentUserId = _userContext.GetCurrentUserId();
-            var currentUserRoles = _userContext.GetCurrentUserRoles();
+            // Get user context if available (optional)
+            var currentUserId = _userContext?.GetCurrentUserId() ?? Guid.Empty;
+            var currentUserRoles = _userContext?.GetCurrentUserRoles() ?? new List<string>();
             var rolesCsv = string.Join(",", currentUserRoles);
 
             var vetOwner = new Owner
@@ -130,10 +131,10 @@ public class AuthService : IAuthService
                 FirstName = firstName,
                 LastName = lastName,
                 Roles = new List<string> { "Vet" },
-                // Capture creation metadata
-                VetAccountCreatedAtUtc = DateTime.UtcNow,
-                VetAccountCreatedByUserId = currentUserId,
-                VetAccountCreatedByRolesCsv = rolesCsv
+                // Capture creation metadata (only if user context is available)
+                VetAccountCreatedAtUtc = _userContext != null ? DateTime.UtcNow : null,
+                VetAccountCreatedByUserId = _userContext != null && currentUserId != Guid.Empty ? currentUserId : null,
+                VetAccountCreatedByRolesCsv = _userContext != null && !string.IsNullOrEmpty(rolesCsv) ? rolesCsv : null
             };
 
             _context.Owners.Add(vetOwner);
@@ -146,10 +147,10 @@ public class AuthService : IAuthService
                 Email = normalizedEmail,
                 PhoneNumber = phoneNumber,
                 LicenseNumber = licenseNumber,
-                // Capture creation metadata
-                VetAccountCreatedAtUtc = DateTime.UtcNow,
-                VetAccountCreatedByUserId = currentUserId,
-                VetAccountCreatedByRolesCsv = rolesCsv
+                // Capture creation metadata (only if user context is available)
+                VetAccountCreatedAtUtc = _userContext != null ? DateTime.UtcNow : null,
+                VetAccountCreatedByUserId = _userContext != null && currentUserId != Guid.Empty ? currentUserId : null,
+                VetAccountCreatedByRolesCsv = _userContext != null && !string.IsNullOrEmpty(rolesCsv) ? rolesCsv : null
             };
 
             _context.Veterinarians.Add(vetProfile);
@@ -157,8 +158,15 @@ public class AuthService : IAuthService
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            _logger.LogInformation("Vet account created: {Email} by user {CreatedByUserId} with roles {Roles}", 
-                normalizedEmail, currentUserId, rolesCsv);
+            if (_userContext != null)
+            {
+                _logger.LogInformation("Vet account created: {Email} by user {CreatedByUserId} with roles {Roles}",
+                    normalizedEmail, currentUserId, rolesCsv);
+            }
+            else
+            {
+                _logger.LogInformation("Vet account created: {Email} (no user context available)", normalizedEmail);
+            }
 
             return new AuthResult { Success = true };
         }

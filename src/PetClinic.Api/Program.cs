@@ -204,8 +204,9 @@ try
         {
             try
             {
-                // Keep existing data during normal startup to avoid transient login failures.
-                await dbContext.Database.EnsureCreatedAsync();
+                // Apply pending migrations (includes creating database if it doesn't exist)
+                // This ensures all schema changes from migrations are applied automatically
+                await dbContext.Database.MigrateAsync();
                 break;
             }
             catch
