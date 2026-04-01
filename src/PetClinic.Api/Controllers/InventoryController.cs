@@ -240,6 +240,7 @@ public class InventoryController : ControllerBase
 
     private bool IsCurrentUserVet()
     {
-        return _userContext.GetCurrentUserRoles().Contains("Vet");
+        var roles = _userContext.GetCurrentUserRoles();
+        return roles.Contains("Vet") || roles.Contains("Admin");
     }
 }
