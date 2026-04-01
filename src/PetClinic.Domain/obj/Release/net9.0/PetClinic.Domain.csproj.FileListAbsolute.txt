@@ -1,0 +1,11 @@
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Domain\bin\Release\net9.0\PetClinic.Domain.deps.json
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Domain\bin\Release\net9.0\PetClinic.Domain.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Domain\bin\Release\net9.0\PetClinic.Domain.pdb
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Domain\obj\Release\net9.0\PetClinic.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Domain\obj\Release\net9.0\PetClinic.Domain.AssemblyInfoInputs.cache
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Domain\obj\Release\net9.0\PetClinic.Domain.AssemblyInfo.cs
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Domain\obj\Release\net9.0\PetClinic.Domain.csproj.CoreCompileInputs.cache
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Domain\obj\Release\net9.0\PetClinic.Domain.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Domain\obj\Release\net9.0\refint\PetClinic.Domain.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Domain\obj\Release\net9.0\PetClinic.Domain.pdb
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Domain\obj\Release\net9.0\ref\PetClinic.Domain.dll
