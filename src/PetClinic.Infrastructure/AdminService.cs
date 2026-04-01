@@ -467,14 +467,27 @@ public class AdminService : IAdminService
             // Simple health check - verify database connectivity
             await _context.Owners.CountAsync();
 
+            var now = DateTime.UtcNow;
+            var activeUsers = await _context.RefreshTokens
+                .Where(rt => !rt.RevokedAt.HasValue && rt.Expires > now)
+                .Select(rt => rt.OwnerId)
+                .Distinct()
+                .CountAsync();
+
+            var totalMemoryBytes = GC.GetGCMemoryInfo().TotalAvailableMemoryBytes;
+            var usedMemoryBytes = GC.GetTotalMemory(false);
+            var memoryUsage = totalMemoryBytes > 0
+                ? Math.Min(100d, Math.Round((usedMemoryBytes / (double)totalMemoryBytes) * 100d, 1))
+                : 0d;
+
             return new AdminSystemHealthDto
             {
                 Status = "Healthy",
                 CheckedAt = DateTime.UtcNow,
-                ActiveUsers = 0,
+                ActiveUsers = activeUsers,
                 DatabaseConnections = 1,
                 CpuUsage = 0,
-                MemoryUsage = 0
+                MemoryUsage = memoryUsage
             };
         }
         catch (Exception ex)
