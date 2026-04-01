@@ -205,20 +205,26 @@ public class AuthService : IAuthService
 
             var passwordHash = owner.PasswordHash ?? string.Empty;
             var incomingPassword = request.Password ?? string.Empty;
-            var isValidPassword = false;
-            try
-            {
-                isValidPassword = BCrypt.Net.BCrypt.Verify(incomingPassword, passwordHash);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Password hash verification failed for user {UserId}", owner.Id);
-            }
+            var isValidPassword = VerifyPassword(incomingPassword, passwordHash, out var shouldRehashPassword);
 
             if (!isValidPassword)
             {
                 _logger.LogWarning("Failed login attempt for email: {Email}", normalizedEmail);
                 return new AuthResult { Success = false, Error = "Invalid credentials" };
+            }
+
+            if (shouldRehashPassword)
+            {
+                try
+                {
+                    owner.PasswordHash = BCrypt.Net.BCrypt.HashPassword(incomingPassword);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Upgraded legacy password hash for user {UserId}", owner.Id);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to upgrade legacy password hash for user {UserId}", owner.Id);
+                }
             }
 
             var configuredAdminEmail = NormalizeEmail(_configuration["AdminAccess:AdminEmail"]);
@@ -415,6 +421,31 @@ public class AuthService : IAuthService
             .Select(role => role.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
+
+    private bool VerifyPassword(string incomingPassword, string storedPasswordHash, out bool shouldRehashPassword)
+    {
+        shouldRehashPassword = false;
+        if (string.IsNullOrEmpty(incomingPassword) || string.IsNullOrWhiteSpace(storedPasswordHash))
+        {
+            return false;
+        }
+
+        try
+        {
+            return BCrypt.Net.BCrypt.Verify(incomingPassword, storedPasswordHash);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Password hash verification failed, falling back to legacy check");
+            if (string.Equals(incomingPassword, storedPasswordHash, StringComparison.Ordinal))
+            {
+                shouldRehashPassword = true;
+                return true;
+            }
+
+            return false;
+        }
     }
 
     private static bool ValidateTotpCode(string base32Secret, string mfaCode)
