@@ -32,7 +32,7 @@ public class VetController : ControllerBase
         var userId = _userContext.GetCurrentUserId();
         var roles = _userContext.GetCurrentUserRoles();
 
-        if (!roles.Contains("Vet"))
+        if (!roles.Contains("Vet") && !roles.Contains("Admin"))
         {
             return Forbid();
         }
@@ -61,7 +61,7 @@ public class VetController : ControllerBase
         var userId = _userContext.GetCurrentUserId();
         var roles = _userContext.GetCurrentUserRoles();
 
-        if (!roles.Contains("Vet"))
+        if (!roles.Contains("Vet") && !roles.Contains("Admin"))
         {
             return Forbid();
         }
@@ -125,7 +125,7 @@ public class VetController : ControllerBase
         var userId = _userContext.GetCurrentUserId();
         var roles = _userContext.GetCurrentUserRoles();
 
-        if (!roles.Contains("Vet"))
+        if (!roles.Contains("Vet") && !roles.Contains("Admin"))
         {
             return Forbid();
         }
@@ -153,7 +153,7 @@ public class VetController : ControllerBase
         var userId = _userContext.GetCurrentUserId();
         var roles = _userContext.GetCurrentUserRoles();
 
-        if (!roles.Contains("Vet"))
+        if (!roles.Contains("Vet") && !roles.Contains("Admin"))
         {
             return Forbid();
         }

@@ -99,7 +99,7 @@ public class OwnersController : ControllerBase
     public async Task<IActionResult> GetAllPetsForVet()
     {
         var roles = _userContext.GetCurrentUserRoles();
-        if (!roles.Contains("Vet"))
+        if (!roles.Contains("Vet") && !roles.Contains("Admin"))
         {
             return Forbid();
         }

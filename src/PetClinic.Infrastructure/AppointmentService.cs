@@ -32,7 +32,7 @@ public class AppointmentService : IAppointmentService
 
         var currentUserId = _userContext.GetCurrentUserId();
         var roles = _userContext.GetCurrentUserRoles();
-        var isVet = roles.Contains("Vet");
+        var isVet = roles.Contains("Vet") || roles.Contains("Admin");
 
         // Owners can only book for their own pets; vets can book for any pet.
         var pet = isVet
@@ -119,6 +119,10 @@ public class AppointmentService : IAppointmentService
             // Vets see their own appointments and the unassigned queue.
             query = query.Where(a => a.VeterinarianId == userId || a.VeterinarianId == null);
         }
+        else if (roles.Contains("Admin"))
+        {
+            // Admins can review all appointments while using admin view modes.
+        }
         else
         {
             // Owners see their pets' appointments
@@ -155,17 +159,19 @@ public class AppointmentService : IAppointmentService
 
         var currentUserId = _userContext.GetCurrentUserId();
         var roles = _userContext.GetCurrentUserRoles();
-        if (!roles.Contains("Vet"))
+        var isVet = roles.Contains("Vet");
+        var isAdmin = roles.Contains("Admin");
+        if (!isVet && !isAdmin)
         {
             throw new UnauthorizedAccessException("Only veterinarians can confirm appointments");
         }
 
-        if (appointment.VeterinarianId.HasValue && appointment.VeterinarianId != currentUserId)
+        if (isVet && appointment.VeterinarianId.HasValue && appointment.VeterinarianId != currentUserId)
         {
             throw new UnauthorizedAccessException("You can only confirm your own appointments");
         }
 
-        if (!appointment.VeterinarianId.HasValue)
+        if (isVet && !appointment.VeterinarianId.HasValue)
         {
             appointment.VeterinarianId = currentUserId;
         }
@@ -199,7 +205,11 @@ public class AppointmentService : IAppointmentService
         var currentUserId = _userContext.GetCurrentUserId();
         var roles = _userContext.GetCurrentUserRoles();
 
-        if (roles.Contains("Vet"))
+        if (roles.Contains("Admin"))
+        {
+            // Admin can cancel any appointment.
+        }
+        else if (roles.Contains("Vet"))
         {
             if (appointment.VeterinarianId != currentUserId)
             {

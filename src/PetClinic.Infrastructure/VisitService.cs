@@ -21,8 +21,10 @@ public class VisitService : IVisitService
 
         var currentUserId = _userContext.GetCurrentUserId();
         var currentUserRoles = _userContext.GetCurrentUserRoles();
+        var isVet = currentUserRoles.Contains("Vet");
+        var isAdmin = currentUserRoles.Contains("Admin");
 
-        if (!currentUserRoles.Contains("Vet"))
+        if (!isVet && !isAdmin)
         {
             throw new UnauthorizedAccessException("Only vets can complete visits");
         }
@@ -75,7 +77,7 @@ public class VisitService : IVisitService
             }
 
             // Check if vet is assigned to this appointment
-            if (visit.Appointment.VeterinarianId != currentUserId)
+            if (isVet && visit.Appointment.VeterinarianId != currentUserId)
             {
                 throw new UnauthorizedAccessException("Vet not assigned to this visit");
             }

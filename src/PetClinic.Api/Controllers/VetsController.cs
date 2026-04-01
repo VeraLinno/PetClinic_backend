@@ -198,7 +198,7 @@ public class VetsController : ControllerBase
     private bool IsCurrentUserVet()
     {
         var roles = _userContext.GetCurrentUserRoles();
-        return roles.Contains("Vet");
+        return roles.Contains("Vet") || roles.Contains("Admin");
     }
 
     private async Task<bool> IsCurrentUserMainVetAsync()
