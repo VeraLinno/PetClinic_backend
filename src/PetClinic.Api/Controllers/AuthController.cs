@@ -57,6 +57,11 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var result = await _authService.LoginAsync(request);
+        if (result.MfaRequired)
+        {
+            return Ok(new { mfaRequired = true, message = result.Error });
+        }
+
         if (!result.Success)
         {
             return Unauthorized(new { error = result.Error });

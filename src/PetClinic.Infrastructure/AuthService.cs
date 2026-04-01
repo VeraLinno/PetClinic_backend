@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using PetClinic.Application;
 using PetClinic.Domain;
+using System.Globalization;
 
 namespace PetClinic.Infrastructure;
 
@@ -17,6 +18,8 @@ public class AuthService : IAuthService
     private readonly PetClinicDbContext _context;
     private readonly IConfiguration _configuration;
     private readonly ILogger<AuthService> _logger;
+    private const int TotpTimeStepSeconds = 30;
+    private const int TotpDigits = 6;
 
     public AuthService(PetClinicDbContext context, IConfiguration configuration, ILogger<AuthService> logger)
     {
@@ -165,6 +168,39 @@ public class AuthService : IAuthService
             return new AuthResult { Success = false, Error = "Invalid credentials" };
         }
 
+        var configuredAdminEmail = NormalizeEmail(_configuration["AdminAccess:AdminEmail"]);
+        var isAdminUser = owner.Roles.Contains("Admin", StringComparer.OrdinalIgnoreCase);
+        var isConfiguredAdmin = !string.IsNullOrWhiteSpace(configuredAdminEmail)
+            && normalizedEmail.Equals(configuredAdminEmail, StringComparison.OrdinalIgnoreCase);
+
+        if (isAdminUser && !isConfiguredAdmin)
+        {
+            _logger.LogWarning("Blocked admin login for non-allowlisted account: {Email}", normalizedEmail);
+            return new AuthResult { Success = false, Error = "This account is not allowed to access admin features" };
+        }
+
+        var requireAdminMfa = _configuration.GetValue<bool?>("AdminAccess:RequireMfa") ?? true;
+        if (isConfiguredAdmin && isAdminUser && requireAdminMfa)
+        {
+            var mfaSecret = _configuration["AdminAccess:MfaSecret"]?.Trim();
+            if (string.IsNullOrWhiteSpace(mfaSecret))
+            {
+                _logger.LogError("Admin MFA is enabled but AdminAccess:MfaSecret is not configured");
+                return new AuthResult { Success = false, Error = "Admin MFA is not configured on the server" };
+            }
+
+            if (string.IsNullOrWhiteSpace(request.MfaCode))
+            {
+                return new AuthResult { Success = false, MfaRequired = true, Error = "MFA code is required" };
+            }
+
+            if (!ValidateTotpCode(mfaSecret, request.MfaCode))
+            {
+                _logger.LogWarning("Invalid MFA code for admin login: {Email}", normalizedEmail);
+                return new AuthResult { Success = false, Error = "Invalid MFA code" };
+            }
+        }
+
         var accessToken = GenerateAccessToken(owner);
         var refreshToken = await GenerateRefreshTokenAsync(owner);
 
@@ -223,10 +259,22 @@ public class AuthService : IAuthService
 
     private string GenerateAccessToken(Owner owner)
     {
+        var normalizedEmail = NormalizeEmail(owner.Email);
+        var configuredAdminEmail = NormalizeEmail(_configuration["AdminAccess:AdminEmail"]);
+        var allowedRoles = owner.Roles
+            .Where(role => !string.IsNullOrWhiteSpace(role))
+            .Select(role => role.Trim())
+            .Where(role => !role.Equals("Admin", StringComparison.OrdinalIgnoreCase)
+                || (!string.IsNullOrWhiteSpace(configuredAdminEmail)
+                    && normalizedEmail.Equals(configuredAdminEmail, StringComparison.OrdinalIgnoreCase)))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, owner.Id.ToString()),
-            new Claim("roles", string.Join(",", owner.Roles))
+            new Claim(JwtRegisteredClaimNames.Email, owner.Email),
+            new Claim("roles", string.Join(",", allowedRoles))
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!));
@@ -293,5 +341,98 @@ public class AuthService : IAuthService
             .Select(role => role.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
+
+    private static bool ValidateTotpCode(string base32Secret, string mfaCode)
+    {
+        if (string.IsNullOrWhiteSpace(mfaCode))
+        {
+            return false;
+        }
+
+        var normalizedCode = new string(mfaCode.Where(char.IsDigit).ToArray());
+        if (normalizedCode.Length != TotpDigits)
+        {
+            return false;
+        }
+
+        var secretBytes = DecodeBase32(base32Secret);
+        if (secretBytes.Length == 0)
+        {
+            return false;
+        }
+
+        var unixTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var timestep = unixTime / TotpTimeStepSeconds;
+
+        // Accept a small clock skew window of +-1 step.
+        for (var offset = -1; offset <= 1; offset++)
+        {
+            var expected = ComputeTotp(secretBytes, timestep + offset);
+            if (CryptographicOperations.FixedTimeEquals(
+                Encoding.UTF8.GetBytes(expected),
+                Encoding.UTF8.GetBytes(normalizedCode)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static string ComputeTotp(byte[] key, long timestep)
+    {
+        var timestepBytes = BitConverter.GetBytes(timestep);
+        if (BitConverter.IsLittleEndian)
+        {
+            Array.Reverse(timestepBytes);
+        }
+
+        using var hmac = new HMACSHA1(key);
+        var hash = hmac.ComputeHash(timestepBytes);
+
+        var offset = hash[^1] & 0x0F;
+        var binaryCode = ((hash[offset] & 0x7F) << 24)
+            | (hash[offset + 1] << 16)
+            | (hash[offset + 2] << 8)
+            | hash[offset + 3];
+
+        var otp = binaryCode % (int)Math.Pow(10, TotpDigits);
+        return otp.ToString(CultureInfo.InvariantCulture).PadLeft(TotpDigits, '0');
+    }
+
+    private static byte[] DecodeBase32(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return Array.Empty<byte>();
+        }
+
+        var normalized = input.Trim().Replace("=", string.Empty).Replace(" ", string.Empty).ToUpperInvariant();
+        const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+        var output = new List<byte>();
+        var buffer = 0;
+        var bitsLeft = 0;
+
+        foreach (var c in normalized)
+        {
+            var val = alphabet.IndexOf(c);
+            if (val < 0)
+            {
+                return Array.Empty<byte>();
+            }
+
+            buffer = (buffer << 5) | val;
+            bitsLeft += 5;
+
+            if (bitsLeft >= 8)
+            {
+                bitsLeft -= 8;
+                output.Add((byte)((buffer >> bitsLeft) & 0xFF));
+            }
+        }
+
+        return output.ToArray();
     }
 }

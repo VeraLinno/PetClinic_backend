@@ -34,11 +34,13 @@ public class LoginRequest
 {
     public string Email { get; set; } = default!;
     public string Password { get; set; } = default!;
+    public string? MfaCode { get; set; }
 }
 
 public class AuthResult
 {
     public bool Success { get; set; }
+    public bool MfaRequired { get; set; }
     public string? AccessToken { get; set; }
     public string? RefreshToken { get; set; }
     public string? Error { get; set; }
