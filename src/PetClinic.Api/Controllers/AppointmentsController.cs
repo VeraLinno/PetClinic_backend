@@ -9,7 +9,7 @@ using PetClinic.Domain;
 namespace PetClinic.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 [Authorize]
 public class AppointmentsController : ControllerBase

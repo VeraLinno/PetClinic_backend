@@ -9,7 +9,7 @@ namespace PetClinic.Api.Controllers.Admin;
 /// Admin cleanup controller - preview vet account cleanup candidates (dry-run mode)
 /// </summary>
 [ApiController]
-[Route("api/admin/[controller]")]
+[Route("api/v{version:apiVersion}/admin/[controller]")]
 [ApiVersion("1.0")]
 [Authorize(Policy = "Admin")]
 public class CleanupController : ControllerBase

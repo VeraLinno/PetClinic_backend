@@ -9,7 +9,7 @@ namespace PetClinic.Api.Controllers.Admin;
 /// Admin appointments controller - manage appointments and scheduling
 /// </summary>
 [ApiController]
-[Route("admin/[controller]")]
+[Route("api/v{version:apiVersion}/admin/[controller]")]
 [ApiVersion("1.0")]
 [Authorize(Policy = "Admin")]
 public class AdminAppointmentsController : Controller

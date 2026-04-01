@@ -37,7 +37,7 @@ services:
       context: ${FRONTEND_CONTEXT:-../velinn-petclinic_js}
       dockerfile: Dockerfile
       args:
-        VITE_API_BASE_URL: ${FRONTEND_API_BASE_URL:-/api}
+        VITE_API_BASE_URL: ${FRONTEND_API_BASE_URL:-/api/v1}
     container_name: petclinic-frontend
     depends_on:
       - api

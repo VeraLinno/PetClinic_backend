@@ -9,7 +9,7 @@ namespace PetClinic.Api.Controllers.Admin;
 /// Admin audit controller - view audit logs and user activity records
 /// </summary>
 [ApiController]
-[Route("admin/[controller]")]
+[Route("api/v{version:apiVersion}/admin/[controller]")]
 [ApiVersion("1.0")]
 [Authorize(Policy = "Admin")]
 public class AdminAuditController : Controller
