@@ -27,6 +27,15 @@ public class AdminService : IAdminService
         _logger.LogInformation("Admin: Retrieving all users");
 
         var users = await _context.Owners
+            .AsNoTracking()
+            .Select(o => new
+            {
+                o.Id,
+                o.Email,
+                o.FirstName,
+                o.LastName,
+                o.Roles
+            })
             .OrderBy(o => o.Email)
             .ToListAsync();
 
@@ -197,10 +206,26 @@ public class AdminService : IAdminService
         _logger.LogInformation("Admin: Retrieving appointments (from: {FromDate}, to: {ToDate}, status: {Status})",
             fromDate, toDate, status);
 
-        var query = _context.Appointments
-            .Include(a => a.Pet)
-            .Include(a => a.Veterinarian)
-            .AsQueryable();
+        var query = from appointment in _context.Appointments.AsNoTracking()
+                    join pet in _context.Pets.AsNoTracking() on appointment.PetId equals pet.Id into petJoin
+                    from pet in petJoin.DefaultIfEmpty()
+                    join owner in _context.Owners.AsNoTracking() on pet.OwnerId equals owner.Id into ownerJoin
+                    from owner in ownerJoin.DefaultIfEmpty()
+                    join vet in _context.Veterinarians.AsNoTracking() on appointment.VeterinarianId equals vet.Id into vetJoin
+                    from vet in vetJoin.DefaultIfEmpty()
+                    select new
+                    {
+                        appointment.Id,
+                        appointment.PetId,
+                        PetName = pet != null ? pet.Name : null,
+                        OwnerEmail = owner != null ? owner.Email : null,
+                        appointment.VeterinarianId,
+                        VetName = vet != null ? vet.Name : null,
+                        VetLastName = vet != null ? vet.LastName : null,
+                        appointment.StartAt,
+                        appointment.EndAt,
+                        appointment.Status
+                    };
 
         if (fromDate.HasValue)
             query = query.Where(a => a.StartAt >= fromDate.Value);
@@ -220,10 +245,10 @@ public class AdminService : IAdminService
         {
             Id = a.Id,
             PetId = a.PetId,
-            PetName = a.Pet?.Name,
-            OwnerEmail = a.Pet?.Owner?.Email,
+            PetName = a.PetName,
+            OwnerEmail = a.OwnerEmail,
             VeterinarianId = a.VeterinarianId,
-            VeterinarianName = a.Veterinarian != null ? $"{a.Veterinarian.Name} {a.Veterinarian.LastName}" : null,
+            VeterinarianName = a.VeterinarianId.HasValue ? $"{a.VetName} {a.VetLastName}".Trim() : null,
             StartAt = a.StartAt,
             EndAt = a.EndAt,
             Status = a.Status.ToString()
