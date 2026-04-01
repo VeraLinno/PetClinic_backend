@@ -194,7 +194,8 @@ public class AuthService : IAuthService
         }
 
         var configuredAdminEmail = NormalizeEmail(_configuration["AdminAccess:AdminEmail"]);
-        var isAdminUser = owner.Roles.Contains("Admin", StringComparer.OrdinalIgnoreCase);
+        var ownerRoles = owner.Roles ?? new List<string>();
+        var isAdminUser = ownerRoles.Contains("Admin", StringComparer.OrdinalIgnoreCase);
         var isConfiguredAdmin = !string.IsNullOrWhiteSpace(configuredAdminEmail)
             && normalizedEmail.Equals(configuredAdminEmail, StringComparison.OrdinalIgnoreCase);
 
@@ -286,7 +287,7 @@ public class AuthService : IAuthService
     {
         var normalizedEmail = NormalizeEmail(owner.Email);
         var configuredAdminEmail = NormalizeEmail(_configuration["AdminAccess:AdminEmail"]);
-        var allowedRoles = owner.Roles
+        var allowedRoles = (owner.Roles ?? new List<string>())
             .Where(role => !string.IsNullOrWhiteSpace(role))
             .Select(role => role.Trim())
             .Where(role => !role.Equals("Admin", StringComparison.OrdinalIgnoreCase)
