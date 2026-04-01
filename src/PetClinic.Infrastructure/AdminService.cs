@@ -421,12 +421,17 @@ public class AdminService : IAdminService
 
         // Get all vet accounts that are NOT protected
         var unprotectedVets = await _context.Owners
-            .Where(o => o.Roles.Contains("Vet") && !o.VetCleanupProtected)
+            .Where(o => o.Roles.Contains("Vet"))
             .Include(o => o.RefreshTokens)
             .ToListAsync();
+        
+        // Filter in-memory to avoid LINQ translation issues
+        unprotectedVets = unprotectedVets
+            .Where(o => o.VetCleanupProtected != true)
+            .ToList();
 
         var protectedVets = await _context.Owners
-            .Where(o => o.Roles.Contains("Vet") && o.VetCleanupProtected)
+            .Where(o => o.Roles.Contains("Vet") && o.VetCleanupProtected == true)
             .CountAsync();
 
         var candidates = new List<VetCleanupDryRunCandidateDto>();
