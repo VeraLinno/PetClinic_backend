@@ -1,6 +1,7 @@
 using System.Text;
 using System.Net;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
@@ -80,13 +81,25 @@ try
 
     // Authorization policies
     var configuredAdminEmail = (builder.Configuration["AdminAccess:AdminEmail"] ?? string.Empty).Trim().ToLowerInvariant();
+    static bool HasRole(ClaimsPrincipal user, string expectedRole)
+    {
+        return user.Claims
+            .Where(claim => claim.Type == "roles"
+                || claim.Type == ClaimTypes.Role
+                || claim.Type == "role"
+                || claim.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                || claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role")
+            .SelectMany(claim => claim.Value.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            .Any(role => role.Trim().Equals(expectedRole, StringComparison.OrdinalIgnoreCase));
+    }
+
     builder.Services.AddAuthorization(options =>
     {
-        options.AddPolicy("Vet", policy => policy.RequireClaim("roles", "Vet"));
-        options.AddPolicy("Owner", policy => policy.RequireClaim("roles", "Owner"));
+        options.AddPolicy("Vet", policy => policy.RequireAssertion(context => HasRole(context.User, "Vet")));
+        options.AddPolicy("Owner", policy => policy.RequireAssertion(context => HasRole(context.User, "Owner")));
         options.AddPolicy("Admin", policy => policy.RequireAssertion(context =>
         {
-            var hasAdminRole = context.User.HasClaim("roles", "Admin");
+            var hasAdminRole = HasRole(context.User, "Admin");
             if (!hasAdminRole)
             {
                 return false;

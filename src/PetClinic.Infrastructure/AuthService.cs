@@ -277,6 +277,12 @@ public class AuthService : IAuthService
             new Claim("roles", string.Join(",", allowedRoles))
         };
 
+        foreach (var role in allowedRoles)
+        {
+            claims.Add(new Claim("roles", role));
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
