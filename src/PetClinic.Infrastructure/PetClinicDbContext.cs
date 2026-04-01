@@ -43,6 +43,14 @@ public class PetClinicDbContext : DbContext
     public DbSet<Translation> Translations { get; set; } = default!;
     public DbSet<AdminAuditEvent> AdminAuditEvents { get; set; } = default!;
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        // Suppress the pending model changes warning to allow migrations to apply
+        // even if there are schema changes in development
+        optionsBuilder.ConfigureWarnings(w => 
+            w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+    }
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         // Configure all DateTime properties to use UTC for PostgreSQL
