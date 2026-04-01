@@ -73,7 +73,7 @@ try
                 ValidateIssuer = false,
                 ValidateAudience = false,
                 ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
+                ClockSkew = TimeSpan.FromSeconds(5)
             };
         });
 
@@ -169,8 +169,7 @@ try
         {
             try
             {
-                // Drop and recreate to ensure schema is up to date
-                await dbContext.Database.EnsureDeletedAsync();
+                // Keep existing data during normal startup to avoid transient login failures.
                 await dbContext.Database.EnsureCreatedAsync();
                 break;
             }
