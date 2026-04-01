@@ -300,3 +300,31 @@ public class UpdateUserRoleDto
 
     public bool IsActive { get; set; } = true;
 }
+
+// ========== VET ACCOUNT CLEANUP DTOS ==========
+
+public class VetCleanupDryRunCandidateDto
+{
+    public Guid VetAccountId { get; set; }
+    public string Email { get; set; } = default!;
+    public string FirstName { get; set; } = default!;
+    public string LastName { get; set; } = default!;
+    public string LicenseNumber { get; set; } = default!;
+    public DateTime? CreatedAtUtc { get; set; }
+    public string CreatedByEmail { get; set; } = default!;
+    public string Reason { get; set; } = default!;
+    public int AppointmentCount { get; set; }
+    public int ActiveRefreshTokenCount { get; set; }
+}
+
+public class VetCleanupDryRunResponseDto
+{
+    public List<VetCleanupDryRunCandidateDto> Candidates { get; set; } = new();
+    public int TotalCandidateCount { get; set; }
+    public int TotalProtectedCount { get; set; }
+    public int TotalAppointmentsImpacted { get; set; }
+    public int TotalActiveTokensImpacted { get; set; }
+    public DateTime PreviewGeneratedAtUtc { get; set; }
+    public string PreviewHash { get; set; } = default!; // For execute confirmation
+    public string Notes { get; set; } = default!; // Curator notes
+}

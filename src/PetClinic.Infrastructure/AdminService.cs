@@ -415,6 +415,107 @@ public class AdminService : IAdminService
         return new List<AdminAuditLogDto>();
     }
 
+    public async Task<VetCleanupDryRunResponseDto> PreviewVetAccountCleanupAsync()
+    {
+        _logger.LogInformation("Admin: Previewing vet account cleanup candidates (dry-run)");
+
+        // Get all vet accounts that are NOT protected
+        var unprotectedVets = await _context.Owners
+            .Where(o => o.Roles.Contains("Vet") && !o.VetCleanupProtected)
+            .Include(o => o.RefreshTokens)
+            .ToListAsync();
+
+        var protectedVets = await _context.Owners
+            .Where(o => o.Roles.Contains("Vet") && o.VetCleanupProtected)
+            .CountAsync();
+
+        var candidates = new List<VetCleanupDryRunCandidateDto>();
+        int totalAppointmentsImpacted = 0;
+        int totalActiveTokensImpacted = 0;
+
+        foreach (var owner in unprotectedVets)
+        {
+            var vetProfile = await _context.Veterinarians.FirstOrDefaultAsync(v => v.Id == owner.Id);
+            if (vetProfile == null) continue;
+
+            var appointmentCount = await _context.Appointments
+                .Where(a => a.VeterinarianId == owner.Id)
+                .CountAsync();
+
+            var activeTokenCount = owner.RefreshTokens
+                .Where(rt => !rt.RevokedAt.HasValue && rt.Expires > DateTime.UtcNow)
+                .Count();
+
+            totalAppointmentsImpacted += appointmentCount;
+            totalActiveTokensImpacted += activeTokenCount;
+
+            // Determine reason for candidacy
+            string reason = "Not protected (created outside admin-only window)";
+            if (owner.VetAccountCreatedByUserId.HasValue && owner.VetAccountCreatedByUserId != Guid.Empty)
+            {
+                var createdByRole = owner.VetAccountCreatedByRolesCsv ?? "Unknown";
+                if (!createdByRole.Contains("Admin"))
+                {
+                    reason = $"Non-admin creation: {createdByRole}";
+                }
+            }
+
+            // Get creator email
+            string createdByEmail = "Unknown";
+            if (owner.VetAccountCreatedByUserId.HasValue && owner.VetAccountCreatedByUserId != Guid.Empty)
+            {
+                var createdByUser = await _context.Owners.FirstOrDefaultAsync(o => o.Id == owner.VetAccountCreatedByUserId);
+                createdByEmail = createdByUser?.Email ?? "Unknown";
+            }
+
+            candidates.Add(new VetCleanupDryRunCandidateDto
+            {
+                VetAccountId = owner.Id,
+                Email = owner.Email,
+                FirstName = owner.FirstName ?? string.Empty,
+                LastName = owner.LastName ?? string.Empty,
+                LicenseNumber = vetProfile.LicenseNumber,
+                CreatedAtUtc = owner.VetAccountCreatedAtUtc,
+                CreatedByEmail = createdByEmail,
+                Reason = reason,
+                AppointmentCount = appointmentCount,
+                ActiveRefreshTokenCount = activeTokenCount
+            });
+        }
+
+        var previewHash = GeneratePreviewHash(candidates);
+
+        var response = new VetCleanupDryRunResponseDto
+        {
+            Candidates = candidates,
+            TotalCandidateCount = candidates.Count,
+            TotalProtectedCount = protectedVets,
+            TotalAppointmentsImpacted = totalAppointmentsImpacted,
+            TotalActiveTokensImpacted = totalActiveTokensImpacted,
+            PreviewGeneratedAtUtc = DateTime.UtcNow,
+            PreviewHash = previewHash,
+            Notes = $"Protected (safe) vet accounts: {protectedVets}. " +
+                    $"Unprotected (candidate) accounts: {candidates.Count}. " +
+                    $"Total vet accounts: {protectedVets + candidates.Count}."
+        };
+
+        _logger.LogInformation("Admin: Cleanup preview generated. Protected: {Protected}, Candidates: {Candidates}, Hash: {Hash}",
+            protectedVets, candidates.Count, previewHash);
+
+        return response;
+    }
+
+    private string GeneratePreviewHash(List<VetCleanupDryRunCandidateDto> candidates)
+    {
+        using (var sha256 = System.Security.Cryptography.SHA256.Create())
+        {
+            var candidateIds = string.Join(",", candidates.OrderBy(c => c.VetAccountId).Select(c => c.VetAccountId));
+            var bytes = System.Text.Encoding.UTF8.GetBytes(candidateIds);
+            var hash = sha256.ComputeHash(bytes);
+            return Convert.ToBase64String(hash);
+        }
+    }
+
     // ===== DASHBOARD METRICS =====
 
     public async Task<AdminDashboardMetricsDto> GetDashboardMetricsAsync()

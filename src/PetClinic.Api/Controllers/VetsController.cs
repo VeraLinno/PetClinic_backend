@@ -111,15 +111,28 @@ public class VetsController : ControllerBase
             return Conflict(new { error = "License number is already in use" });
         }
 
+        var currentUserId = _userContext.GetCurrentUserId();
+        var currentUserRoles = _userContext.GetCurrentUserRoles();
+        var rolesCsv = string.Join(",", currentUserRoles);
+        var now = DateTime.UtcNow;
+
         owner.Email = normalizedEmail;
         owner.FirstName = normalizedFirstName;
         owner.LastName = normalizedLastName;
+        // Capture update metadata
+        owner.VetAccountUpdatedAtUtc = now;
+        owner.VetAccountUpdatedByUserId = currentUserId;
+        owner.VetAccountUpdatedByRolesCsv = rolesCsv;
 
         vetProfile.Email = normalizedEmail;
         vetProfile.Name = normalizedFirstName;
         vetProfile.LastName = normalizedLastName;
         vetProfile.LicenseNumber = normalizedLicense;
         vetProfile.PhoneNumber = normalizedPhone;
+        // Capture update metadata
+        vetProfile.VetAccountUpdatedAtUtc = now;
+        vetProfile.VetAccountUpdatedByUserId = currentUserId;
+        vetProfile.VetAccountUpdatedByRolesCsv = rolesCsv;
 
         await _context.SaveChangesAsync();
 

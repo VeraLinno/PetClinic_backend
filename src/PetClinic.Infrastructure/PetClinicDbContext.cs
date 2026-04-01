@@ -41,6 +41,7 @@ public class PetClinicDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
     public DbSet<VetUnavailability> VetUnavailabilities { get; set; } = default!;
     public DbSet<Translation> Translations { get; set; } = default!;
+    public DbSet<AdminAuditEvent> AdminAuditEvents { get; set; } = default!;
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -67,6 +68,15 @@ public class PetClinicDbContext : DbContext
         modelBuilder.Entity<Veterinarian>()
             .HasIndex(v => v.Email)
             .IsUnique();
+
+        // Veterinarian vet account audit indices
+        modelBuilder.Entity<Veterinarian>()
+            .HasIndex(v => v.VetCleanupProtected)
+            .HasDatabaseName("IX_Veterinarian_VetCleanupProtected");
+
+        modelBuilder.Entity<Veterinarian>()
+            .HasIndex(v => v.VetAccountCreatedAtUtc)
+            .HasDatabaseName("IX_Veterinarian_VetAccountCreatedAtUtc");
 
         // Relations
         modelBuilder.Entity<Pet>()
@@ -130,6 +140,15 @@ public class PetClinicDbContext : DbContext
                 v => string.Join(',', v),
                 v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
 
+        // Owner vet account audit indices
+        modelBuilder.Entity<Owner>()
+            .HasIndex(o => o.VetCleanupProtected)
+            .HasDatabaseName("IX_Owner_VetCleanupProtected");
+
+        modelBuilder.Entity<Owner>()
+            .HasIndex(o => o.VetAccountCreatedAtUtc)
+            .HasDatabaseName("IX_Owner_VetAccountCreatedAtUtc");
+
         // Translation entity configuration
         modelBuilder.Entity<Translation>()
             .HasKey(t => t.Id);
@@ -162,5 +181,25 @@ public class PetClinicDbContext : DbContext
         modelBuilder.Entity<Translation>()
             .HasIndex(t => t.Key)
             .HasDatabaseName("IX_Translations_Key");
+
+        // AdminAuditEvent configuration
+        modelBuilder.Entity<AdminAuditEvent>()
+            .HasKey(e => e.Id);
+
+        modelBuilder.Entity<AdminAuditEvent>()
+            .HasIndex(e => e.OccurredAtUtc)
+            .HasDatabaseName("IX_AdminAuditEvent_OccurredAtUtc");
+
+        modelBuilder.Entity<AdminAuditEvent>()
+            .HasIndex(e => new { e.Action, e.OccurredAtUtc })
+            .HasDatabaseName("IX_AdminAuditEvent_Action_OccurredAtUtc");
+
+        modelBuilder.Entity<AdminAuditEvent>()
+            .HasIndex(e => new { e.TargetType, e.TargetId })
+            .HasDatabaseName("IX_AdminAuditEvent_TargetType_TargetId");
+
+        modelBuilder.Entity<AdminAuditEvent>()
+            .HasIndex(e => e.PerformedByUserId)
+            .HasDatabaseName("IX_AdminAuditEvent_PerformedByUserId");
     }
 }

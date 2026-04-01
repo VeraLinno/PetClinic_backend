@@ -124,6 +124,12 @@ public interface IAdminService
     /// </summary>
     Task<List<AdminAuditLogDto>> SearchAuditLogsAsync(AdminAuditLogFilterDto filter);
 
+    /// <summary>
+    /// Dry-run preview of vet accounts eligible for cleanup.
+    /// Does NOT delete any accounts; only previews candidates.
+    /// </summary>
+    Task<VetCleanupDryRunResponseDto> PreviewVetAccountCleanupAsync();
+
     // ===== DASHBOARD METRICS =====
 
     /// <summary>

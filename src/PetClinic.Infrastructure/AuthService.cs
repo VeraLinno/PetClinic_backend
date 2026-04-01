@@ -18,14 +18,16 @@ public class AuthService : IAuthService
     private readonly PetClinicDbContext _context;
     private readonly IConfiguration _configuration;
     private readonly ILogger<AuthService> _logger;
+    private readonly IUserContextService _userContext;
     private const int TotpTimeStepSeconds = 30;
     private const int TotpDigits = 6;
 
-    public AuthService(PetClinicDbContext context, IConfiguration configuration, ILogger<AuthService> logger)
+    public AuthService(PetClinicDbContext context, IConfiguration configuration, ILogger<AuthService> logger, IUserContextService userContext)
     {
         _context = context;
         _configuration = configuration;
         _logger = logger;
+        _userContext = userContext;
     }
 
     public async Task<AuthResult> RegisterAsync(RegisterRequest request)
@@ -117,13 +119,21 @@ public class AuthService : IAuthService
 
         try
         {
+            var currentUserId = _userContext.GetCurrentUserId();
+            var currentUserRoles = _userContext.GetCurrentUserRoles();
+            var rolesCsv = string.Join(",", currentUserRoles);
+
             var vetOwner = new Owner
             {
                 Email = normalizedEmail,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 FirstName = firstName,
                 LastName = lastName,
-                Roles = new List<string> { "Vet" }
+                Roles = new List<string> { "Vet" },
+                // Capture creation metadata
+                VetAccountCreatedAtUtc = DateTime.UtcNow,
+                VetAccountCreatedByUserId = currentUserId,
+                VetAccountCreatedByRolesCsv = rolesCsv
             };
 
             _context.Owners.Add(vetOwner);
@@ -135,13 +145,20 @@ public class AuthService : IAuthService
                 LastName = lastName,
                 Email = normalizedEmail,
                 PhoneNumber = phoneNumber,
-                LicenseNumber = licenseNumber
+                LicenseNumber = licenseNumber,
+                // Capture creation metadata
+                VetAccountCreatedAtUtc = DateTime.UtcNow,
+                VetAccountCreatedByUserId = currentUserId,
+                VetAccountCreatedByRolesCsv = rolesCsv
             };
 
             _context.Veterinarians.Add(vetProfile);
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
+
+            _logger.LogInformation("Vet account created: {Email} by user {CreatedByUserId} with roles {Roles}", 
+                normalizedEmail, currentUserId, rolesCsv);
 
             return new AuthResult { Success = true };
         }

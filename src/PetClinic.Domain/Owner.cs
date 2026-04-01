@@ -20,4 +20,18 @@ public class Owner : BaseEntity
     public ICollection<Pet> Pets { get; set; } = new List<Pet>();
 
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
+    // Vet Account Audit Metadata
+    public DateTime? VetAccountCreatedAtUtc { get; set; }
+    public Guid? VetAccountCreatedByUserId { get; set; }
+    [MaxLength(500)]
+    public string? VetAccountCreatedByRolesCsv { get; set; }
+
+    public DateTime? VetAccountUpdatedAtUtc { get; set; }
+    public Guid? VetAccountUpdatedByUserId { get; set; }
+    [MaxLength(500)]
+    public string? VetAccountUpdatedByRolesCsv { get; set; }
+
+    // Protection flag to prevent cleanup of existing accounts
+    public bool VetCleanupProtected { get; set; } = false;
 }

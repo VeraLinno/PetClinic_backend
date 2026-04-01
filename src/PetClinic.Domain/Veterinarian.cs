@@ -27,4 +27,18 @@ public class Veterinarian : BaseEntity
 
     public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     public ICollection<VetUnavailability> Unavailabilities { get; set; } = new List<VetUnavailability>();
+
+    // Vet Account Audit Metadata
+    public DateTime? VetAccountCreatedAtUtc { get; set; }
+    public Guid? VetAccountCreatedByUserId { get; set; }
+    [MaxLength(500)]
+    public string? VetAccountCreatedByRolesCsv { get; set; }
+
+    public DateTime? VetAccountUpdatedAtUtc { get; set; }
+    public Guid? VetAccountUpdatedByUserId { get; set; }
+    [MaxLength(500)]
+    public string? VetAccountUpdatedByRolesCsv { get; set; }
+
+    // Protection flag to prevent cleanup of existing accounts
+    public bool VetCleanupProtected { get; set; } = false;
 }
