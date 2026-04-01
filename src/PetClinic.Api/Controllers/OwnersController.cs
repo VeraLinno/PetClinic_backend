@@ -106,12 +106,42 @@ public class OwnersController : ControllerBase
 
         var language = _localizationService.GetCurrentLanguage();
         var pets = await _context.Pets
+            .Include(p => p.Owner)
+            .Include(p => p.Appointments)
+            .ThenInclude(a => a.Visit)
             .OrderBy(p => p.Name)
             .ToListAsync();
 
-        var dtos = _mapper.Map<List<PetDto>>(pets);
+        var dtos = pets.Select(p => new PetDto
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Species = p.Species,
+            Breed = p.Breed,
+            DateOfBirth = p.DateOfBirth,
+            OwnerId = p.OwnerId,
+            OwnerName = BuildOwnerName(p.Owner),
+            LastVisitAt = p.Appointments
+                .Select(a => a.Visit != null && a.Visit.CompletedAt.HasValue
+                    ? a.Visit.CompletedAt
+                    : (DateTime?)a.EndAt)
+                .OrderByDescending(date => date)
+                .FirstOrDefault()
+        }).ToList();
+
         ApplyPetLocalization(dtos, language);
         return Ok(dtos);
+    }
+
+    private static string BuildOwnerName(Owner? owner)
+    {
+        if (owner == null)
+        {
+            return string.Empty;
+        }
+
+        var fullName = $"{owner.FirstName} {owner.LastName}".Trim();
+        return string.IsNullOrWhiteSpace(fullName) ? owner.Email : fullName;
     }
 
     [HttpPost("me/pets")]

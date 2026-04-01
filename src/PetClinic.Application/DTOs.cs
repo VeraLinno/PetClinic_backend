@@ -35,6 +35,8 @@ public class PetDto
     public string? BreedLocalized { get; set; }
     public DateTime? DateOfBirth { get; set; }
     public Guid OwnerId { get; set; }
+    public string? OwnerName { get; set; }
+    public DateTime? LastVisitAt { get; set; }
 }
 
 public class CreatePetDto

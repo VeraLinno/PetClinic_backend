@@ -54,7 +54,7 @@ public class VetsController : ControllerBase
     [HttpPost("accounts")]
     public async Task<IActionResult> CreateVetAccount([FromBody] CreateVetAccountRequest request)
     {
-        if (!IsCurrentUserVet())
+        if (!IsCurrentUserAdmin())
         {
             return Forbid();
         }
@@ -137,7 +137,7 @@ public class VetsController : ControllerBase
     [HttpDelete("accounts/{id:guid}")]
     public async Task<IActionResult> DeleteVetAccount(Guid id)
     {
-        if (!IsCurrentUserVet())
+        if (!IsCurrentUserAdmin())
         {
             return Forbid();
         }
@@ -148,15 +148,6 @@ public class VetsController : ControllerBase
         if (owner == null || vetProfile == null || !owner.Roles.Contains("Vet"))
         {
             return NotFound();
-        }
-
-        var currentUserId = _userContext.GetCurrentUserId();
-        var isMainVet = await IsCurrentUserMainVetAsync();
-        var canDelete = isMainVet || currentUserId == id;
-
-        if (!canDelete)
-        {
-            return Forbid();
         }
 
         using var transaction = await _context.Database.BeginTransactionAsync();
@@ -199,6 +190,12 @@ public class VetsController : ControllerBase
     {
         var roles = _userContext.GetCurrentUserRoles();
         return roles.Contains("Vet") || roles.Contains("Admin");
+    }
+
+    private bool IsCurrentUserAdmin()
+    {
+        var roles = _userContext.GetCurrentUserRoles();
+        return roles.Contains("Admin");
     }
 
     private async Task<bool> IsCurrentUserMainVetAsync()

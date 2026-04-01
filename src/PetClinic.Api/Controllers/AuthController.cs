@@ -38,7 +38,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> RegisterVet([FromBody] CreateVetAccountRequest request)
     {
         var roles = _userContext.GetCurrentUserRoles();
-        if (!roles.Contains("Vet"))
+        if (!roles.Contains("Admin"))
         {
             return Forbid();
         }
