@@ -5,71 +5,80 @@
     var activity = Model[1] as List<PetClinic.Application.AdminAuditLogDto>;
 }
 
-<div class="admin-header">
-    <div>
-        <h1>@user.FirstName @user.LastName</h1>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="/admin/admindashboard">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="/admin/adminusers">Users</a></li>
-                <li class="breadcrumb-item active">Details</li>
-            </ol>
-        </nav>
+@if (user is null)
+{
+    <div class="alert alert-warning" role="alert">
+        User details are unavailable.
     </div>
-    <a href="/admin/adminusers/edit/@user.Id" class="btn btn-primary">
-        <i class="bi bi-pencil"></i> Edit
-    </a>
-</div>
+}
+else
+{
+    <div class="admin-header">
+        <div>
+            <h1>@user.FirstName @user.LastName</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/admin/admindashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/adminusers">Users</a></li>
+                    <li class="breadcrumb-item active">Details</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="/admin/adminusers/edit/@user.Id" class="btn btn-primary">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+    </div>
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">User Information</div>
-            <div class="card-body">
-                <p><strong>Email:</strong> @user.Email</p>
-                <p><strong>Name:</strong> @user.FirstName @user.LastName</p>
-                <p><strong>Status:</strong> <span class="badge @(user.IsActive ? "bg-success" : "bg-danger")">@(user.IsActive ? "Active" : "Inactive")</span></p>
-                <p><strong>Created:</strong> @user.CreatedAt.ToString("MMM dd, yyyy HH:mm")</p>
-                <p><strong>Last Login:</strong>
-                    @if (user.LastLoginAt.HasValue)
-                    {
-                        @user.LastLoginAt.Value.ToString("MMM dd, yyyy HH:mm")
-                    }
-                    else
-                    {
-                        <span class="text-muted">Never</span>
-                    }
-                </p>
-                <p><strong>Roles:</strong><br>
-                    @if (user.Roles?.Count > 0)
-                    {
-                        @foreach (var role in user.Roles)
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">User Information</div>
+                <div class="card-body">
+                    <p><strong>Email:</strong> @user.Email</p>
+                    <p><strong>Name:</strong> @user.FirstName @user.LastName</p>
+                    <p><strong>Status:</strong> <span class="badge @(user.IsActive ? "bg-success" : "bg-danger")">@(user.IsActive ? "Active" : "Inactive")</span></p>
+                    <p><strong>Created:</strong> @user.CreatedAt.ToString("MMM dd, yyyy HH:mm")</p>
+                    <p><strong>Last Login:</strong>
+                        @if (user.LastLoginAt.HasValue)
                         {
-                            <span class="badge bg-info">@role</span>
+                            @user.LastLoginAt.Value.ToString("MMM dd, yyyy HH:mm")
                         }
-                    }
-                    else
-                    {
-                        <span class="text-muted">No roles assigned</span>
-                    }
-                </p>
+                        else
+                        {
+                            <span class="text-muted">Never</span>
+                        }
+                    </p>
+                    <p><strong>Roles:</strong><br>
+                        @if (user.Roles?.Count > 0)
+                        {
+                            @foreach (var role in user.Roles)
+                            {
+                                <span class="badge bg-info">@role</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted">No roles assigned</span>
+                        }
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Quick Actions</div>
+                <div class="card-body">
+                    <a href="/admin/adminusers/edit/@user.Id" class="btn btn-warning btn-sm w-100 mb-2">
+                        <i class="bi bi-pencil"></i> Edit Roles
+                    </a>
+                    <a href="/admin/adminaudit/user/@user.Id" class="btn btn-info btn-sm w-100 mb-2">
+                        <i class="bi bi-clock-history"></i> View Activity
+                    </a>
+                    <a href="/admin/adminusers/delete/@user.Id" class="btn btn-danger btn-sm w-100">
+                        <i class="bi bi-trash"></i> Delete User
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">Quick Actions</div>
-            <div class="card-body">
-                <a href="/admin/adminusers/edit/@user.Id" class="btn btn-warning btn-sm w-100 mb-2">
-                    <i class="bi bi-pencil"></i> Edit Roles
-                </a>
-                <a href="/admin/adminaudit/user/@user.Id" class="btn btn-info btn-sm w-100 mb-2">
-                    <i class="bi bi-clock-history"></i> View Activity
-                </a>
-                <a href="/admin/adminusers/delete/@user.Id" class="btn btn-danger btn-sm w-100">
-                    <i class="bi bi-trash"></i> Delete User
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
+}

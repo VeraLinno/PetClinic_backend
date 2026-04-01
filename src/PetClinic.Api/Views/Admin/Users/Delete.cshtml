@@ -27,24 +27,38 @@
                 <p class="text-danger"><strong>This action cannot be undone!</strong></p>
                 <p>Are you sure you want to delete the following user?</p>
 
-                <div class="alert alert-warning">
-                    <p class="mb-1"><strong>Email:</strong> @user.Email</p>
-                    <p class="mb-1"><strong>Name:</strong> @user.FirstName @user.LastName</p>
-                    <p class="mb-0"><strong>Created:</strong> @user.CreatedAt.ToString("MMM dd, yyyy")</p>
-                </div>
-
-                <form method="post" action="/admin/adminusers/delete/@user.Id">
-                    @Html.AntiForgeryToken()
-
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash"></i> Delete User
-                        </button>
-                        <a href="/admin/adminusers/details/@user.Id" class="btn btn-secondary">
-                            <i class="bi bi-x"></i> Cancel
-                        </a>
+                @if (user is null)
+                {
+                    <div class="alert alert-danger mb-3" role="alert">
+                        Unable to load user details for deletion. Please return to the user list and try again.
                     </div>
-                </form>
+                    <a href="/admin/adminusers" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Users
+                    </a>
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        <p class="mb-1"><strong>Email:</strong> @(user.Email ?? "N/A")</p>
+                        <p class="mb-1"><strong>Name:</strong> @(string.IsNullOrWhiteSpace(user.FirstName) && string.IsNullOrWhiteSpace(user.LastName)
+                            ? "N/A"
+                            : $"{user.FirstName} {user.LastName}".Trim())</p>
+                        <p class="mb-0"><strong>Created:</strong> @(user.CreatedAt == default ? "N/A" : user.CreatedAt.ToString("MMM dd, yyyy"))</p>
+                    </div>
+
+                    <form method="post" action="/admin/adminusers/delete/@user.Id">
+                        @Html.AntiForgeryToken()
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Delete User
+                            </button>
+                            <a href="/admin/adminusers/details/@user.Id" class="btn btn-secondary">
+                                <i class="bi bi-x"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                }
             </div>
         </div>
     </div>

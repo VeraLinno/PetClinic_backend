@@ -40,6 +40,12 @@ public class IntegrationTests : IAsyncLifetime
 
                     services.AddDbContext<PetClinicDbContext>(options =>
                         options.UseNpgsql(_postgresContainer.GetConnectionString()));
+
+                    // Ensure schema exists before Program.cs startup seeding executes.
+                    using var serviceProvider = services.BuildServiceProvider();
+                    using var scope = serviceProvider.CreateScope();
+                    var context = scope.ServiceProvider.GetRequiredService<PetClinicDbContext>();
+                    context.Database.EnsureCreated();
                 });
             });
     }
@@ -101,6 +107,42 @@ public class IntegrationTests : IAsyncLifetime
         {
             Email = "vet@test.com",
             Password = "wrongpassword"
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/login", loginRequest);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task Login_ShouldReturnUnauthorized_WhenEmailContainsSqlInjectionPayload()
+    {
+        // Arrange
+        var loginRequest = new LoginRequest
+        {
+            Email = "' OR 1=1 --",
+            Password = "password"
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/login", loginRequest);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task Login_ShouldReturnUnauthorized_WhenPasswordContainsSqlInjectionPayload()
+    {
+        // Arrange
+        var loginRequest = new LoginRequest
+        {
+            Email = "vet@test.com",
+            Password = "' OR '1'='1"
         };
 
         // Act

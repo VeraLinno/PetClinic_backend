@@ -189,4 +189,36 @@ public class AppointmentServiceTests
         // Assert
         result.Should().Contain(a => a.Id == appointment.Id);
     }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task GetUserAppointmentsAsync_ShouldIgnoreSqlInjectionDatePayload()
+    {
+        // Arrange
+        var ownerId = Guid.NewGuid();
+        var owner = new Owner { Id = ownerId, Email = "owner-sqli@test.com", PasswordHash = "hash" };
+        var pet = new Pet { Id = Guid.NewGuid(), Name = "Milo", Species = "Cat", Breed = "Tabby", OwnerId = ownerId };
+        var appointment = new Appointment
+        {
+            Id = Guid.NewGuid(),
+            PetId = pet.Id,
+            StartAt = DateTime.UtcNow.AddHours(3),
+            EndAt = DateTime.UtcNow.AddHours(4),
+            Status = AppointmentStatus.Scheduled
+        };
+
+        _context.Owners.Add(owner);
+        _context.Pets.Add(pet);
+        _context.Appointments.Add(appointment);
+        await _context.SaveChangesAsync();
+
+        var roles = new List<string> { "Owner" };
+        var sqlPayload = "2026-01-01' OR 1=1 --";
+
+        // Act
+        var result = await _service.GetUserAppointmentsAsync(ownerId, roles, sqlPayload);
+
+        // Assert
+        result.Should().Contain(a => a.Id == appointment.Id);
+    }
 }
