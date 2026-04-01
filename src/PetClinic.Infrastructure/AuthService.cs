@@ -196,12 +196,31 @@ public class AuthService : IAuthService
                 return new AuthResult { Success = false, Error = "Invalid credentials" };
             }
 
-            var owner = await _context.Owners.FirstOrDefaultAsync(o => o.Email.ToLower() == normalizedEmail);
-            if (owner == null)
+            var ownerData = await _context.Owners
+                .AsNoTracking()
+                .Where(o => o.Email.ToLower() == normalizedEmail)
+                .Select(o => new
+                {
+                    o.Id,
+                    o.Email,
+                    o.PasswordHash,
+                    o.Roles
+                })
+                .FirstOrDefaultAsync();
+
+            if (ownerData == null)
             {
                 _logger.LogWarning("Failed login attempt for email: {Email}", normalizedEmail);
                 return new AuthResult { Success = false, Error = "Invalid credentials" };
             }
+
+            var owner = new Owner
+            {
+                Id = ownerData.Id,
+                Email = ownerData.Email,
+                PasswordHash = ownerData.PasswordHash,
+                Roles = ownerData.Roles ?? new List<string>()
+            };
 
             var passwordHash = owner.PasswordHash ?? string.Empty;
             var incomingPassword = request.Password ?? string.Empty;
@@ -217,8 +236,11 @@ public class AuthService : IAuthService
             {
                 try
                 {
-                    owner.PasswordHash = BCrypt.Net.BCrypt.HashPassword(incomingPassword);
-                    await _context.SaveChangesAsync();
+                    var newPasswordHash = BCrypt.Net.BCrypt.HashPassword(incomingPassword);
+                    await _context.Owners
+                        .Where(o => o.Id == owner.Id)
+                        .ExecuteUpdateAsync(setters => setters
+                            .SetProperty(o => o.PasswordHash, newPasswordHash));
                     _logger.LogInformation("Upgraded legacy password hash for user {UserId}", owner.Id);
                 }
                 catch (Exception ex)
