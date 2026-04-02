@@ -6,7 +6,7 @@
 
 <div class="admin-header">
     <div>
-        <h1>@vet.Name @vet.LastName</h1>
+        <h1>@(vet?.Name) @(vet?.LastName)</h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="/admin/admindashboard">Dashboard</a></li>
@@ -19,44 +19,56 @@
 
 <div class="row">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">Veterinarian Information</div>
-            <div class="card-body">
-                <p><strong>Full Name:</strong> @vet.Name @vet.LastName</p>
-                <p><strong>Email:</strong> @vet.Email</p>
-                <p><strong>License Number:</strong> @vet.LicenseNumber</p>
-                <p><strong>Phone:</strong> @(vet.PhoneNumber ?? "Not provided")</p>
-                <p><strong>Status:</strong> <span class="badge @(vet.IsActive ? "bg-success" : "bg-danger")">@(vet.IsActive ? "Active" : "Inactive")</span></p>
-                <p><strong>Total Appointments:</strong> @vet.TotalAppointments</p>
+        @if (vet is not PetClinic.Application.AdminVeterinarianDto currentVet)
+        {
+            <div class="alert alert-warning" role="alert">
+                Veterinarian details are unavailable.
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-header">Veterinarian Information</div>
+                <div class="card-body">
+                    <p><strong>Full Name:</strong> @currentVet.Name @currentVet.LastName</p>
+                    <p><strong>Email:</strong> @currentVet.Email</p>
+                    <p><strong>License Number:</strong> @currentVet.LicenseNumber</p>
+                    <p><strong>Phone:</strong> @(currentVet.PhoneNumber ?? "Not provided")</p>
+                    <p><strong>Status:</strong> <span class="badge @(currentVet.IsActive ? "bg-success" : "bg-danger")">@(currentVet.IsActive ? "Active" : "Inactive")</span></p>
+                    <p><strong>Total Appointments:</strong> @currentVet.TotalAppointments</p>
+                </div>
+            </div>
+        }
     </div>
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">Actions</div>
-            <div class="card-body">
-                @if (vet.IsActive)
-                {
-                    <form method="post" action="/admin/adminveterinarians/deactivate/@vet.Id">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-warning btn-sm w-100 mb-2" onclick="return confirm('Deactivate this veterinarian?')">
-                            <i class="bi bi-pause"></i> Deactivate Veterinarian
-                        </button>
-                    </form>
-                }
-                else
-                {
-                    <form method="post" action="/admin/adminveterinarians/reactivate/@vet.Id">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-success btn-sm w-100 mb-2">
-                            <i class="bi bi-play"></i> Reactivate Veterinarian
-                        </button>
-                    </form>
-                }
-                <a href="/admin/adminveterinarians" class="btn btn-secondary btn-sm w-100">
-                    <i class="bi bi-arrow-left"></i> Back to List
-                </a>
+        @if (vet is PetClinic.Application.AdminVeterinarianDto currentVetForActions)
+        {
+            <div class="card">
+                <div class="card-header">Actions</div>
+                <div class="card-body">
+                    @if (currentVetForActions.IsActive)
+                    {
+                        <form method="post" action="/admin/adminveterinarians/deactivate/@currentVetForActions.Id">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-warning btn-sm w-100 mb-2" onclick="return confirm('Deactivate this veterinarian?')">
+                                <i class="bi bi-pause"></i> Deactivate Veterinarian
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form method="post" action="/admin/adminveterinarians/reactivate/@currentVetForActions.Id">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-success btn-sm w-100 mb-2">
+                                <i class="bi bi-play"></i> Reactivate Veterinarian
+                            </button>
+                        </form>
+                    }
+                    <a href="/admin/adminveterinarians" class="btn btn-secondary btn-sm w-100">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
+                </div>
             </div>
-        </div>
+        }
     </div>
 </div>

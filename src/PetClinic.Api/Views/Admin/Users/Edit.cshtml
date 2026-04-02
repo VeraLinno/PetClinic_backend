@@ -6,7 +6,7 @@
 
 <div class="admin-header">
     <div>
-        <h1>Edit User: @user.Email</h1>
+        <h1>Edit User: @(user?.Email ?? "Unknown")</h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="/admin/admindashboard">Dashboard</a></li>
@@ -19,68 +19,80 @@
 
 <div class="row">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">Update User Roles</div>
-            <form method="post" action="/admin/adminusers/edit/@user.Id">
-                @Html.AntiForgeryToken()
+        @if (user is not PetClinic.Application.AdminUserDto currentUser)
+        {
+            <div class="alert alert-warning" role="alert">
+                User details are unavailable.
+            </div>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-header">Update User Roles</div>
+                <form method="post" action="/admin/adminusers/edit/@currentUser.Id">
+                    @Html.AntiForgeryToken()
 
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="text" class="form-control" value="@user.Email" disabled>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="text" class="form-control" value="@currentUser.Email" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" value="@currentUser.FirstName @currentUser.LastName" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Roles</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="Roles" value="Owner" id="roleOwner"
+                                    @(currentUser.Roles?.Contains("Owner") == true ? "checked" : "")>
+                                <label class="form-check-label" for="roleOwner">
+                                    Owner (can book appointments, manage pets)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="Roles" value="Vet" id="roleVet"
+                                    @(currentUser.Roles?.Contains("Vet") == true ? "checked" : "")>
+                                <label class="form-check-label" for="roleVet">
+                                    Veterinarian (can view and manage appointments)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="Roles" value="Admin" id="roleAdmin"
+                                    @(currentUser.Roles?.Contains("Admin") == true ? "checked" : "")>
+                                <label class="form-check-label" for="roleAdmin">
+                                    Admin (full system access)
+                                </label>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Name</label>
-                        <input type="text" class="form-control" value="@user.FirstName @user.LastName" disabled>
+                    <div class="card-footer d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check"></i> Save Changes
+                        </button>
+                        <a href="/admin/adminusers/details/@currentUser.Id" class="btn btn-secondary">
+                            <i class="bi bi-x"></i> Cancel
+                        </a>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Roles</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="Roles" value="Owner" id="roleOwner"
-                                @(user.Roles?.Contains("Owner") == true ? "checked" : "")>
-                            <label class="form-check-label" for="roleOwner">
-                                Owner (can book appointments, manage pets)
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="Roles" value="Vet" id="roleVet"
-                                @(user.Roles?.Contains("Vet") == true ? "checked" : "")>
-                            <label class="form-check-label" for="roleVet">
-                                Veterinarian (can view and manage appointments)
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="Roles" value="Admin" id="roleAdmin"
-                                @(user.Roles?.Contains("Admin") == true ? "checked" : "")>
-                            <label class="form-check-label" for="roleAdmin">
-                                Admin (full system access)
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-footer d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check"></i> Save Changes
-                    </button>
-                    <a href="/admin/adminusers/details/@user.Id" class="btn btn-secondary">
-                        <i class="bi bi-x"></i> Cancel
-                    </a>
-                </div>
-            </form>
-        </div>
+                </form>
+            </div>
+        }
     </div>
 
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">User Information</div>
-            <div class="card-body">
-                <p><strong>Email:</strong> @user.Email</p>
-                <p><strong>Created:</strong> @user.CreatedAt.ToString("MMM dd, yyyy")</p>
-                <p><strong>Status:</strong> <span class="badge @(user.IsActive ? "bg-success" : "bg-danger")">@(user.IsActive ? "Active" : "Inactive")</span></p>
+        @if (user is PetClinic.Application.AdminUserDto currentUserInfo)
+        {
+            <div class="card">
+                <div class="card-header">User Information</div>
+                <div class="card-body">
+                    <p><strong>Email:</strong> @currentUserInfo.Email</p>
+                    <p><strong>Created:</strong> @currentUserInfo.CreatedAt.ToString("MMM dd, yyyy")</p>
+                    <p><strong>Status:</strong> <span class="badge @(currentUserInfo.IsActive ? "bg-success" : "bg-danger")">@(currentUserInfo.IsActive ? "Active" : "Inactive")</span></p>
+                </div>
             </div>
-        </div>
+        }
     </div>
 </div>

@@ -1,6 +1,5 @@
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\appsettings.Development.json
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\appsettings.json
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\PetClinic.Api.staticwebassets.endpoints.json
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\PetClinic.Api.exe
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\PetClinic.Api.deps.json
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\PetClinic.Api.runtimeconfig.json
@@ -27,7 +26,11 @@ C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetCli
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Abstractions.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Design.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\Microsoft.Extensions.Options.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\Microsoft.Extensions.Primitives.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
@@ -56,6 +59,7 @@ C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetCli
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\System.Composition.Hosting.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\System.Composition.Runtime.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\System.Composition.TypedParts.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\System.Diagnostics.DiagnosticSource.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.resources.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.resources.dll
@@ -129,7 +133,6 @@ C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetCli
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\PetClinic.Infrastructure.pdb
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\PetClinic.Domain.pdb
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClinic.Api.csproj.AssemblyReference.cache
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\rpswa.dswa.cache.json
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClinic.Api.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClinic.Api.AssemblyInfoInputs.cache
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClinic.Api.AssemblyInfo.cs
@@ -138,15 +141,6 @@ C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetCli
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClinic.Api.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClinic.Api.RazorAssemblyInfo.cache
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClinic.Api.RazorAssemblyInfo.cs
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\rjimswa.dswa.cache.json
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\scopedcss\bundle\PetClinic.Api.styles.css
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\staticwebassets.build.json
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\staticwebassets.build.json.cache
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\staticwebassets.development.json
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\staticwebassets.build.endpoints.json
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\swae.build.ex.cache
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClini.FE116965.Up2Date
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClinic.Api.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\refint\PetClinic.Api.dll

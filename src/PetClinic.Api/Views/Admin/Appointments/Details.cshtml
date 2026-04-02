@@ -1,7 +1,6 @@
 @{
     ViewData["Title"] = "Appointment Details";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    var appt = Model as PetClinic.Application.AdminAppointmentDto;
 }
 
 <div class="admin-header">
@@ -19,32 +18,44 @@
 
 <div class="row">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">Appointment Information</div>
-            <div class="card-body">
-                <p><strong>Pet:</strong> @appt.PetName</p>
-                <p><strong>Owner Email:</strong> @appt.OwnerEmail</p>
-                <p><strong>Veterinarian:</strong> @appt.VeterinarianName</p>
-                <p><strong>Start Time:</strong> @appt.StartAt.ToString("MMM dd, yyyy HH:mm:ss")</p>
-                <p><strong>End Time:</strong> @appt.EndAt.ToString("MMM dd, yyyy HH:mm:ss")</p>
-                <p><strong>Status:</strong> <span class="badge bg-info">@appt.Status</span></p>
+        @if (Model is not PetClinic.Application.AdminAppointmentDto currentAppt)
+        {
+            <div class="alert alert-warning" role="alert">
+                Appointment details are unavailable.
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-header">Appointment Information</div>
+                <div class="card-body">
+                    <p><strong>Pet:</strong> @currentAppt.PetName</p>
+                    <p><strong>Owner Email:</strong> @currentAppt.OwnerEmail</p>
+                    <p><strong>Veterinarian:</strong> @currentAppt.VeterinarianName</p>
+                    <p><strong>Start Time:</strong> @currentAppt.StartAt.ToString("MMM dd, yyyy HH:mm:ss")</p>
+                    <p><strong>End Time:</strong> @currentAppt.EndAt.ToString("MMM dd, yyyy HH:mm:ss")</p>
+                    <p><strong>Status:</strong> <span class="badge bg-info">@currentAppt.Status</span></p>
+                </div>
+            </div>
+        }
     </div>
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">Actions</div>
-            <div class="card-body">
-                <a href="/admin/adminappointments/reassign/@appt.Id" class="btn btn-warning btn-sm w-100 mb-2">
-                    <i class="bi bi-arrow-repeat"></i> Reassign Veterinarian
-                </a>
-                <a href="/admin/adminappointments/cancel/@appt.Id" class="btn btn-danger btn-sm w-100 mb-2">
-                    <i class="bi bi-x"></i> Cancel Appointment
-                </a>
-                <a href="/admin/adminappointments" class="btn btn-secondary btn-sm w-100">
-                    <i class="bi bi-arrow-left"></i> Back to List
-                </a>
+        @if (Model is PetClinic.Application.AdminAppointmentDto currentApptForActions)
+        {
+            <div class="card">
+                <div class="card-header">Actions</div>
+                <div class="card-body">
+                    <a href="/admin/adminappointments/reassign/@currentApptForActions.Id" class="btn btn-warning btn-sm w-100 mb-2">
+                        <i class="bi bi-arrow-repeat"></i> Reassign Veterinarian
+                    </a>
+                    <a href="/admin/adminappointments/cancel/@currentApptForActions.Id" class="btn btn-danger btn-sm w-100 mb-2">
+                        <i class="bi bi-x"></i> Cancel Appointment
+                    </a>
+                    <a href="/admin/adminappointments" class="btn btn-secondary btn-sm w-100">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
+                </div>
             </div>
-        </div>
+        }
     </div>
 </div>

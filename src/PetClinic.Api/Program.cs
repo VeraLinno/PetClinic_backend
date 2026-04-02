@@ -52,7 +52,7 @@ try
     builder.Services.AddHostedService<InventoryDeliveryWorker>();
 
     // AutoMapper
-    builder.Services.AddAutoMapper(typeof(MappingProfile));
+    builder.Services.AddAutoMapper(_ => { }, typeof(MappingProfile).Assembly);
 
     // API Versioning - URL based (e.g., /api/v1/appointments)
     builder.Services.AddApiVersioning(options =>

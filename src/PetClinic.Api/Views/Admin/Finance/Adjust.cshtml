@@ -1,7 +1,6 @@
 @{
     ViewData["Title"] = "Adjust Invoice";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    var invoice = Model as PetClinic.Application.InvoiceDto;
 }
 
 <div class="admin-header">
@@ -19,43 +18,52 @@
 
 <div class="row">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">Adjust Invoice Amount</div>
-            <form method="post" action="/admin/adminfinance/adjust/@invoice.Id">
-                @Html.AntiForgeryToken()
+        @if (Model is not PetClinic.Application.InvoiceDto currentInvoice)
+        {
+            <div class="alert alert-warning" role="alert">
+                Invoice details are unavailable.
+            </div>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-header">Adjust Invoice Amount</div>
+                <form method="post" action="/admin/adminfinance/adjust/@currentInvoice.Id">
+                    @Html.AntiForgeryToken()
 
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label">Invoice ID</label>
-                        <input type="text" class="form-control" value="@invoice.Id.ToString().Substring(0, 8).ToUpper()" disabled>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Invoice ID</label>
+                            <input type="text" class="form-control" value="@currentInvoice.Id.ToString().Substring(0, 8).ToUpper()" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Current Amount</label>
+                            <input type="text" class="form-control" value="$@currentInvoice.Amount.ToString("F2")" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="newAmount">New Amount</label>
+                            <input type="number" name="newAmount" id="newAmount" class="form-control" step="0.01" min="0"
+                                   value="@currentInvoice.Amount" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="reason">Reason for Adjustment</label>
+                            <textarea name="reason" id="reason" class="form-control" rows="3" required></textarea>
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Current Amount</label>
-                        <input type="text" class="form-control" value="$@invoice.Amount.ToString("F2")" disabled>
+                    <div class="card-footer d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check"></i> Save Changes
+                        </button>
+                        <a href="/admin/adminfinance" class="btn btn-secondary">
+                            <i class="bi bi-x"></i> Cancel
+                        </a>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label" for="newAmount">New Amount</label>
-                        <input type="number" name="newAmount" id="newAmount" class="form-control" step="0.01" min="0"
-                               value="@invoice.Amount" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label" for="reason">Reason for Adjustment</label>
-                        <textarea name="reason" id="reason" class="form-control" rows="3" required></textarea>
-                    </div>
-                </div>
-
-                <div class="card-footer d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check"></i> Save Changes
-                    </button>
-                    <a href="/admin/adminfinance" class="btn btn-secondary">
-                        <i class="bi bi-x"></i> Cancel
-                    </a>
-                </div>
-            </form>
-        </div>
+                </form>
+            </div>
+        }
     </div>
 </div>

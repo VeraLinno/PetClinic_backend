@@ -1,8 +1,8 @@
 @{
     ViewData["Title"] = "Search Audit Logs";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    var results = Model as List<PetClinic.Application.AdminAuditLogDto>;
-    var isSearch = results != null && results.Count > 0;
+    var results = Model as List<PetClinic.Application.AdminAuditLogDto> ?? new List<PetClinic.Application.AdminAuditLogDto>();
+    var hasResults = results.Count > 0;
 }
 
 <div class="admin-header">
@@ -73,10 +73,12 @@
 </div>
 
 <!-- Search Results -->
-@if (isSearch)
+@if (hasResults)
 {
+    var searchResults = results;
+
     <div class="card">
-        <div class="card-header">Search Results (@results.Count logs found)</div>
+        <div class="card-header">Search Results (@searchResults.Count logs found)</div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover">
@@ -90,7 +92,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var log in results.OrderByDescending(l => l.Timestamp))
+                        @foreach (var log in searchResults.OrderByDescending(l => l.Timestamp))
                         {
                             <tr>
                                 <td>@log.Timestamp.ToString("MMM dd, HH:mm:ss")</td>
@@ -119,7 +121,7 @@
         </div>
     </div>
 }
-else if (results?.Count == 0)
+else
 {
     <div class="alert alert-info">
         <i class="bi bi-info-circle"></i> No audit logs found matching your search criteria

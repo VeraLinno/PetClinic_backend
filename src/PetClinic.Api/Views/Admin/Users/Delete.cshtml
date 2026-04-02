@@ -1,7 +1,6 @@
 @{
     ViewData["Title"] = "Delete User";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    var user = Model as PetClinic.Application.AdminUserDto;
 }
 
 <div class="admin-header">
@@ -27,7 +26,7 @@
                 <p class="text-danger"><strong>This action cannot be undone!</strong></p>
                 <p>Are you sure you want to delete the following user?</p>
 
-                @if (user is null)
+                @if (Model is not PetClinic.Application.AdminUserDto currentUser)
                 {
                     <div class="alert alert-danger mb-3" role="alert">
                         Unable to load user details for deletion. Please return to the user list and try again.
@@ -39,21 +38,21 @@
                 else
                 {
                     <div class="alert alert-warning">
-                        <p class="mb-1"><strong>Email:</strong> @(user.Email ?? "N/A")</p>
-                        <p class="mb-1"><strong>Name:</strong> @(string.IsNullOrWhiteSpace(user.FirstName) && string.IsNullOrWhiteSpace(user.LastName)
+                        <p class="mb-1"><strong>Email:</strong> @(currentUser.Email ?? "N/A")</p>
+                        <p class="mb-1"><strong>Name:</strong> @(string.IsNullOrWhiteSpace(currentUser.FirstName) && string.IsNullOrWhiteSpace(currentUser.LastName)
                             ? "N/A"
-                            : $"{user.FirstName} {user.LastName}".Trim())</p>
-                        <p class="mb-0"><strong>Created:</strong> @(user.CreatedAt == default ? "N/A" : user.CreatedAt.ToString("MMM dd, yyyy"))</p>
+                            : $"{currentUser.FirstName} {currentUser.LastName}".Trim())</p>
+                        <p class="mb-0"><strong>Created:</strong> @(currentUser.CreatedAt == default ? "N/A" : currentUser.CreatedAt.ToString("MMM dd, yyyy"))</p>
                     </div>
 
-                    <form method="post" action="/admin/adminusers/delete/@user.Id">
+                    <form method="post" action="/admin/adminusers/delete/@currentUser.Id">
                         @Html.AntiForgeryToken()
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-danger">
                                 <i class="bi bi-trash"></i> Delete User
                             </button>
-                            <a href="/admin/adminusers/details/@user.Id" class="btn btn-secondary">
+                            <a href="/admin/adminusers/details/@currentUser.Id" class="btn btn-secondary">
                                 <i class="bi bi-x"></i> Cancel
                             </a>
                         </div>
