@@ -177,6 +177,24 @@ public class OwnersController : ControllerBase
         return Ok(result);
     }
 
+    [HttpDelete("pets/{petId:guid}")]
+    public async Task<IActionResult> DeletePetForVet(Guid petId)
+    {
+        var roles = _userContext.GetCurrentUserRoles();
+        if (!roles.Contains("Vet") && !roles.Contains("Admin"))
+        {
+            return Forbid();
+        }
+
+        var pet = await _context.Pets.FirstOrDefaultAsync(p => p.Id == petId);
+        if (pet == null) return NotFound();
+
+        _context.Pets.Remove(pet);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
     private void ApplyPetLocalization(IEnumerable<PetDto> pets, string language)
     {
         foreach (var pet in pets)
