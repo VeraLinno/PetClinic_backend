@@ -6,7 +6,6 @@ C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetC
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\PetClinic.Api.runtimeconfig.json
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\appsettings.Development.json
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\appsettings.json
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\PetClinic.Api.staticwebassets.endpoints.json
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\PetClinic.Api.exe
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\testhost.exe
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\MvcTestingAppManifest.json
@@ -116,7 +115,6 @@ C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetC
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Configuration.KeyPerFile.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Configuration.UserSecrets.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Configuration.Xml.dll
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.DependencyInjection.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Diagnostics.Abstractions.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Diagnostics.dll
@@ -135,7 +133,6 @@ C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetC
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Identity.Stores.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Localization.Abstractions.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Localization.dll
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Logging.Abstractions.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Logging.Configuration.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Logging.Console.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Logging.Debug.dll
@@ -146,8 +143,6 @@ C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetC
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.ObjectPool.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Options.ConfigurationExtensions.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Options.DataAnnotations.dll
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Options.dll
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.Primitives.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Extensions.WebEncoders.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.JSInterop.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\Microsoft.Net.Http.Headers.dll
@@ -178,7 +173,6 @@ C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetC
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\System.Data.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\System.Diagnostics.Contracts.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\System.Diagnostics.Debug.dll
-C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\System.Diagnostics.DiagnosticSource.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\System.Diagnostics.EventLog.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\System.Diagnostics.FileVersionInfo.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\refs\System.Diagnostics.Process.dll
@@ -553,3 +547,8 @@ C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetC
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Serilog.Sinks.Console.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Serilog.Sinks.Debug.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Serilog.Sinks.File.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Microsoft.Extensions.Options.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Microsoft.Extensions.Primitives.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\System.Diagnostics.DiagnosticSource.dll

@@ -30,6 +30,10 @@ public class UserContextService : IUserContextService
 
         var roles = user?.FindAll("roles")
                         .SelectMany(c => c.Value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                        .Concat(user?.FindAll(ClaimTypes.Role).Select(c => c.Value) ?? Enumerable.Empty<string>())
+                        .Select(NormalizeRole)
+                        .Where(role => !string.IsNullOrWhiteSpace(role))
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
                         .ToList() ?? new List<string>();
 
         if (roles.Count > 0)
@@ -37,8 +41,14 @@ public class UserContextService : IUserContextService
             return roles;
         }
 
-        return user?.FindAll(ClaimTypes.Role)
-                   .Select(c => c.Value)
-                   .ToList() ?? new List<string>();
+        return new List<string>();
+    }
+
+    private static string NormalizeRole(string role)
+    {
+        if (role.Equals("admin", StringComparison.OrdinalIgnoreCase)) return "Admin";
+        if (role.Equals("vet", StringComparison.OrdinalIgnoreCase) || role.Equals("veterinarian", StringComparison.OrdinalIgnoreCase)) return "Vet";
+        if (role.Equals("owner", StringComparison.OrdinalIgnoreCase)) return "Owner";
+        return role.Trim();
     }
 }
