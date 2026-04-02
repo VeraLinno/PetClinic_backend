@@ -39,7 +39,7 @@ public class PetDto
     public DateTime? LastVisitAt { get; set; }
 }
 
-public class CreatePetDto
+public class CreatePetDto : IValidatableObject
 {
     [Required]
     [MaxLength(100)]
@@ -54,6 +54,16 @@ public class CreatePetDto
     public string Breed { get; set; } = default!;
 
     public DateTime? DateOfBirth { get; set; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (DateOfBirth.HasValue && DateOfBirth.Value.Date > DateTime.UtcNow.Date)
+        {
+            yield return new ValidationResult(
+                "Date of birth cannot be in the future.",
+                new[] { nameof(DateOfBirth) });
+        }
+    }
 }
 
 public class AppointmentDto
