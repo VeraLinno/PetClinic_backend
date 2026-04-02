@@ -32,9 +32,18 @@ public class OwnersController : ControllerBase
     public async Task<IActionResult> GetMe()
     {
         var userId = _userContext.GetCurrentUserId();
-        var owner = await _context.Owners.FirstOrDefaultAsync(o => o.Id == userId);
-        if (owner == null) return NotFound();
-        var dto = _mapper.Map<OwnerDto>(owner);
+        var dto = await _context.Owners
+            .Where(o => o.Id == userId)
+            .Select(o => new OwnerDto
+            {
+                Id = o.Id,
+                Email = o.Email,
+                FirstName = o.FirstName,
+                LastName = o.LastName
+            })
+            .FirstOrDefaultAsync();
+
+        if (dto == null) return NotFound();
         return Ok(dto);
     }
 
@@ -105,43 +114,38 @@ public class OwnersController : ControllerBase
         }
 
         var language = _localizationService.GetCurrentLanguage();
-        var pets = await _context.Pets
-            .Include(p => p.Owner)
-            .Include(p => p.Appointments)
-            .ThenInclude(a => a.Visit)
+        var dtos = await _context.Pets
             .OrderBy(p => p.Name)
+            .Select(p => new PetDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Species = p.Species,
+                Breed = p.Breed,
+                DateOfBirth = p.DateOfBirth,
+                OwnerId = p.OwnerId,
+                OwnerName = ((p.Owner.FirstName ?? string.Empty) + " " + (p.Owner.LastName ?? string.Empty)).Trim(),
+                LastVisitAt = p.Appointments
+                    .Select(a => a.Visit != null && a.Visit.CompletedAt.HasValue
+                        ? a.Visit.CompletedAt
+                        : (DateTime?)a.EndAt)
+                    .OrderByDescending(date => date)
+                    .FirstOrDefault()
+            })
             .ToListAsync();
 
-        var dtos = pets.Select(p => new PetDto
+        foreach (var dto in dtos.Where(d => string.IsNullOrWhiteSpace(d.OwnerName)))
         {
-            Id = p.Id,
-            Name = p.Name,
-            Species = p.Species,
-            Breed = p.Breed,
-            DateOfBirth = p.DateOfBirth,
-            OwnerId = p.OwnerId,
-            OwnerName = BuildOwnerName(p.Owner),
-            LastVisitAt = p.Appointments
-                .Select(a => a.Visit != null && a.Visit.CompletedAt.HasValue
-                    ? a.Visit.CompletedAt
-                    : (DateTime?)a.EndAt)
-                .OrderByDescending(date => date)
-                .FirstOrDefault()
-        }).ToList();
+            var ownerEmail = await _context.Owners
+                .Where(o => o.Id == dto.OwnerId)
+                .Select(o => o.Email)
+                .FirstOrDefaultAsync();
+
+            dto.OwnerName = ownerEmail ?? string.Empty;
+        }
 
         ApplyPetLocalization(dtos, language);
         return Ok(dtos);
-    }
-
-    private static string BuildOwnerName(Owner? owner)
-    {
-        if (owner == null)
-        {
-            return string.Empty;
-        }
-
-        var fullName = $"{owner.FirstName} {owner.LastName}".Trim();
-        return string.IsNullOrWhiteSpace(fullName) ? owner.Email : fullName;
     }
 
     [HttpPost("me/pets")]
