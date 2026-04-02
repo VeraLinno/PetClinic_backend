@@ -124,7 +124,7 @@ public class OwnersController : ControllerBase
                 Breed = p.Breed,
                 DateOfBirth = p.DateOfBirth,
                 OwnerId = p.OwnerId,
-                OwnerName = ((p.Owner.FirstName ?? string.Empty) + " " + (p.Owner.LastName ?? string.Empty)).Trim(),
+                OwnerName = string.Empty,
                 LastVisitAt = p.Appointments
                     .Select(a => a.Visit != null && a.Visit.CompletedAt.HasValue
                         ? a.Visit.CompletedAt
@@ -133,16 +133,6 @@ public class OwnersController : ControllerBase
                     .FirstOrDefault()
             })
             .ToListAsync();
-
-        foreach (var dto in dtos.Where(d => string.IsNullOrWhiteSpace(d.OwnerName)))
-        {
-            var ownerEmail = await _context.Owners
-                .Where(o => o.Id == dto.OwnerId)
-                .Select(o => o.Email)
-                .FirstOrDefaultAsync();
-
-            dto.OwnerName = ownerEmail ?? string.Empty;
-        }
 
         ApplyPetLocalization(dtos, language);
         return Ok(dtos);
