@@ -190,15 +190,10 @@ public class OwnersController : ControllerBase
         return Ok(result);
     }
 
-    [HttpDelete("pets/{petId:guid}")]
-    public async Task<IActionResult> DeletePetForVet(Guid petId)
+    [HttpDelete("admin/pets/{petId:guid}")]
+    [Authorize(Policy = "Admin")]
+    public async Task<IActionResult> DeletePetForAdmin(Guid petId)
     {
-        var roles = _userContext.GetCurrentUserRoles();
-        if (!roles.Contains("Vet") && !roles.Contains("Admin"))
-        {
-            return Forbid();
-        }
-
         var pet = await _context.Pets.FirstOrDefaultAsync(p => p.Id == petId);
         if (pet == null) return NotFound();
 
@@ -206,6 +201,65 @@ public class OwnersController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    [HttpGet("me/invoices")]
+    public async Task<IActionResult> GetMyInvoices()
+    {
+        var userId = _userContext.GetCurrentUserId();
+
+        var invoices = await _context.Invoices
+            .Where(i => i.Visit.Appointment.Pet.OwnerId == userId)
+            .OrderByDescending(i => i.IssuedAt)
+            .Select(i => new InvoiceDto
+            {
+                Id = i.Id,
+                VisitId = i.VisitId,
+                Amount = i.Amount,
+                IssuedAt = i.IssuedAt,
+                Status = i.Status.ToString(),
+                PaidAt = i.PaidAt,
+                DueDate = i.DueDate
+            })
+            .ToListAsync();
+
+        return Ok(invoices);
+    }
+
+    [HttpPost("me/invoices/{invoiceId:guid}/mark-paid")]
+    public async Task<IActionResult> MarkMyInvoicePaid(Guid invoiceId)
+    {
+        var userId = _userContext.GetCurrentUserId();
+
+        var invoice = await _context.Invoices
+            .Include(i => i.Visit)
+                .ThenInclude(v => v.Appointment)
+                    .ThenInclude(a => a.Pet)
+            .FirstOrDefaultAsync(i => i.Id == invoiceId);
+
+        if (invoice == null)
+            return NotFound();
+
+        if (invoice.Visit.Appointment.Pet.OwnerId != userId)
+            return Forbid();
+
+        if (invoice.Status != Invoice.PaymentStatus.Paid)
+        {
+            invoice.Status = Invoice.PaymentStatus.Paid;
+            invoice.PaidAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
+        return Ok(new InvoiceDto
+        {
+            Id = invoice.Id,
+            VisitId = invoice.VisitId,
+            Amount = invoice.Amount,
+            IssuedAt = invoice.IssuedAt,
+            Status = invoice.Status.ToString(),
+            PaidAt = invoice.PaidAt,
+            DueDate = invoice.DueDate
+        });
     }
 
     private void ApplyPetLocalization(IEnumerable<PetDto> pets, string language)

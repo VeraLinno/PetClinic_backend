@@ -164,6 +164,9 @@ public class InvoiceDto
     public Guid VisitId { get; set; }
     public decimal Amount { get; set; }
     public DateTime IssuedAt { get; set; }
+    public string Status { get; set; } = default!;
+    public DateTime? PaidAt { get; set; }
+    public DateTime? DueDate { get; set; }
 }
 
 public class MedicationStockDto

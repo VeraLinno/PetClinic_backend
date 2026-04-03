@@ -29,6 +29,8 @@ public class Veterinarian : BaseEntity
     public ICollection<VetUnavailability> Unavailabilities { get; set; } = new List<VetUnavailability>();
 
     // Vet Account Audit Metadata
+    public bool IsActive { get; set; } = true;
+
     public DateTime? VetAccountCreatedAtUtc { get; set; }
     public Guid? VetAccountCreatedByUserId { get; set; }
     [MaxLength(500)]

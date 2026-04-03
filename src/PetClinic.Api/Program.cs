@@ -2,8 +2,10 @@ using System.Text;
 using System.Net;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Globalization;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -34,7 +36,10 @@ try
     builder.Services.AddDbContext<PetClinicDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-    builder.Services.AddControllers();
+    builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+    builder.Services.AddControllersWithViews()
+        .AddViewLocalization()
+        .AddDataAnnotationsLocalization();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
@@ -234,10 +239,25 @@ try
         app.UseHttpsRedirection();
     }
 
+    var supportedCultures = new[] { "en", "et", "ru" };
+    var localizationOptions = new RequestLocalizationOptions
+    {
+        DefaultRequestCulture = new RequestCulture("en"),
+        SupportedCultures = supportedCultures.Select(c => new CultureInfo(c)).ToList(),
+        SupportedUICultures = supportedCultures.Select(c => new CultureInfo(c)).ToList()
+    };
+
+    localizationOptions.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider());
+    localizationOptions.RequestCultureProviders.Insert(1, new CookieRequestCultureProvider());
+    app.UseRequestLocalization(localizationOptions);
+
     app.UseCors("AllowSpecific");
     app.UseRateLimiter();  // Rate limiting middleware (after CORS, before auth)
     app.UseAuthentication();
     app.UseAuthorization();
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Client}/{action=Index}/{id?}");
     app.MapControllers();
 
     app.Run();

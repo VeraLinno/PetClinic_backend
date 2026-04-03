@@ -1,0 +1,38 @@
+@model IEnumerable<PetClinic.Application.AppointmentDto>
+@{
+    Layout = "_ClientLayout";
+    ViewData["Title"] = "Appointments";
+
+    var uiTexts = ViewBag.UiTexts as Dictionary<string, string> ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    string T(string key, string fallback) => uiTexts.TryGetValue(key, out var value) ? value : fallback;
+}
+
+<h1 class="h3 mb-3">@T("appointments.title", "Appointments")</h1>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>@T("appointments.pet", "Pet")</th>
+                    <th>@T("appointments.vet", "Veterinarian")</th>
+                    <th>@T("appointments.start", "Start")</th>
+                    <th>@T("appointments.end", "End")</th>
+                    <th>@T("appointments.status", "Status")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var appointment in Model)
+                {
+                    <tr>
+                        <td>@appointment.PetName</td>
+                        <td>@appointment.VeterinarianName</td>
+                        <td>@appointment.StartAt.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@appointment.EndAt.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@(appointment.StatusLocalized ?? appointment.Status)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

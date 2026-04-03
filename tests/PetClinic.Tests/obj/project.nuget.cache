@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "onKJrB6H6w8=",
+  "dgSpecHash": "sWh4xICFOEQ=",
   "success": true,
   "projectFilePath": "C:\\Users\\vvera\\VisualStudioProjekts\\Pet_Clinic\\velinn-petclinic_charp\\tests\\PetClinic.Tests\\PetClinic.Tests.csproj",
   "expectedPackageFiles": [
@@ -138,10 +138,7 @@
     "C:\\Users\\vvera\\.nuget\\packages\\xunit.core\\2.9.3\\xunit.core.2.9.3.nupkg.sha512",
     "C:\\Users\\vvera\\.nuget\\packages\\xunit.extensibility.core\\2.9.3\\xunit.extensibility.core.2.9.3.nupkg.sha512",
     "C:\\Users\\vvera\\.nuget\\packages\\xunit.extensibility.execution\\2.9.3\\xunit.extensibility.execution.2.9.3.nupkg.sha512",
-    "C:\\Users\\vvera\\.nuget\\packages\\xunit.runner.visualstudio\\3.1.4\\xunit.runner.visualstudio.3.1.4.nupkg.sha512",
-    "C:\\Users\\vvera\\.nuget\\packages\\microsoft.netcore.app.ref\\9.0.11\\microsoft.netcore.app.ref.9.0.11.nupkg.sha512",
-    "C:\\Users\\vvera\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\9.0.11\\microsoft.windowsdesktop.app.ref.9.0.11.nupkg.sha512",
-    "C:\\Users\\vvera\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\9.0.11\\microsoft.aspnetcore.app.ref.9.0.11.nupkg.sha512"
+    "C:\\Users\\vvera\\.nuget\\packages\\xunit.runner.visualstudio\\3.1.4\\xunit.runner.visualstudio.3.1.4.nupkg.sha512"
   ],
   "logs": []
 }

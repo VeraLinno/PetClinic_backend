@@ -1,0 +1,46 @@
+@model IEnumerable<PetClinic.Application.InvoiceDto>
+@{
+    Layout = "_ClientLayout";
+    ViewData["Title"] = "Invoices";
+
+    var uiTexts = ViewBag.UiTexts as Dictionary<string, string> ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    string T(string key, string fallback) => uiTexts.TryGetValue(key, out var value) ? value : fallback;
+}
+
+<h1 class="h3 mb-3">@T("invoices.title", "Invoices")</h1>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>@T("invoices.id", "Invoice")</th>
+                    <th>@T("invoices.amount", "Amount")</th>
+                    <th>@T("invoices.issued", "Issued")</th>
+                    <th>@T("invoices.status", "Status")</th>
+                    <th>@T("invoices.action", "Action")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var invoice in Model)
+                {
+                    <tr>
+                        <td>@invoice.Id</td>
+                        <td>@invoice.Amount.ToString("0.00")</td>
+                        <td>@invoice.IssuedAt.ToString("yyyy-MM-dd")</td>
+                        <td>@invoice.Status</td>
+                        <td>
+                            @if (!string.Equals(invoice.Status, "Paid", StringComparison.OrdinalIgnoreCase))
+                            {
+                                <form method="post" action="/client/invoices/@invoice.Id/mark-paid">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-primary">@T("invoices.markPaid", "Mark Paid")</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

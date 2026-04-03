@@ -34,7 +34,8 @@ public class AdminService : IAdminService
                 o.Email,
                 o.FirstName,
                 o.LastName,
-                o.Roles
+                o.Roles,
+                o.LastLoginAt
             })
             .OrderBy(o => o.Email)
             .ToListAsync();
@@ -46,8 +47,8 @@ public class AdminService : IAdminService
             FirstName = u.FirstName,
             LastName = u.LastName,
             Roles = u.Roles,
-            CreatedAt = u.Id.ToString().Length > 0 ? DateTime.UtcNow.AddDays(-30) : DateTime.UtcNow,
-            LastLoginAt = null,  // TODO: Track login events
+            CreatedAt = DateTime.UtcNow.AddDays(-30),
+            LastLoginAt = u.LastLoginAt,
             IsActive = true
         }).ToList();
     }
@@ -67,7 +68,7 @@ public class AdminService : IAdminService
             LastName = user.LastName,
             Roles = user.Roles,
             CreatedAt = DateTime.UtcNow.AddDays(-30),
-            LastLoginAt = null,
+            LastLoginAt = user.LastLoginAt,
             IsActive = true
         };
     }
@@ -117,8 +118,22 @@ public class AdminService : IAdminService
 
         var fromDate = DateTime.UtcNow.AddDays(-days);
 
-        // TODO: Implement audit log tracking
-        return new List<AdminAuditLogDto>();
+            var logs = await _context.AdminAuditEvents
+                .Where(a => a.PerformedByUserId == userId && a.OccurredAtUtc >= fromDate)
+                .OrderByDescending(a => a.OccurredAtUtc)
+                .ToListAsync();
+
+            return logs.Select(l => new AdminAuditLogDto
+            {
+                Id = l.Id,
+                UserId = l.PerformedByUserId,
+                UserEmail = l.PerformedByEmail,
+                Action = l.Action,
+                Endpoint = $"{l.TargetType}/{l.TargetId}",
+                StatusCode = 200,
+                Timestamp = l.OccurredAtUtc,
+                Details = l.MetadataJson
+            }).ToList();
     }
 
     // ===== VETERINARIAN MANAGEMENT =====
@@ -141,7 +156,7 @@ public class AdminService : IAdminService
             LicenseNumber = v.LicenseNumber,
             PhoneNumber = v.PhoneNumber,
             TotalAppointments = v.Appointments?.Count ?? 0,
-            IsActive = true
+              IsActive = v.IsActive
         }).ToList();
     }
 
@@ -164,7 +179,7 @@ public class AdminService : IAdminService
             LicenseNumber = vet.LicenseNumber,
             PhoneNumber = vet.PhoneNumber,
             TotalAppointments = vet.Appointments?.Count ?? 0,
-            IsActive = true
+              IsActive = vet.IsActive
         };
     }
 
@@ -176,7 +191,7 @@ public class AdminService : IAdminService
         if (vet == null)
             throw new KeyNotFoundException($"Veterinarian {vetId} not found");
 
-        // TODO: Mark as inactive (add IsActive field to Veterinarian model)
+            vet.IsActive = false;
         await _context.SaveChangesAsync();
 
         _logger.LogWarning("Admin: Veterinarian {VetId} ({Name}) deactivated", vetId, vet.Name);
@@ -190,7 +205,7 @@ public class AdminService : IAdminService
         if (vet == null)
             throw new KeyNotFoundException($"Veterinarian {vetId} not found");
 
-        // TODO: Mark as active
+            vet.IsActive = true;
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Admin: Veterinarian {VetId} ({Name}) reactivated", vetId, vet.Name);
@@ -310,7 +325,10 @@ public class AdminService : IAdminService
             Id = i.Id,
             VisitId = i.VisitId,
             Amount = i.Amount,
-            IssuedAt = i.IssuedAt
+            IssuedAt = i.IssuedAt,
+            Status = i.Status.ToString(),
+            PaidAt = i.PaidAt,
+            DueDate = i.DueDate
         }).ToList();
     }
 
@@ -323,7 +341,6 @@ public class AdminService : IAdminService
             .ToListAsync();
 
         var totalRevenue = invoices.Sum(i => i.Amount);
-        var paidCount = invoices.Count;  // TODO: Add payment status tracking
 
         return new AdminFinancialReportDto
         {
@@ -331,9 +348,9 @@ public class AdminService : IAdminService
             PeriodEnd = toDate,
             TotalRevenue = totalRevenue,
             TotalInvoices = invoices.Count,
-            PaidInvoices = paidCount,
-            OverdueInvoices = 0,  // TODO: Track payment dates
-            OutstandingAmount = 0,  // TODO: Calculate from unpaid invoices
+                PaidInvoices = invoices.Count(i => i.Status == Invoice.PaymentStatus.Paid),
+                OverdueInvoices = invoices.Count(i => i.Status == Invoice.PaymentStatus.Overdue && (!i.DueDate.HasValue || i.DueDate.Value < DateTime.UtcNow)),
+                OutstandingAmount = invoices.Where(i => i.Status == Invoice.PaymentStatus.Unpaid).Sum(i => i.Amount),
             AverageInvoiceAmount = invoices.Count > 0 ? totalRevenue / invoices.Count : 0
         };
     }
@@ -361,6 +378,10 @@ public class AdminService : IAdminService
         _logger.LogInformation("Admin: Generating inventory report");
 
         var medications = await _context.MedicationStocks.ToListAsync();
+        var usage = await _context.Prescriptions
+            .GroupBy(p => p.Medication)
+            .Select(g => new { Medication = g.Key, Quantity = g.Sum(x => x.Quantity) })
+            .ToDictionaryAsync(x => x.Medication, x => x.Quantity);
 
         return medications.Select(m => new AdminInventoryReportDto
         {
@@ -371,7 +392,7 @@ public class AdminService : IAdminService
             ReorderLevel = m.ReorderLevel,
             Unit = m.Unit,
             UnitPrice = m.UnitPrice,
-            UsedThisMonth = 0,  // TODO: Track usage
+            UsedThisMonth = usage.TryGetValue(m.Name, out var usedQty) ? usedQty : 0,
             IsLowStock = m.Quantity < m.ReorderLevel
         }).ToList();
     }
@@ -406,16 +427,30 @@ public class AdminService : IAdminService
         if (medication == null)
             throw new KeyNotFoundException($"Medication {medicationId} not found");
 
-        // TODO: Track prescription usage
+        var safeMonths = Math.Max(1, months);
+        var usageWindowStart = DateTime.UtcNow.AddMonths(-safeMonths);
+
+        var usageQuery = _context.Prescriptions
+            .Where(p => p.Medication == medication.Name && p.Visit.CompletedAt.HasValue && p.Visit.CompletedAt.Value >= usageWindowStart);
+
+        var totalUsed = await usageQuery.SumAsync(p => (int?)p.Quantity) ?? 0;
+        var lastUsed = await usageQuery
+            .OrderByDescending(p => p.Visit.CompletedAt)
+            .Select(p => p.Visit.CompletedAt)
+            .FirstOrDefaultAsync();
+
+        var averageUsagePerMonth = totalUsed > 0 ? Math.Max(1, totalUsed / safeMonths) : 0;
+        var estimatedMonthsUntilStockout = averageUsagePerMonth > 0 ? medication.Quantity / averageUsagePerMonth : 0;
+
         return new AdminMedicationUsageReportDto
         {
             MedicationName = medication.Name,
-            TotalUsed = 0,
-            AverageUsagePerMonth = 0,
-            LastUsed = DateTime.UtcNow,
+            TotalUsed = totalUsed,
+            AverageUsagePerMonth = averageUsagePerMonth,
+            LastUsed = lastUsed ?? DateTime.UtcNow,
             CurrentStock = medication.Quantity,
             ReorderLevel = medication.ReorderLevel,
-            EstimatedMonthsUntilStockout = medication.Quantity > 0 ? 12 : 0
+            EstimatedMonthsUntilStockout = estimatedMonthsUntilStockout
         };
     }
 
@@ -428,16 +463,66 @@ public class AdminService : IAdminService
     {
         _logger.LogInformation("Admin: Retrieving audit logs (days: {Days}, email: {Email}, action: {Action})", days, userEmail, action);
 
-        // TODO: Implement audit log table and querying
-        return new List<AdminAuditLogDto>();
+            var fromDate = DateTime.UtcNow.AddDays(-days);
+        
+            var query = _context.AdminAuditEvents
+                .Where(a => a.OccurredAtUtc >= fromDate)
+                .AsQueryable();
+        
+            if (!string.IsNullOrEmpty(userEmail))
+                query = query.Where(a => a.PerformedByEmail == userEmail);
+        
+            if (!string.IsNullOrEmpty(action))
+                query = query.Where(a => a.Action == action);
+        
+            var logs = await query.OrderByDescending(a => a.OccurredAtUtc).ToListAsync();
+        
+            return logs.Select(l => new AdminAuditLogDto
+            {
+                Id = l.Id,
+                UserId = l.PerformedByUserId,
+                UserEmail = l.PerformedByEmail,
+                Action = l.Action,
+                Endpoint = $"{l.TargetType}/{l.TargetId}",
+                StatusCode = 200,
+                Timestamp = l.OccurredAtUtc,
+                Details = l.MetadataJson
+            }).ToList();
     }
 
     public async Task<List<AdminAuditLogDto>> SearchAuditLogsAsync(AdminAuditLogFilterDto filter)
     {
         _logger.LogInformation("Admin: Searching audit logs with filter");
 
-        // TODO: Implement comprehensive audit log search
-        return new List<AdminAuditLogDto>();
+            var fromDate = filter.FromDate ?? DateTime.UtcNow.AddDays(-filter.Days);
+            var toDate = filter.ToDate ?? DateTime.UtcNow;
+        
+            var query = _context.AdminAuditEvents
+                .Where(a => a.OccurredAtUtc >= fromDate && a.OccurredAtUtc <= toDate)
+                .AsQueryable();
+        
+            if (!string.IsNullOrEmpty(filter.UserEmail))
+                query = query.Where(a => a.PerformedByEmail.Contains(filter.UserEmail));
+        
+            if (!string.IsNullOrEmpty(filter.Action))
+                query = query.Where(a => a.Action == filter.Action);
+        
+            if (!string.IsNullOrEmpty(filter.TargetType))
+                query = query.Where(a => a.TargetType == filter.TargetType);
+        
+            var logs = await query.OrderByDescending(a => a.OccurredAtUtc).ToListAsync();
+        
+            return logs.Select(l => new AdminAuditLogDto
+            {
+                Id = l.Id,
+                UserId = l.PerformedByUserId,
+                UserEmail = l.PerformedByEmail,
+                Action = l.Action,
+                Endpoint = $"{l.TargetType}/{l.TargetId}",
+                StatusCode = 200,
+                Timestamp = l.OccurredAtUtc,
+                Details = l.MetadataJson
+            }).ToList();
     }
 
     public async Task<VetCleanupDryRunResponseDto> PreviewVetAccountCleanupAsync()
@@ -531,7 +616,6 @@ public class AdminService : IAdminService
 
         _logger.LogInformation("Admin: Cleanup preview generated. Protected: {Protected}, Candidates: {Candidates}, Hash: {Hash}",
             protectedVets, candidates.Count, previewHash);
-
         return response;
     }
 

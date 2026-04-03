@@ -1,0 +1,41 @@
+@{
+    Layout = "_ClientLayout";
+    ViewData["Title"] = "Client Dashboard";
+
+    var uiTexts = ViewBag.UiTexts as Dictionary<string, string> ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    string T(string key, string fallback) => uiTexts.TryGetValue(key, out var value) ? value : fallback;
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <h1 class="h3">@T("dashboard.welcome", "Welcome"), @ViewBag.OwnerName</h1>
+        <p class="text-muted mb-0">@T("dashboard.subtitle", "Manage your pets, appointments and invoices")</p>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">@T("dashboard.pets", "My Pets")</h5>
+                <p class="display-6">@ViewBag.PetsCount</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">@T("dashboard.appointments", "Appointments")</h5>
+                <p class="display-6">@ViewBag.AppointmentsCount</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">@T("dashboard.invoices", "Invoices")</h5>
+                <p class="display-6">@ViewBag.InvoicesCount</p>
+            </div>
+        </div>
+    </div>
+</div>
