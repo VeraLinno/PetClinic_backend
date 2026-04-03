@@ -107,14 +107,26 @@ public class OwnersController : ControllerBase
     [HttpGet("pets")]
     public async Task<IActionResult> GetAllPetsForVet()
     {
+        var userId = _userContext.GetCurrentUserId();
         var roles = _userContext.GetCurrentUserRoles();
-        if (!roles.Contains("Vet") && !roles.Contains("Admin"))
+        var isAdmin = roles.Contains("Admin");
+        var isVet = roles.Contains("Vet");
+
+        if (!isVet && !isAdmin)
         {
             return Forbid();
         }
 
         var language = _localizationService.GetCurrentLanguage();
-        var dtos = await _context.Pets
+        var petQuery = _context.Pets.AsQueryable();
+
+        if (isVet && !isAdmin)
+        {
+            // "My patients" for a vet should only include pets previously assigned to that vet.
+            petQuery = petQuery.Where(p => p.Appointments.Any(a => a.VeterinarianId == userId));
+        }
+
+        var dtos = await petQuery
             .OrderBy(p => p.Name)
             .Select(p => new PetDto
             {
@@ -126,6 +138,7 @@ public class OwnersController : ControllerBase
                 OwnerId = p.OwnerId,
                 OwnerName = string.Empty,
                 LastVisitAt = p.Appointments
+                    .Where(a => isAdmin || a.VeterinarianId == userId)
                     .Select(a => a.Visit != null && a.Visit.CompletedAt.HasValue
                         ? a.Visit.CompletedAt
                         : (DateTime?)a.EndAt)
