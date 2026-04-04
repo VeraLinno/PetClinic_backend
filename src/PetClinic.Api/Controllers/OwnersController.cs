@@ -215,6 +215,7 @@ public class OwnersController : ControllerBase
             {
                 Id = i.Id,
                 VisitId = i.VisitId,
+                PetName = i.Visit.Appointment.Pet.Name,
                 Amount = i.Amount,
                 IssuedAt = i.IssuedAt,
                 Status = i.Status.ToString(),
@@ -254,6 +255,7 @@ public class OwnersController : ControllerBase
         {
             Id = invoice.Id,
             VisitId = invoice.VisitId,
+            PetName = invoice.Visit.Appointment.Pet.Name,
             Amount = invoice.Amount,
             IssuedAt = invoice.IssuedAt,
             Status = invoice.Status.ToString(),

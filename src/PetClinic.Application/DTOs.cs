@@ -162,6 +162,7 @@ public class InvoiceDto
 {
     public Guid Id { get; set; }
     public Guid VisitId { get; set; }
+    public string? PetName { get; set; }
     public decimal Amount { get; set; }
     public DateTime IssuedAt { get; set; }
     public string Status { get; set; } = default!;
