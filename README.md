@@ -1,109 +1,120 @@
 # Pet Clinic Backend
 
-This is the backend API for the Pet Clinic application, built with .NET 8, Clean Architecture, EF Core, and PostgreSQL.
+Backend API for the Pet Clinic application, built with .NET 9, Clean Architecture, EF Core, and PostgreSQL.
 
-## Architecture
+## Stack
 
-The project follows Clean Architecture with the following layers:
-- **Domain**: Entities and business rules
-- **Application**: DTOs, interfaces, services
-- **Infrastructure**: EF Core DbContext, repositories
-- **Api**: Controllers, hosting, Swagger
+- .NET 9 (`net9.0`)
+- ASP.NET Core Web API
+- Entity Framework Core + PostgreSQL
+- JWT authentication + refresh token flow
+- API versioning (`/api/v{version}`)
+- Serilog file + console logging
+- Docker / Docker Compose
 
-## Technologies
+## Project Structure
 
-- .NET 8
-- Entity Framework Core with PostgreSQL
-- JWT Authentication with refresh tokens
-- Swagger/OpenAPI
-- Docker & Docker Compose
+- `src/PetClinic.Domain` - entities and domain rules
+- `src/PetClinic.Application` - DTOs, interfaces, service contracts
+- `src/PetClinic.Infrastructure` - EF Core, persistence, service implementations
+- `src/PetClinic.Api` - controllers, middleware, hosting
+- `tests/PetClinic.Tests` - unit and integration tests
 
-## Development Setup
+## Prerequisites
 
-### Prerequisites
+- .NET SDK 9.0.x (see `global.json`)
+- Docker Desktop (recommended)
+- PostgreSQL 16+ (only if not using Docker)
 
-- .NET 8 SDK
-- Docker & Docker Compose
-- PostgreSQL (or use Docker)
+## Quick Start (Docker)
 
-### Running Locally
+From this folder (`velinn-petclinic_charp`):
 
-1. Clone the repository
-2. Copy `.env` and update values if needed
-3. Run with Docker Compose:
-   ```bash
-   docker-compose up --build
-   ```
-   This will start PostgreSQL and the API on http://localhost:5001
+```bash
+docker compose up --build
+```
 
-4. Alternatively, run locally:
-   - Start PostgreSQL
-   - Update `appsettings.Development.json` with connection string
-   - Run migrations: `dotnet ef database update --project src/PetClinic.Infrastructure`
-   - Run the API: `dotnet run --project src/PetClinic.Api`
+Services started by Compose:
 
-### Running Tests
+- API: `http://localhost:5001`
+- PostgreSQL: `localhost:5432`
+- Frontend (if built from the sibling frontend folder): `http://localhost`
 
-1. Unit tests:
-   ```bash
-   dotnet test tests/PetClinic.Tests/PetClinic.Tests.csproj --filter "Category=Unit"
-   ```
+Stop services:
 
-2. Integration tests (requires Docker):
-   ```bash
-   dotnet test tests/PetClinic.Tests/PetClinic.Tests.csproj --filter "Category=Integration"
-   ```
+```bash
+docker compose down
+```
 
-3. All tests:
-   ```bash
-   dotnet test
-   ```
+## Run Backend Without Docker
 
-### API Documentation
+1. Start PostgreSQL.
+2. Update connection string in `src/PetClinic.Api/appsettings.Development.json`.
+3. Run the API:
 
-Swagger UI is available at `http://localhost:5001/swagger` in development.
+```bash
+dotnet run --project src/PetClinic.Api
+```
 
-### Seed Data
+Default local launch profile URL:
 
-The application seeds initial data on startup:
-- 1 Vet user (vet@petclinic.com / password)
-- 2 Owner users (owner1@petclinic.com, owner2@petclinic.com / password)
-- Sample pets and medication stock
+- `http://localhost:5023`
+
+The app applies migrations automatically on startup.
+
+## Environment Variables (Common)
+
+- `ASPNETCORE_ENVIRONMENT` (default in Compose: `Production`)
+- `ASPNETCORE_URLS` (Compose default: `http://+:5000`)
+- `JWT_SECRET` (mapped to `Jwt__Secret`)
+- `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
+
+## Tests
+
+Run all tests:
+
+```bash
+dotnet test
+```
+
+Run unit tests only:
+
+```bash
+dotnet test tests/PetClinic.Tests/PetClinic.Tests.csproj --filter "Category=Unit"
+```
+
+Run integration tests only:
+
+```bash
+dotnet test tests/PetClinic.Tests/PetClinic.Tests.csproj --filter "Category=Integration"
+```
+
+## API Docs
+
+Swagger UI is enabled in Development:
+
+- `http://localhost:5023/swagger` (local dotnet run)
+- `http://localhost:5001/swagger` (when running with Compose)
+
+## Seed Data
+
+Initial data is seeded on startup, including:
+
+- Vet user: `vet@petclinic.com` / `password`
+- Owner users: `owner1@petclinic.com`, `owner2@petclinic.com` / `password`
+- Sample pets, appointments, and inventory data
 
 ## Security Notes
 
-- Refresh tokens are stored hashed in DB
-- JWT access tokens include roles as array
-- HttpOnly cookies for refresh tokens
-- CORS configured for development
+- Refresh tokens are stored hashed in the database.
+- Access tokens contain role claims used by API authorization policies.
+- Refresh flow uses HttpOnly cookies.
+- CORS allows configured local origins and LAN IP origins in development.
 
-## Reused from Base Repo
+## Example Request
 
-The following were adapted from the base repository `https://git2.akaver.com/taltech-public/webapps-2025-spring/contact-saas.git`:
-- `.gitignore` and `.dockerignore` patterns
-- BaseEntity pattern for domain entities
-- Project structure and naming conventions
-
-## HTTP Examples
-
-### Login
 ```bash
 curl -X POST http://localhost:5001/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"vet@petclinic.com","password":"password"}'
 ```
-
-### Create Appointment
-```bash
-curl -X POST http://localhost:5001/api/v1/appointments \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"petId":"guid","veterinarianId":"guid","startAt":"2023-01-01T10:00:00Z","endAt":"2023-01-01T11:00:00Z"}'
-```
-
-### Complete Visit
-```bash
-curl -X PATCH http://localhost:5001/api/v1/visits/{visitId}/complete \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"notes":"Visit completed","prescriptions":[{"medication":"Aspirin","dosage":"100mg","quantity":10}]}'
