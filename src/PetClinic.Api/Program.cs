@@ -310,7 +310,8 @@ async Task SeedDataAsync(PetClinicDbContext context, ILogger<TranslationService>
             Name = "Sarah",
             LastName = "Johnson",
             Email = vet.Email,
-            LicenseNumber = "VET-001"
+            LicenseNumber = "VET-001",
+            IsActive = true
         };
         context.Veterinarians.Add(veterinarian);
 
