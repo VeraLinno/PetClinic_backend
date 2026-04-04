@@ -12,13 +12,26 @@ deploy:
   script:
     - docker info
     - docker compose version
-    - docker compose --env-file .env up --build --remove-orphans --detach db api frontend
+    - |
+      if [ -d "../velinn-petclinic_js" ]; then
+        echo "Frontend source found at ../velinn-petclinic_js - deploying db+api+frontend"
+        docker compose --env-file .env up --build --remove-orphans --detach db api frontend
+        export DEPLOYED_FRONTEND=true
+      else
+        echo "Frontend source not found on runner - deploying db+api only"
+        docker compose --env-file .env up --build --remove-orphans --detach db api
+        export DEPLOYED_FRONTEND=false
+      fi
     - docker compose ps
     - |
       if command -v curl >/dev/null 2>&1; then
         curl -fsS http://localhost/api/v1/health >/dev/null
-        curl -fsS http://localhost/ >/dev/null
+        if [ "$DEPLOYED_FRONTEND" = "true" ]; then
+          curl -fsS http://localhost/ >/dev/null
+        fi
       else
         wget -qO- http://localhost/api/v1/health >/dev/null
-        wget -qO- http://localhost/ >/dev/null
+        if [ "$DEPLOYED_FRONTEND" = "true" ]; then
+          wget -qO- http://localhost/ >/dev/null
+        fi
       fi
