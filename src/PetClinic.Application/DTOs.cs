@@ -149,7 +149,7 @@ public class VisitCompletionDto
 {
     public string? Notes { get; set; }
     [Range(0.01, 9999999.99)]
-    public decimal? InvoiceAmount { get; set; }
+    public decimal InvoiceAmount { get; set; }
     public List<PrescriptionDto> Prescriptions { get; set; } = new();
 }
 

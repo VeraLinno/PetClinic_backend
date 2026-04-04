@@ -131,7 +131,7 @@ public class VisitService : IVisitService
                 totalAmount += prescriptionDto.Quantity * 10; // $10 per unit
             }
 
-            var invoiceAmount = dto.InvoiceAmount ?? (totalAmount + 50);
+            var invoiceAmount = dto.InvoiceAmount;
             if (invoiceAmount <= 0)
             {
                 throw new InvalidOperationException("Invoice amount must be greater than zero");
