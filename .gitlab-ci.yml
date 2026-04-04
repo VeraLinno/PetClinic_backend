@@ -12,26 +12,38 @@ deploy:
   script:
     - docker info
     - docker compose version
-    - rm -f .frontend_deployed
-    - |
-      if [ -d "../velinn-petclinic_js" ]; then
-        echo "Frontend source found at ../velinn-petclinic_js - deploying db+api+frontend"
-        docker compose --env-file .env up --build --remove-orphans --detach db api frontend
-        touch .frontend_deployed
-      else
-        echo "Frontend source not found on runner - deploying db+api only"
-        docker compose --env-file .env up --build --remove-orphans --detach db api
-      fi
+    - docker compose --env-file .env up --build --remove-orphans --detach db api
     - docker compose ps
     - |
-      if command -v curl >/dev/null 2>&1; then
-        curl -fsS http://localhost:5001/api/v1/health >/dev/null
-        if [ -f .frontend_deployed ]; then
-          curl -fsS http://localhost/ >/dev/null
-        fi
-      else
-        wget -qO- http://localhost:5001/api/v1/health >/dev/null
-        if [ -f .frontend_deployed ]; then
-          wget -qO- http://localhost/ >/dev/null
-        fi
-      fi
+      wait_for_url() {
+        local url="$1"
+        local name="$2"
+        local retries=30
+        local delay=2
+
+        for i in $(seq 1 $retries); do
+          if command -v curl >/dev/null 2>&1; then
+            if curl -fsS "$url" >/dev/null; then
+              echo "$name is healthy: $url"
+              return 0
+            fi
+          else
+            if wget -qO- "$url" >/dev/null; then
+              echo "$name is healthy: $url"
+              return 0
+            fi
+          fi
+
+          echo "Waiting for $name ($i/$retries): $url"
+          sleep "$delay"
+        done
+
+        echo "ERROR: $name failed health check: $url"
+        docker compose logs api --tail 200 || true
+        docker compose logs frontend --tail 200 || true
+        return 1
+      }
+
+      wait_for_url "http://localhost:5001/api/v1/health" "api"
+
+      echo "Deployment smoke checks passed"
