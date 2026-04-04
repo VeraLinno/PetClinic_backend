@@ -131,11 +131,17 @@ public class VisitService : IVisitService
                 totalAmount += prescriptionDto.Quantity * 10; // $10 per unit
             }
 
+            var invoiceAmount = dto.InvoiceAmount ?? (totalAmount + 50);
+            if (invoiceAmount <= 0)
+            {
+                throw new InvalidOperationException("Invoice amount must be greater than zero");
+            }
+
             // Create invoice
             var invoice = new Invoice
             {
                 VisitId = visit.Id,
-                Amount = totalAmount + 50, // Base visit fee $50
+                Amount = invoiceAmount,
                 IssuedAt = DateTime.UtcNow
             };
             _context.Invoices.Add(invoice);
