@@ -101,17 +101,35 @@ public class VisitService : IVisitService
             decimal totalAmount = 0;
             foreach (var prescriptionDto in dto.Prescriptions ?? Enumerable.Empty<PrescriptionDto>())
             {
-                var stock = await _context.MedicationStocks
-                    .FirstOrDefaultAsync(m => m.Name == prescriptionDto.Medication);
+                if (prescriptionDto.Quantity <= 0)
+                {
+                    throw new InvalidOperationException("Prescription quantity must be greater than zero");
+                }
+
+                MedicationStock? stock = null;
+
+                if (prescriptionDto.MedicationId.HasValue)
+                {
+                    stock = await _context.MedicationStocks
+                        .FirstOrDefaultAsync(m => m.Id == prescriptionDto.MedicationId.Value);
+                }
+
+                if (stock == null && !string.IsNullOrWhiteSpace(prescriptionDto.Medication))
+                {
+                    var medicationName = prescriptionDto.Medication.Trim().ToLower();
+                    stock = await _context.MedicationStocks
+                        .FirstOrDefaultAsync(m => m.Name.ToLower() == medicationName);
+                }
 
                 if (stock == null)
                 {
-                    throw new InvalidOperationException($"Medication {prescriptionDto.Medication} not found in stock");
+                    var medicationLabel = prescriptionDto.MedicationId?.ToString() ?? prescriptionDto.Medication;
+                    throw new InvalidOperationException($"Medication {medicationLabel} not found in stock");
                 }
 
                 if (stock.Quantity < prescriptionDto.Quantity)
                 {
-                    throw new InvalidOperationException($"Insufficient stock for {prescriptionDto.Medication}");
+                    throw new InvalidOperationException($"Insufficient stock for {stock.Name}");
                 }
 
                 // Decrement stock
@@ -121,7 +139,7 @@ public class VisitService : IVisitService
                 var prescription = new Prescription
                 {
                     VisitId = visit.Id,
-                    Medication = prescriptionDto.Medication,
+                    Medication = stock.Name,
                     Dosage = prescriptionDto.Dosage,
                     Quantity = prescriptionDto.Quantity
                 };

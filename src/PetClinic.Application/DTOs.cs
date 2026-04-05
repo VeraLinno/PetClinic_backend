@@ -155,6 +155,7 @@ public class VisitCompletionDto
 
 public class PrescriptionDto
 {
+    public Guid? MedicationId { get; set; }
     public string Medication { get; set; } = default!;
     public string Dosage { get; set; } = default!;
     public int Quantity { get; set; }
