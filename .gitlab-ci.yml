@@ -9,8 +9,25 @@ default:
 
 variables:
   COMPOSE_PROJECT_NAME: petclinic
-  GIT_STRATEGY: clone
-  GIT_CLONE_PATH: "$CI_BUILDS_DIR/$CI_PROJECT_PATH_SLUG/$CI_PIPELINE_ID/$CI_JOB_ID"
+  GIT_CLEAN_FLAGS: none
+
+hooks:
+  pre_get_sources_script:
+    - |
+      if command -v sudo >/dev/null 2>&1; then
+        sudo -n chown -R "$(id -u):$(id -g)" "$CI_PROJECT_DIR" || true
+        sudo -n rm -rf \
+          "$CI_PROJECT_DIR/src/PetClinic.Api/bin" \
+          "$CI_PROJECT_DIR/src/PetClinic.Api/obj" \
+          "$CI_PROJECT_DIR/src/PetClinic.Application/bin" \
+          "$CI_PROJECT_DIR/src/PetClinic.Application/obj" \
+          "$CI_PROJECT_DIR/src/PetClinic.Domain/bin" \
+          "$CI_PROJECT_DIR/src/PetClinic.Domain/obj" \
+          "$CI_PROJECT_DIR/src/PetClinic.Infrastructure/bin" \
+          "$CI_PROJECT_DIR/src/PetClinic.Infrastructure/obj" \
+          "$CI_PROJECT_DIR/tests/PetClinic.Tests/bin" \
+          "$CI_PROJECT_DIR/tests/PetClinic.Tests/obj" || true
+      fi
 
 backend_verify:
   stage: verify
