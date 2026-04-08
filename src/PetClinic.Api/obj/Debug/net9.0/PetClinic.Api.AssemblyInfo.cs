@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PetClinic.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+76c5b93b34708f32b5c9653d52940fd5db352613")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2d6d2cf3ccd090acaa13ae35eaa4f6c2de2423b9")]
 [assembly: System.Reflection.AssemblyProductAttribute("PetClinic.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PetClinic.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

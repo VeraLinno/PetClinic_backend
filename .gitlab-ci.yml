@@ -20,10 +20,12 @@ backend_verify:
     - docker info
     - >
       docker run --rm
+      -e DOCKER_HOST=unix:///var/run/docker.sock
+      -v /var/run/docker.sock:/var/run/docker.sock
       -v "$CI_PROJECT_DIR":/src
       -w /src
       mcr.microsoft.com/dotnet/sdk:9.0
-      sh -lc "dotnet restore && dotnet build --no-restore -c Release && dotnet test --no-build -c Release --verbosity normal"
+      sh -lc "dotnet test tests/PetClinic.Tests/PetClinic.Tests.csproj -c Release --verbosity normal"
 
 backend_container_smoke:
   stage: package
