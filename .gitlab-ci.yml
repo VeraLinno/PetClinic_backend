@@ -9,25 +9,13 @@ default:
 
 variables:
   COMPOSE_PROJECT_NAME: petclinic
-  GIT_CLEAN_FLAGS: none
+  GIT_STRATEGY: none
 
-hooks:
-  pre_get_sources_script:
-    - |
-      if command -v sudo >/dev/null 2>&1; then
-        sudo -n chown -R "$(id -u):$(id -g)" "$CI_PROJECT_DIR" || true
-        sudo -n rm -rf \
-          "$CI_PROJECT_DIR/src/PetClinic.Api/bin" \
-          "$CI_PROJECT_DIR/src/PetClinic.Api/obj" \
-          "$CI_PROJECT_DIR/src/PetClinic.Application/bin" \
-          "$CI_PROJECT_DIR/src/PetClinic.Application/obj" \
-          "$CI_PROJECT_DIR/src/PetClinic.Domain/bin" \
-          "$CI_PROJECT_DIR/src/PetClinic.Domain/obj" \
-          "$CI_PROJECT_DIR/src/PetClinic.Infrastructure/bin" \
-          "$CI_PROJECT_DIR/src/PetClinic.Infrastructure/obj" \
-          "$CI_PROJECT_DIR/tests/PetClinic.Tests/bin" \
-          "$CI_PROJECT_DIR/tests/PetClinic.Tests/obj" || true
-      fi
+before_script:
+  - set -e
+  - export WORKDIR="$(mktemp -d -p /tmp petclinic-backend-XXXXXX)"
+  - git clone --branch "$CI_COMMIT_REF_NAME" --depth 1 "$CI_REPOSITORY_URL" "$WORKDIR"
+  - cd "$WORKDIR"
 
 backend_verify:
   stage: verify
@@ -41,7 +29,7 @@ backend_verify:
       docker run --rm
       -e DOCKER_HOST=unix:///var/run/docker.sock
       -v /var/run/docker.sock:/var/run/docker.sock
-      -v "$CI_PROJECT_DIR":/src
+      -v "$WORKDIR":/src
       -w /src
       mcr.microsoft.com/dotnet/sdk:9.0
       sh -lc "dotnet test tests/PetClinic.Tests/PetClinic.Tests.csproj -c Release --verbosity normal"
@@ -56,7 +44,7 @@ backend_container_smoke:
     - job: backend_verify
   script:
     - docker info
-    - docker build -f src/PetClinic.Api/Dockerfile -t petclinic-api:$CI_COMMIT_SHORT_SHA .
+    - docker build -f src/PetClinic.Api/Dockerfile -t petclinic-api:$CI_COMMIT_SHORT_SHA "$WORKDIR"
     - docker rm -f petclinic-api-smoke || true
     - docker run -d --name petclinic-api-smoke -p 18080:5000 petclinic-api:$CI_COMMIT_SHORT_SHA
     - |
