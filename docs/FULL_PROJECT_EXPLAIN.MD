@@ -628,11 +628,27 @@ Tüüpiline töövoog on selline:
 
 1. Build: backend builditakse `dotnet` abil ja frontend builditakse eraldi.
 2. Test: käivitatakse `dotnet test` ning kontrollitakse teenuseid ja integratsiooni.
-3. Deploy: käivitatakse Docker Compose või ehitatakse konteinerid serveris uuesti.
+3. Smoke check: konteiner käivitatakse testina ja kontrollitakse health endpointi.
+4. Deploy: deploy toimub ainult siis, kui eelmised sammud on edukad.
 
 ### Kas selles repoos on täielik CI pipeline
 
-Selles kaustas ma ei näe eraldi pipeline konfiguratsiooni faili, seega ma ei ütleks, et siin on täispikk automaatne CI/CD pipeline juba eraldi kirjeldatud. Aga tehniline alus selleks on olemas: Docker, testid, migrations ja konfigureeritavad keskkonnamuutujad.
+Jah, on täielik CI/CD pipeline olemas nii backendi kui ka frontendi jaoks ning seda mõlemas platvormis: GitLab ja GitHub.
+
+Pipeline loogika on mõlemas sama:
+
+- verify etapp: build ja testid,
+- package/smoke etapp: Docker image build + konteineri tervisekontroll,
+- deploy etapp: käivitub ainult `main` harul ja ainult siis, kui varasemad etapid on rohelised.
+
+Backendis kontrollitakse deploy eel ja järel API health endpointi (`/api/v1/health`). Frontendis kontrollitakse nii frontend teenuse kättesaadavust kui ka frontend -> API proxy toimimist.
+
+Kasutusel olevad pipeline failid:
+
+- `velinn-petclinic_charp/.gitlab-ci.yml`
+- `velinn-petclinic_charp/.github/workflows/ci.yml`
+- `velinn-petclinic_js/.gitlab-ci.yml`
+- `velinn-petclinic_js/.github/workflows/ci-cd.yml`
 
 ### Konfiguratsioon ja keskkonnamuutujad
 

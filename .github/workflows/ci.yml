@@ -1,42 +1,93 @@
-name: CI
+name: Backend CI/CD
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-and-test:
+  verify:
+    name: Verify (.NET build + tests)
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        dotnet-version: [ '8.0.x' ]
-
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
 
-    - name: Restore dependencies
-      run: dotnet restore
+      - name: Restore dependencies
+        run: dotnet restore
 
-    - name: Build
-      run: dotnet build --no-restore
+      - name: Build
+        run: dotnet build --no-restore -c Release
 
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      - name: Test
+        run: dotnet test --no-build -c Release --verbosity normal
 
-    - name: Build Docker image
-      run: docker build -f src/PetClinic.Api/Dockerfile -t petclinic-api .
+  container-smoke:
+    name: Container smoke test
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Test Docker image
-      run: |
-        docker run -d --name test-container -p 8080:5000 petclinic-api
-        sleep 10
-        curl -f http://localhost:8080/health || exit 1
-        docker stop test-container
+      - name: Build API image
+        run: docker build -f src/PetClinic.Api/Dockerfile -t petclinic-api:${{ github.sha }} .
+
+      - name: Run and verify health
+        run: |
+          set -e
+          docker run -d --name petclinic-api-smoke -p 18080:5000 petclinic-api:${{ github.sha }}
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:18080/api/v1/health >/dev/null; then
+              echo "API container is healthy"
+              docker rm -f petclinic-api-smoke >/dev/null 2>&1 || true
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "ERROR: API container health check failed"
+          docker logs petclinic-api-smoke --tail 200 || true
+          docker rm -f petclinic-api-smoke >/dev/null 2>&1 || true
+          exit 1
+
+  deploy:
+    name: Deploy backend
+    runs-on: ubuntu-latest
+    needs:
+      - verify
+      - container-smoke
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.DEPLOY_HOST != '' && secrets.DEPLOY_USER != '' && secrets.DEPLOY_SSH_KEY != '' && secrets.BACKEND_DEPLOY_PATH != ''
+    environment: production
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd "${{ secrets.BACKEND_DEPLOY_PATH }}"
+            git fetch origin main
+            git checkout main
+            git pull --ff-only origin main
+            docker compose --env-file .env up --build --remove-orphans --detach db api
+            for i in $(seq 1 30); do
+              if curl -fsS http://localhost:5001/api/v1/health >/dev/null; then
+                echo "Backend deploy smoke check passed"
+                exit 0
+              fi
+              sleep 2
+            done
+            echo "ERROR: Backend deploy smoke check failed"
+            docker compose logs api --tail 200 || true
+            exit 1

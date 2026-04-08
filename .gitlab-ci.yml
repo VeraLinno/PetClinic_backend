@@ -1,14 +1,64 @@
 stages:
+  - verify
+  - package
   - deploy
 
-deploy:
+default:
+  tags:
+    - petclinic-runner
+
+variables:
+  COMPOSE_PROJECT_NAME: petclinic
+
+backend_verify:
+  stage: verify
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+  script:
+    - docker info
+    - >
+      docker run --rm
+      -v "$CI_PROJECT_DIR":/src
+      -w /src
+      mcr.microsoft.com/dotnet/sdk:9.0
+      sh -lc "dotnet restore && dotnet build --no-restore -c Release && dotnet test --no-build -c Release --verbosity normal"
+
+backend_container_smoke:
+  stage: package
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+  needs:
+    - job: backend_verify
+  script:
+    - docker info
+    - docker build -f src/PetClinic.Api/Dockerfile -t petclinic-api:$CI_COMMIT_SHORT_SHA .
+    - docker rm -f petclinic-api-smoke || true
+    - docker run -d --name petclinic-api-smoke -p 18080:5000 petclinic-api:$CI_COMMIT_SHORT_SHA
+    - |
+      for i in $(seq 1 30); do
+        if curl -fsS http://localhost:18080/api/v1/health >/dev/null; then
+          echo "API container smoke check passed"
+          docker rm -f petclinic-api-smoke >/dev/null 2>&1 || true
+          exit 0
+        fi
+        sleep 2
+      done
+      echo "ERROR: API container smoke check failed"
+      docker logs petclinic-api-smoke --tail 200 || true
+      docker rm -f petclinic-api-smoke >/dev/null 2>&1 || true
+      exit 1
+
+deploy_backend:
   stage: deploy
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-  tags:
-    - petclinic-runner
-  variables:
-    COMPOSE_PROJECT_NAME: petclinic
+  needs:
+    - job: backend_verify
+    - job: backend_container_smoke
   script:
     - docker info
     - docker compose version
@@ -40,7 +90,6 @@ deploy:
 
         echo "ERROR: $name failed health check: $url"
         docker compose logs api --tail 200 || true
-        docker compose logs frontend --tail 200 || true
         return 1
       }
 
