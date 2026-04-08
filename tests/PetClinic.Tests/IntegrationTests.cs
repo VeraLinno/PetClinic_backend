@@ -157,7 +157,7 @@ public class IntegrationTests : IAsyncLifetime
     public async Task HealthCheck_ShouldReturnOk()
     {
         // Act
-        var response = await _client.GetAsync("/health");
+        var response = await _client.GetAsync("/api/v1/health");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
