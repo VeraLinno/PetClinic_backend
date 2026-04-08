@@ -45,20 +45,38 @@ backend_container_smoke:
   script:
     - docker info
     - docker build -f src/PetClinic.Api/Dockerfile -t petclinic-api:$CI_COMMIT_SHORT_SHA "$WORKDIR"
-    - docker rm -f petclinic-api-smoke || true
-    - docker run -d --name petclinic-api-smoke -p 18080:5000 petclinic-api:$CI_COMMIT_SHORT_SHA
+    - export SMOKE_NET="petclinic-backend-smoke-${CI_PIPELINE_ID}-${CI_JOB_ID}"
+    - export SMOKE_DB="petclinic-db-smoke-${CI_PIPELINE_ID}-${CI_JOB_ID}"
+    - export SMOKE_API="petclinic-api-smoke-${CI_PIPELINE_ID}-${CI_JOB_ID}"
+    - docker network create "$SMOKE_NET"
     - |
-      for i in $(seq 1 45); do
-        if docker run --rm --network container:petclinic-api-smoke curlimages/curl:8.8.0 -fsS http://localhost:5000/api/v1/health >/dev/null 2>&1; then
+      cleanup() {
+        docker rm -f "$SMOKE_API" "$SMOKE_DB" >/dev/null 2>&1 || true
+        docker network rm "$SMOKE_NET" >/dev/null 2>&1 || true
+      }
+      trap cleanup EXIT
+    - >
+      docker run -d --name "$SMOKE_DB" --network "$SMOKE_NET"
+      -e POSTGRES_DB=petclinicdb
+      -e POSTGRES_USER=pguser
+      -e POSTGRES_PASSWORD=change-me
+      postgres:16-alpine
+    - >
+      docker run -d --name "$SMOKE_API" --network "$SMOKE_NET"
+      -e ConnectionStrings__DefaultConnection="Host=$SMOKE_DB;Port=5432;Database=petclinicdb;Username=pguser;Password=change-me"
+      -e ASPNETCORE_URLS=http://+:5000
+      petclinic-api:$CI_COMMIT_SHORT_SHA
+    - |
+      for i in $(seq 1 60); do
+        if docker run --rm --network "$SMOKE_NET" curlimages/curl:8.8.0 -fsS "http://$SMOKE_API:5000/api/v1/health" >/dev/null 2>&1; then
           echo "API container smoke check passed"
-          docker rm -f petclinic-api-smoke >/dev/null 2>&1 || true
           exit 0
         fi
         sleep 2
       done
       echo "ERROR: API container smoke check failed"
-      docker logs petclinic-api-smoke --tail 200 || true
-      docker rm -f petclinic-api-smoke >/dev/null 2>&1 || true
+      docker logs "$SMOKE_DB" --tail 200 || true
+      docker logs "$SMOKE_API" --tail 200 || true
       exit 1
 
 deploy_backend:
