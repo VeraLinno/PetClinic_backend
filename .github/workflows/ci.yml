@@ -58,9 +58,22 @@ jobs:
     needs:
       - verify
       - container-smoke
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.DEPLOY_HOST != '' && secrets.DEPLOY_USER != '' && secrets.DEPLOY_SSH_KEY != '' && secrets.BACKEND_DEPLOY_PATH != ''
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment: production
     steps:
+      - name: Validate deploy secrets
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          BACKEND_DEPLOY_PATH: ${{ secrets.BACKEND_DEPLOY_PATH }}
+        run: |
+          set -e
+          if [ -z "$DEPLOY_HOST" ] || [ -z "$DEPLOY_USER" ] || [ -z "$DEPLOY_SSH_KEY" ] || [ -z "$BACKEND_DEPLOY_PATH" ]; then
+            echo "Missing one or more backend deploy secrets"
+            exit 1
+          fi
+
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -76,9 +89,16 @@ jobs:
             git pull --ff-only origin main
             docker compose --env-file .env up --build --remove-orphans --detach db api
             for i in $(seq 1 30); do
-              if curl -fsS http://localhost:5001/api/v1/health >/dev/null; then
-                echo "Backend deploy smoke check passed"
-                exit 0
+              if command -v curl >/dev/null 2>&1; then
+                if curl -fsS http://localhost:5001/api/v1/health >/dev/null; then
+                  echo "Backend deploy smoke check passed"
+                  exit 0
+                fi
+              else
+                if wget -qO- http://localhost:5001/api/v1/health >/dev/null; then
+                  echo "Backend deploy smoke check passed"
+                  exit 0
+                fi
               fi
               sleep 2
             done
