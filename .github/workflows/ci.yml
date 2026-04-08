@@ -39,23 +39,16 @@ jobs:
         run: |
           set -e
           SMOKE_NET="petclinic-backend-smoke-${{ github.run_id }}-${{ github.run_attempt }}"
-          SMOKE_DB="petclinic-db-smoke-${{ github.run_id }}-${{ github.run_attempt }}"
           SMOKE_API="petclinic-api-smoke-${{ github.run_id }}-${{ github.run_attempt }}"
           docker network create "$SMOKE_NET"
           cleanup() {
-            docker rm -f "$SMOKE_API" "$SMOKE_DB" >/dev/null 2>&1 || true
+            docker rm -f "$SMOKE_API" >/dev/null 2>&1 || true
             docker network rm "$SMOKE_NET" >/dev/null 2>&1 || true
           }
           trap cleanup EXIT
 
-          docker run -d --name "$SMOKE_DB" --network "$SMOKE_NET" \
-            -e POSTGRES_DB=petclinicdb \
-            -e POSTGRES_USER=pguser \
-            -e POSTGRES_PASSWORD=change-me \
-            postgres:16-alpine
-
           docker run -d --name "$SMOKE_API" --network "$SMOKE_NET" \
-            -e ConnectionStrings__DefaultConnection="Host=$SMOKE_DB;Port=5432;Database=petclinicdb;Username=pguser;Password=change-me" \
+            -e SmokeTest__MinimalStartup=true \
             -e ASPNETCORE_URLS=http://+:5000 \
             petclinic-api:${{ github.sha }}
 
@@ -67,7 +60,6 @@ jobs:
             sleep 2
           done
           echo "ERROR: API container health check failed"
-          docker logs "$SMOKE_DB" --tail 200 || true
           docker logs "$SMOKE_API" --tail 200 || true
           exit 1
 

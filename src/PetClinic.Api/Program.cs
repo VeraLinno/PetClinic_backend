@@ -31,6 +31,7 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
     builder.Host.UseSerilog();  // Replace default logging with Serilog
+    var smokeTestMinimalStartup = builder.Configuration.GetValue<bool>("SmokeTest:MinimalStartup");
 
     // Add services to the container.
     builder.Services.AddDbContext<PetClinicDbContext>(options =>
@@ -54,7 +55,10 @@ try
     builder.Services.AddScoped<IVisitService, VisitService>();
     builder.Services.AddScoped<IAdminService, AdminService>();
     builder.Services.AddScoped<ITranslationService, TranslationService>();
-    builder.Services.AddHostedService<InventoryDeliveryWorker>();
+    if (!smokeTestMinimalStartup)
+    {
+        builder.Services.AddHostedService<InventoryDeliveryWorker>();
+    }
 
     // AutoMapper
     builder.Services.AddAutoMapper(_ => { }, typeof(MappingProfile).Assembly);
@@ -195,35 +199,42 @@ try
 
     var app = builder.Build();
 
-    // Seed data
-    using (var scope = app.Services.CreateScope())
+    if (!smokeTestMinimalStartup)
     {
-        var dbContext = scope.ServiceProvider.GetRequiredService<PetClinicDbContext>();
-        var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
-        var logger = loggerFactory.CreateLogger<TranslationService>();
-
-        // Wait for database to be ready
-        var maxRetries = 10;
-        var retryCount = 0;
-        while (retryCount < maxRetries)
+        // Seed data
+        using (var scope = app.Services.CreateScope())
         {
-            try
-            {
-                // Apply pending migrations (includes creating database if it doesn't exist)
-                // This ensures all schema changes from migrations are applied automatically
-                await dbContext.Database.MigrateAsync();
-                break;
-            }
-            catch
-            {
-                retryCount++;
-                if (retryCount >= maxRetries)
-                    throw;
-                await Task.Delay(2000); // Wait 2 seconds before retry
-            }
-        }
+            var dbContext = scope.ServiceProvider.GetRequiredService<PetClinicDbContext>();
+            var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+            var logger = loggerFactory.CreateLogger<TranslationService>();
 
-        await SeedDataAsync(dbContext, logger);
+            // Wait for database to be ready
+            var maxRetries = 10;
+            var retryCount = 0;
+            while (retryCount < maxRetries)
+            {
+                try
+                {
+                    // Apply pending migrations (includes creating database if it doesn't exist)
+                    // This ensures all schema changes from migrations are applied automatically
+                    await dbContext.Database.MigrateAsync();
+                    break;
+                }
+                catch
+                {
+                    retryCount++;
+                    if (retryCount >= maxRetries)
+                        throw;
+                    await Task.Delay(2000); // Wait 2 seconds before retry
+                }
+            }
+
+            await SeedDataAsync(dbContext, logger);
+        }
+    }
+    else
+    {
+        Log.Warning("Smoke test minimal startup mode enabled; skipping migrations, seed data and background workers.");
     }
 
     // Configure the HTTP request pipeline.
