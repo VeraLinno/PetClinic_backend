@@ -1,7 +1,7 @@
+@model PetClinic.Api.ViewModels.AdminAppointmentReassignPageViewModel
 @{
-    ViewData["Title"] = "Reassign Appointment";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    var vets = ViewBag.Vets as List<PetClinic.Application.AdminVeterinarianDto>;
+    var vets = Model.Veterinarians;
 }
 
 <div class="admin-header">
@@ -19,7 +19,7 @@
 
 <div class="row">
     <div class="col-md-6">
-        @if (Model is not PetClinic.Application.AdminAppointmentDto currentAppt)
+        @if (Model.Appointment is not PetClinic.Application.AdminAppointmentDto currentAppt)
         {
             <div class="alert alert-warning" role="alert">
                 Appointment details are unavailable.

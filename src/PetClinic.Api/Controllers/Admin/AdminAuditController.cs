@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
 using PetClinic.Application;
+using PetClinic.Api.ViewModels;
 
 namespace PetClinic.Api.Controllers.Admin;
 
@@ -9,6 +10,8 @@ namespace PetClinic.Api.Controllers.Admin;
 /// Admin audit controller - view audit logs and user activity records
 /// </summary>
 [ApiController]
+[Area("Admin")]
+[Route("admin/[controller]")]
 [Route("api/v{version:apiVersion}/admin/[controller]")]
 [ApiVersion("1.0")]
 [Authorize(Policy = "Admin")]
@@ -36,16 +39,24 @@ public class AdminAuditController : Controller
         try
         {
             var logs = await _adminService.GetAuditLogsAsync(days, userEmail, action);
-            ViewBag.Days = days;
-            ViewBag.UserEmail = userEmail;
-            ViewBag.Action = action;
-            return View(logs);
+            return View("~/Views/Admin/Audit/Index.cshtml", new AdminAuditIndexPageViewModel
+            {
+                Logs = logs,
+                Days = days,
+                UserEmail = userEmail,
+                Action = action
+            });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading audit logs");
             ModelState.AddModelError("Error", "Failed to load audit logs");
-            return View(new List<AdminAuditLogDto>());
+            return View("~/Views/Admin/Audit/Index.cshtml", new AdminAuditIndexPageViewModel
+            {
+                Days = days,
+                UserEmail = userEmail,
+                Action = action
+            });
         }
     }
 
@@ -60,16 +71,25 @@ public class AdminAuditController : Controller
         try
         {
             if (filter == null)
-                return View(new AdminAuditLogFilterDto());
+            {
+                return View("~/Views/Admin/Audit/Search.cshtml", new AdminAuditSearchPageViewModel());
+            }
 
             var logs = await _adminService.SearchAuditLogsAsync(filter);
-            return View(logs);
+            return View("~/Views/Admin/Audit/Search.cshtml", new AdminAuditSearchPageViewModel
+            {
+                Filter = filter,
+                Results = logs
+            });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error searching audit logs");
             ModelState.AddModelError("Error", "Failed to search audit logs");
-            return View(new List<AdminAuditLogDto>());
+            return View("~/Views/Admin/Audit/Search.cshtml", new AdminAuditSearchPageViewModel
+            {
+                Filter = filter ?? new AdminAuditLogFilterDto()
+            });
         }
     }
 
@@ -85,13 +105,20 @@ public class AdminAuditController : Controller
         try
         {
             var logs = await _adminService.SearchAuditLogsAsync(filter);
-            return View("Search", logs);
+            return View("~/Views/Admin/Audit/Search.cshtml", new AdminAuditSearchPageViewModel
+            {
+                Filter = filter,
+                Results = logs
+            });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error searching audit logs");
             ModelState.AddModelError("Error", "Failed to search audit logs");
-            return View("Search");
+            return View("~/Views/Admin/Audit/Search.cshtml", new AdminAuditSearchPageViewModel
+            {
+                Filter = filter
+            });
         }
     }
 
@@ -106,15 +133,22 @@ public class AdminAuditController : Controller
         try
         {
             var activity = await _adminService.GetUserActivityAsync(userId, days);
-            ViewBag.UserId = userId;
-            ViewBag.Days = days;
-            return View(activity);
+            return View("~/Views/Admin/Audit/UserActivity.cshtml", new AdminAuditUserActivityPageViewModel
+            {
+                UserId = userId,
+                Days = days,
+                Activities = activity
+            });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading user activity for {UserId}", userId);
             ModelState.AddModelError("Error", "Failed to load user activity");
-            return View(new List<AdminAuditLogDto>());
+            return View("~/Views/Admin/Audit/UserActivity.cshtml", new AdminAuditUserActivityPageViewModel
+            {
+                UserId = userId,
+                Days = days
+            });
         }
     }
 

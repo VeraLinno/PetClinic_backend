@@ -9,6 +9,7 @@ namespace PetClinic.Api.Controllers.Admin;
 /// Admin finance controller - manage invoices and financial reports
 /// </summary>
 [ApiController]
+[Area("Admin")]
 [Route("admin/[controller]")]
 [ApiVersion("1.0")]
 [Authorize(Policy = "Admin")]
@@ -35,13 +36,13 @@ public class AdminFinanceController : Controller
         try
         {
             var invoices = await _adminService.GetAllInvoicesAsync(fromDate, toDate);
-            return View(invoices);
+            return View("~/Views/Admin/Finance/Index.cshtml", invoices);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading invoices list");
             ModelState.AddModelError("Error", "Failed to load invoices");
-            return View(new List<InvoiceDto>());
+            return View("~/Views/Admin/Finance/Index.cshtml", new List<InvoiceDto>());
         }
     }
 
@@ -59,13 +60,13 @@ public class AdminFinanceController : Controller
             var fromDate = toDate.AddMonths(-months);
 
             var report = await _adminService.GetFinancialReportAsync(fromDate, toDate);
-            return View(report);
+            return View("~/Views/Admin/Finance/Reports.cshtml", report);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading financial report");
             ModelState.AddModelError("Error", "Failed to load financial report");
-            return View();
+            return View("~/Views/Admin/Finance/Reports.cshtml");
         }
     }
 
@@ -85,7 +86,7 @@ public class AdminFinanceController : Controller
             if (invoice == null)
                 return NotFound();
 
-            return View(invoice);
+            return View("~/Views/Admin/Finance/Adjust.cshtml", invoice);
         }
         catch (Exception ex)
         {
@@ -110,7 +111,7 @@ public class AdminFinanceController : Controller
             if (invoice == null)
                 return NotFound();
 
-            return View(invoice);
+            return View("~/Views/Admin/Finance/Adjust.cshtml", invoice);
         }
         catch (Exception ex)
         {
@@ -143,7 +144,9 @@ public class AdminFinanceController : Controller
         {
             _logger.LogError(ex, "Error adjusting invoice {InvoiceId}", id);
             ModelState.AddModelError("Error", "Failed to adjust invoice");
-            return View("Adjust");
+            var invoices = await _adminService.GetAllInvoicesAsync();
+            var invoice = invoices.FirstOrDefault(i => i.Id == id);
+            return View("~/Views/Admin/Finance/Adjust.cshtml", invoice);
         }
     }
 

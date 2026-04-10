@@ -1,17 +1,17 @@
 @inject PetClinic.Application.ITranslationService TranslationService
 @inject PetClinic.Application.ILocalizationService LocalizationService
+@inject Microsoft.Extensions.Localization.IStringLocalizer<PetClinic.Api.SharedResource> SR
 @{
     var language = LocalizationService.GetCurrentLanguage();
     var uiTranslations = (await TranslationService.GetTranslationsByCategoryAsync(language, "mvc.admin"))
         .ToDictionary(t => t.Key, t => t.Value, StringComparer.OrdinalIgnoreCase);
-    string T(string key, string fallback) => uiTranslations.TryGetValue(key, out var value) ? value : fallback;
 }
 <!DOCTYPE html>
 <html lang="@language">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"] - @T("layout.admin.title", "Pet Clinic Admin")</title>
+    <title>@(ViewData["Title"] ?? SR["Common_Dashboard"]) - @SR["Admin_Title"]</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -150,28 +150,28 @@
     <div class="admin-container">
         <!-- Sidebar Navigation -->
         <div class="admin-sidebar">
-            <h3><i class="bi bi-speedometer2"></i> @T("layout.admin.header", "Admin")</h3>
+            <h3><i class="bi bi-speedometer2"></i> @SR["Admin_Header"]</h3>
             <nav>
                 <a href="/admin/admindashboard" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminDashboard" ? "active" : "")">
-                    <i class="bi bi-house-door"></i> @T("nav.dashboard", "Dashboard")
+                    <i class="bi bi-house-door"></i> @SR["Common_Dashboard"]
                 </a>
                 <a href="/admin/adminusers" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminUsers" ? "active" : "")">
-                    <i class="bi bi-people"></i> @T("nav.users", "Users")
+                    <i class="bi bi-people"></i> @SR["Common_Users"]
                 </a>
                 <a href="/admin/adminveterinarians" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminVeterinarians" ? "active" : "")">
-                    <i class="bi bi-stethoscope"></i> @T("nav.veterinarians", "Veterinarians")
+                    <i class="bi bi-stethoscope"></i> @SR["Common_Veterinarians"]
                 </a>
                 <a href="/admin/adminappointments" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminAppointments" ? "active" : "")">
-                    <i class="bi bi-calendar-event"></i> @T("nav.appointments", "Appointments")
+                    <i class="bi bi-calendar-event"></i> @SR["Common_Appointments"]
                 </a>
                 <a href="/admin/adminfinance" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminFinance" ? "active" : "")">
-                    <i class="bi bi-credit-card"></i> @T("nav.invoices", "Invoices")
+                    <i class="bi bi-credit-card"></i> @SR["Common_Invoices"]
                 </a>
                 <a href="/admin/admininventory" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminInventory" ? "active" : "")">
-                    <i class="bi bi-box"></i> @T("nav.inventory", "Inventory")
+                    <i class="bi bi-box"></i> @SR["Common_Inventory"]
                 </a>
                 <a href="/admin/adminaudit" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminAudit" ? "active" : "")">
-                    <i class="bi bi-clock-history"></i> @T("nav.audit", "Audit Logs")
+                    <i class="bi bi-clock-history"></i> @SR["Common_AuditLogs"]
                 </a>
                 <div class="px-3 pt-3">
                     <a class="btn btn-outline-light btn-sm me-1" href="?culture=en">EN</a>

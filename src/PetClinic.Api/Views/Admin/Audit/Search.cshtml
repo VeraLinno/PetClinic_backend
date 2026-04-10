@@ -1,7 +1,7 @@
+@model PetClinic.Api.ViewModels.AdminAuditSearchPageViewModel
 @{
-    ViewData["Title"] = "Search Audit Logs";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    var results = Model as List<PetClinic.Application.AdminAuditLogDto> ?? new List<PetClinic.Application.AdminAuditLogDto>();
+    var results = Model.Results ?? new List<PetClinic.Application.AdminAuditLogDto>();
     var hasResults = results.Count > 0;
 }
 
@@ -27,15 +27,15 @@
         <div class="row">
             <div class="col-md-4">
                 <label class="form-label">From Date</label>
-                <input type="datetime-local" name="FromDate" class="form-control">
+                <input type="datetime-local" name="FromDate" class="form-control" value="@(Model.Filter.FromDate?.ToString("yyyy-MM-ddTHH:mm"))">
             </div>
             <div class="col-md-4">
                 <label class="form-label">To Date</label>
-                <input type="datetime-local" name="ToDate" class="form-control">
+                <input type="datetime-local" name="ToDate" class="form-control" value="@(Model.Filter.ToDate?.ToString("yyyy-MM-ddTHH:mm"))">
             </div>
             <div class="col-md-4">
                 <label class="form-label">User Email</label>
-                <input type="email" name="UserEmail" class="form-control" placeholder="owner@example.com">
+                <input type="email" name="UserEmail" class="form-control" placeholder="owner@example.com" value="@Model.Filter.UserEmail">
             </div>
         </div>
 

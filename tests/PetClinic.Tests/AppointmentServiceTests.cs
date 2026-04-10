@@ -221,4 +221,49 @@ public class AppointmentServiceTests
         // Assert
         result.Should().Contain(a => a.Id == appointment.Id);
     }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public async Task GetUserAppointmentsAsync_ShouldReturnOnlyOwnersAppointments()
+    {
+        // Arrange
+        var ownerId = Guid.NewGuid();
+        var otherOwnerId = Guid.NewGuid();
+
+        var owner = new Owner { Id = ownerId, Email = "owner-a@test.com", PasswordHash = "hash" };
+        var otherOwner = new Owner { Id = otherOwnerId, Email = "owner-b@test.com", PasswordHash = "hash" };
+
+        var myPet = new Pet { Id = Guid.NewGuid(), Name = "Milo", Species = "Cat", Breed = "Tabby", OwnerId = ownerId };
+        var otherPet = new Pet { Id = Guid.NewGuid(), Name = "Rex", Species = "Dog", Breed = "Mixed", OwnerId = otherOwnerId };
+
+        var myAppointment = new Appointment
+        {
+            Id = Guid.NewGuid(),
+            PetId = myPet.Id,
+            StartAt = DateTime.UtcNow.AddHours(2),
+            EndAt = DateTime.UtcNow.AddHours(3),
+            Status = AppointmentStatus.Scheduled
+        };
+
+        var otherAppointment = new Appointment
+        {
+            Id = Guid.NewGuid(),
+            PetId = otherPet.Id,
+            StartAt = DateTime.UtcNow.AddHours(2),
+            EndAt = DateTime.UtcNow.AddHours(3),
+            Status = AppointmentStatus.Scheduled
+        };
+
+        _context.Owners.AddRange(owner, otherOwner);
+        _context.Pets.AddRange(myPet, otherPet);
+        _context.Appointments.AddRange(myAppointment, otherAppointment);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = await _service.GetUserAppointmentsAsync(ownerId, new List<string> { "Owner" });
+
+        // Assert
+        result.Should().ContainSingle(a => a.Id == myAppointment.Id);
+        result.Should().NotContain(a => a.Id == otherAppointment.Id);
+    }
 }

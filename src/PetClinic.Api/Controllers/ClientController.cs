@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PetClinic.Application;
 using PetClinic.Domain;
 using PetClinic.Infrastructure;
+using PetClinic.Api.ViewModels;
 
 namespace PetClinic.Api.Controllers;
 
@@ -40,7 +41,7 @@ public class ClientController : Controller
     public async Task<IActionResult> Index()
     {
         var userId = _userContext.GetCurrentUserId();
-        await PopulateUiTextsAsync();
+        var uiTexts = await GetUiTextsAsync();
 
         var owner = await _context.Owners
             .AsNoTracking()
@@ -52,12 +53,16 @@ public class ClientController : Controller
         var invoicesCount = await _context.Invoices
             .CountAsync(i => i.Visit.Appointment.Pet.OwnerId == userId);
 
-        ViewBag.OwnerName = owner?.FirstName ?? owner?.Email ?? "Owner";
-        ViewBag.PetsCount = petsCount;
-        ViewBag.AppointmentsCount = appointmentsCount;
-        ViewBag.InvoicesCount = invoicesCount;
+        var model = new ClientDashboardViewModel
+        {
+            OwnerName = owner?.FirstName ?? owner?.Email ?? "Owner",
+            PetsCount = petsCount,
+            AppointmentsCount = appointmentsCount,
+            InvoicesCount = invoicesCount,
+            UiTexts = uiTexts
+        };
 
-        return View();
+        return View(model);
     }
 
     [HttpGet("pets")]
@@ -65,7 +70,7 @@ public class ClientController : Controller
     {
         var userId = _userContext.GetCurrentUserId();
         var language = _localizationService.GetCurrentLanguage();
-        await PopulateUiTextsAsync();
+        var uiTexts = await GetUiTextsAsync();
 
         var pets = await _context.Pets
             .Where(p => p.OwnerId == userId)
@@ -80,7 +85,11 @@ public class ClientController : Controller
             pet.BreedLocalized = _localizationService.LocalizePetBreed(pet.Breed, language);
         }
 
-        return View(dtos);
+        return View(new ClientPetsPageViewModel
+        {
+            Pets = dtos,
+            UiTexts = uiTexts
+        });
     }
 
     [HttpGet("appointments")]
@@ -89,7 +98,7 @@ public class ClientController : Controller
         var userId = _userContext.GetCurrentUserId();
         var roles = _userContext.GetCurrentUserRoles();
         var language = _localizationService.GetCurrentLanguage();
-        await PopulateUiTextsAsync();
+        var uiTexts = await GetUiTextsAsync();
 
         var appointments = await _appointmentService.GetUserAppointmentsAsync(userId, roles);
         var dtos = _mapper.Map<List<AppointmentDto>>(appointments);
@@ -99,14 +108,18 @@ public class ClientController : Controller
             appointment.StatusLocalized = _localizationService.LocalizeAppointmentStatus(appointment.Status, language);
         }
 
-        return View(dtos);
+        return View(new ClientAppointmentsPageViewModel
+        {
+            Appointments = dtos,
+            UiTexts = uiTexts
+        });
     }
 
     [HttpGet("invoices")]
     public async Task<IActionResult> Invoices()
     {
         var userId = _userContext.GetCurrentUserId();
-        await PopulateUiTextsAsync();
+        var uiTexts = await GetUiTextsAsync();
 
         var invoices = await _context.Invoices
             .Where(i => i.Visit.Appointment.Pet.OwnerId == userId)
@@ -124,7 +137,11 @@ public class ClientController : Controller
             })
             .ToListAsync();
 
-        return View(invoices);
+        return View(new ClientInvoicesPageViewModel
+        {
+            Invoices = invoices,
+            UiTexts = uiTexts
+        });
     }
 
     [HttpPost("invoices/{id:guid}/mark-paid")]
@@ -156,10 +173,10 @@ public class ClientController : Controller
         return RedirectToAction(nameof(Invoices));
     }
 
-    private async Task PopulateUiTextsAsync()
+    private async Task<Dictionary<string, string>> GetUiTextsAsync()
     {
         var language = _localizationService.GetCurrentLanguage();
         var uiTexts = await _translationService.GetTranslationsByCategoryAsync(language, "mvc.client");
-        ViewBag.UiTexts = uiTexts.ToDictionary(t => t.Key, t => t.Value, StringComparer.OrdinalIgnoreCase);
+        return uiTexts.ToDictionary(t => t.Key, t => t.Value, StringComparer.OrdinalIgnoreCase);
     }
 }

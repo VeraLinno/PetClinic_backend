@@ -1,7 +1,7 @@
+@model PetClinic.Api.ViewModels.AdminAuditIndexPageViewModel
 @{
-    ViewData["Title"] = "Audit Logs";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    var logs = Model as List<PetClinic.Application.AdminAuditLogDto>;
+    var logs = Model.Logs;
 }
 
 <div class="admin-header">

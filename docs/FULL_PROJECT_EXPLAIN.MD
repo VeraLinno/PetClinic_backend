@@ -995,3 +995,92 @@ Suurimad tugevused selles projektis on minu jaoks:
 - testid, mis katavad kõige tähtsama loogika.
 
 Tegelik eesmärk on teha kliiniku töövoog kasutajatele lihtsaks ja samal ajal hoida backend piisavalt turvaline ja hallatav.
+
+## Uuenduslogi (10.04.2026)
+
+Allpool on täpselt kirjas, mis sai nüüd projekti viidud, et nõuded oleksid paremini kaetud.
+
+### 1) MVC compliance: Area + ViewModel refactor
+
+Tehtud muudatused:
+
+- Admin kontrolleritele lisati `[Area("Admin")]`.
+- `Program.cs`-i lisati `MapAreaControllerRoute(...)` admin alale.
+- Admin view’de tagastamine viidi explicit feature-folder path’idele (nt `~/Views/Admin/...`).
+- Client poolel eemaldati `ViewBag`-i põhine andmeedastus ja asendati typed ViewModelitega.
+- Admin poolel eemaldati `ViewBag` andmeedastus dashboard/audit/reassign vaadetes ja asendati typed ViewModelitega.
+
+Lisatud ViewModelid:
+
+- `ClientDashboardViewModel`
+- `ClientPetsPageViewModel`
+- `ClientAppointmentsPageViewModel`
+- `ClientInvoicesPageViewModel`
+- `AdminDashboardPageViewModel`
+- `AdminAuditIndexPageViewModel`
+- `AdminAuditSearchPageViewModel`
+- `AdminAuditUserActivityPageViewModel`
+- `AdminAppointmentReassignPageViewModel`
+
+### 2) Backend UI lokaliseerimine resx-iga
+
+Tehtud muudatused:
+
+- Lisati backendi shared lokaliseerimise markerklass `SharedResource`.
+- Lisati `Resources` kaust ja resx failid:
+	- `SharedResource.resx`
+	- `SharedResource.et.resx`
+	- `SharedResource.ru.resx`
+- `_AdminLayout.cshtml` ja `_ClientLayout.cshtml` kasutavad nüüd lisaks DB tõlgetele ka `IStringLocalizer<SharedResource>` väärtuseid.
+- Navigatsiooni ja pealkirjade põhistringid viidi resx võtmetele.
+
+### 3) Testikatvuse täiendused (unit + integration + e2e + IDOR)
+
+Backend:
+
+- `AppointmentServiceTests` sai uue unit testi:
+	- owner näeb ainult enda aegu (`GetUserAppointmentsAsync_ShouldReturnOnlyOwnersAppointments`).
+- `IntegrationTests` sai uued testid:
+	- owner saab luua ja lugeda enda lemmikut,
+	- IDOR kontroll: owner ei saa kustutada teise owneri lemmikut (`NotFound`).
+
+Frontend (Playwright):
+
+- Lisati `owner-flow.spec.ts` (owner login + pets vaade).
+- Lisati `idor.spec.ts` (IDOR delete flow negatiivne stsenaarium).
+- Uuendati `login.spec.ts` robustsemate selectoritega (`#email`, `#password`).
+
+### 4) CI/CD testikäivitused uuendatud
+
+Frontend CI:
+
+- GitLab pipeline verify etapp jooksutab nüüd:
+	- `npm run build`
+	- `npm run test`
+	- `npm run e2e` (Playwright konteineris)
+- GitHub Actions verify job sai juurde:
+	- Playwright browserite installi sammu,
+	- `npm run e2e` sammu.
+
+### 5) Reaalsed käivitustulemused pärast muudatusi
+
+Kohalikult jooksutatud kontrollid:
+
+- `dotnet test ... --filter "Category!=Integration"` -> läbis (unit testid rohelised).
+- `npm test` -> läbis.
+- `npx playwright test` -> läbis (3/3).
+
+Märkus integration testide kohta:
+
+- Täis `dotnet test` (koos integration testidega) eeldab Dockerit (Testcontainers).
+- Käesolevas jooksukeskkonnas Docker endpoint ei olnud saadaval, seega integration testide runtime ebaõnnestumine oli keskkonna, mitte koodi loogika tõttu.
+
+### 6) Kokkuvõte pärast refactorit
+
+Süsteem on nüüd selgemalt vastavuses nõudega:
+
+- MVC admin/client vaated kasutavad typed mudeleid,
+- admin on formaalselt Area route’i all,
+- backend UI lokaliseerimine on olemas ka resx tasemel,
+- IDOR katvus on tõstetud nii integration kui e2e testides,
+- frontend CI käivitab nüüd ka e2e testid automaatselt.

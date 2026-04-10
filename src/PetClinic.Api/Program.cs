@@ -266,6 +266,10 @@ try
     app.UseRateLimiter();  // Rate limiting middleware (after CORS, before auth)
     app.UseAuthentication();
     app.UseAuthorization();
+    app.MapAreaControllerRoute(
+        name: "admin-area",
+        areaName: "Admin",
+        pattern: "admin/{controller=AdminDashboard}/{action=Index}/{id?}");
     app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Client}/{action=Index}/{id?}");

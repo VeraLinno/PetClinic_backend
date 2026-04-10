@@ -1,9 +1,9 @@
-@model IEnumerable<PetClinic.Application.AppointmentDto>
+@model PetClinic.Api.ViewModels.ClientAppointmentsPageViewModel
 @{
     Layout = "_ClientLayout";
     ViewData["Title"] = "Appointments";
 
-    var uiTexts = ViewBag.UiTexts as Dictionary<string, string> ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    var uiTexts = Model.UiTexts ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     string T(string key, string fallback) => uiTexts.TryGetValue(key, out var value) ? value : fallback;
 }
 
@@ -22,7 +22,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var appointment in Model)
+                @foreach (var appointment in Model.Appointments)
                 {
                     <tr>
                         <td>@appointment.PetName</td>

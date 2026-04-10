@@ -1,8 +1,8 @@
+@model PetClinic.Api.ViewModels.AdminDashboardPageViewModel
 @{
-    ViewData["Title"] = "Admin Dashboard";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    var metrics = ViewBag.Metrics as PetClinic.Application.AdminDashboardMetricsDto;
-    var health = ViewBag.Health as PetClinic.Application.AdminSystemHealthDto;
+    var metrics = Model.Metrics;
+    var health = Model.Health;
 }
 
 <div class="admin-header">

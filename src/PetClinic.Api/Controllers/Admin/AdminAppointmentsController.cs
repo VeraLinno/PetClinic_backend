@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
 using PetClinic.Application;
+using PetClinic.Api.ViewModels;
 
 namespace PetClinic.Api.Controllers.Admin;
 
@@ -9,6 +10,7 @@ namespace PetClinic.Api.Controllers.Admin;
 /// Admin appointments controller - manage appointments and scheduling
 /// </summary>
 [ApiController]
+[Area("Admin")]
 [Route("admin/[controller]")]
 [Route("api/v{version:apiVersion}/admin/[controller]")]
 [ApiVersion("1.0")]
@@ -37,13 +39,13 @@ public class AdminAppointmentsController : Controller
         try
         {
             var appointments = await _adminService.GetAllAppointmentsAsync(fromDate, toDate, status);
-            return View(appointments);
+            return View("~/Views/Admin/Appointments/Index.cshtml", appointments);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading appointments list");
             ModelState.AddModelError("Error", "Failed to load appointments");
-            return View(new List<AdminAppointmentDto>());
+            return View("~/Views/Admin/Appointments/Index.cshtml", new List<AdminAppointmentDto>());
         }
     }
 
@@ -63,7 +65,7 @@ public class AdminAppointmentsController : Controller
             if (appointment == null)
                 return NotFound();
 
-            return View(appointment);
+            return View("~/Views/Admin/Appointments/Details.cshtml", appointment);
         }
         catch (Exception ex)
         {
@@ -88,7 +90,7 @@ public class AdminAppointmentsController : Controller
             if (appointment == null)
                 return NotFound();
 
-            return View(appointment);
+            return View("~/Views/Admin/Appointments/Cancel.cshtml", appointment);
         }
         catch (Exception ex)
         {
@@ -121,7 +123,9 @@ public class AdminAppointmentsController : Controller
         {
             _logger.LogError(ex, "Error cancelling appointment {AppointmentId}", id);
             ModelState.AddModelError("Error", "Failed to cancel appointment");
-            return View("Cancel");
+            var appointments = await _adminService.GetAllAppointmentsAsync();
+            var appointment = appointments.FirstOrDefault(a => a.Id == id);
+            return View("~/Views/Admin/Appointments/Cancel.cshtml", appointment);
         }
     }
 
@@ -142,9 +146,11 @@ public class AdminAppointmentsController : Controller
                 return NotFound();
 
             var vets = await _adminService.GetAllVeterinariansAsync();
-            ViewBag.Vets = vets;
-
-            return View(appointment);
+            return View("~/Views/Admin/Appointments/Reassign.cshtml", new AdminAppointmentReassignPageViewModel
+            {
+                Appointment = appointment,
+                Veterinarians = vets
+            });
         }
         catch (Exception ex)
         {
@@ -172,13 +178,27 @@ public class AdminAppointmentsController : Controller
         {
             _logger.LogWarning(ex, "Appointment or veterinarian not found");
             ModelState.AddModelError("Error", ex.Message);
-            return View("Reassign");
+            var appointments = await _adminService.GetAllAppointmentsAsync();
+            var appointment = appointments.FirstOrDefault(a => a.Id == id);
+            var vets = await _adminService.GetAllVeterinariansAsync();
+            return View("~/Views/Admin/Appointments/Reassign.cshtml", new AdminAppointmentReassignPageViewModel
+            {
+                Appointment = appointment,
+                Veterinarians = vets
+            });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error reassigning appointment {AppointmentId}", id);
             ModelState.AddModelError("Error", "Failed to reassign appointment");
-            return View("Reassign");
+            var appointments = await _adminService.GetAllAppointmentsAsync();
+            var appointment = appointments.FirstOrDefault(a => a.Id == id);
+            var vets = await _adminService.GetAllVeterinariansAsync();
+            return View("~/Views/Admin/Appointments/Reassign.cshtml", new AdminAppointmentReassignPageViewModel
+            {
+                Appointment = appointment,
+                Veterinarians = vets
+            });
         }
     }
 

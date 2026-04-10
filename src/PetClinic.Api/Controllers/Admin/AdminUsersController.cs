@@ -10,6 +10,7 @@ namespace PetClinic.Api.Controllers.Admin;
 /// Only accessible to users with Admin role.
 /// </summary>
 [ApiController]
+[Area("Admin")]
 [Route("admin/[controller]")]
 [ApiVersion("1.0")]
 [Authorize(Policy = "Admin")]
@@ -36,13 +37,13 @@ public class AdminUsersController : Controller
         try
         {
             var users = await _adminService.GetAllUsersAsync();
-            return View(users);
+            return View("~/Views/Admin/Users/Index.cshtml", users);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading users list");
             ModelState.AddModelError("Error", "Failed to load users");
-            return View(new List<AdminUserDto>());
+            return View("~/Views/Admin/Users/Index.cshtml", new List<AdminUserDto>());
         }
     }
 
@@ -62,7 +63,7 @@ public class AdminUsersController : Controller
 
             var activity = await _adminService.GetUserActivityAsync(id);
 
-            return View(new { User = user, Activity = activity });
+            return View("~/Views/Admin/Users/Details.cshtml", new { User = user, Activity = activity });
         }
         catch (Exception ex)
         {
@@ -85,7 +86,7 @@ public class AdminUsersController : Controller
             if (user == null)
                 return NotFound();
 
-            return View(user);
+            return View("~/Views/Admin/Users/Edit.cshtml", user);
         }
         catch (Exception ex)
         {
@@ -119,7 +120,8 @@ public class AdminUsersController : Controller
         {
             _logger.LogError(ex, "Error updating user {UserId}", id);
             ModelState.AddModelError("Error", "Failed to update user");
-            return View();
+            var user = await _adminService.GetUserByIdAsync(id);
+            return View("~/Views/Admin/Users/Edit.cshtml", user);
         }
     }
 
@@ -137,7 +139,7 @@ public class AdminUsersController : Controller
             if (user == null)
                 return NotFound();
 
-            return View(user);
+            return View("~/Views/Admin/Users/Delete.cshtml", user);
         }
         catch (Exception ex)
         {
@@ -170,7 +172,8 @@ public class AdminUsersController : Controller
         {
             _logger.LogError(ex, "Error deleting user {UserId}", id);
             ModelState.AddModelError("Error", "Failed to delete user");
-            return View();
+            var user = await _adminService.GetUserByIdAsync(id);
+            return View("~/Views/Admin/Users/Delete.cshtml", user);
         }
     }
 

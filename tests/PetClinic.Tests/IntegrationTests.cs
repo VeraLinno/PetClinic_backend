@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using FluentAssertions;
@@ -161,5 +162,87 @@ public class IntegrationTests : IAsyncLifetime
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task Owner_ShouldCreateAndListOwnPet()
+    {
+        var email = $"owner-{Guid.NewGuid():N}@test.com";
+        var password = "Password123!";
+
+        await RegisterAndLoginAsync(email, password);
+
+        var createPetResponse = await _client.PostAsJsonAsync("/api/v1/owners/me/pets", new CreatePetDto
+        {
+            Name = "Milo",
+            Species = "Cat",
+            Breed = "Tabby",
+            DateOfBirth = DateTime.UtcNow.AddYears(-2)
+        });
+
+        createPetResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var petsResponse = await _client.GetAsync("/api/v1/owners/me/pets");
+        petsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var pets = await petsResponse.Content.ReadFromJsonAsync<List<PetDto>>();
+        pets.Should().NotBeNull();
+        pets!.Should().ContainSingle(p => p.Name == "Milo");
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task Owner_ShouldNotDeleteOtherOwnersPet_IdorProtection()
+    {
+        var owner1Email = $"owner1-{Guid.NewGuid():N}@test.com";
+        var owner2Email = $"owner2-{Guid.NewGuid():N}@test.com";
+        var password = "Password123!";
+
+        await RegisterAndLoginAsync(owner2Email, password);
+
+        var createPetResponse = await _client.PostAsJsonAsync("/api/v1/owners/me/pets", new CreatePetDto
+        {
+            Name = "Luna",
+            Species = "Dog",
+            Breed = "Mixed",
+            DateOfBirth = DateTime.UtcNow.AddYears(-1)
+        });
+        createPetResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var createdPet = await createPetResponse.Content.ReadFromJsonAsync<PetDto>();
+        createdPet.Should().NotBeNull();
+
+        await RegisterAndLoginAsync(owner1Email, password);
+
+        var deleteResponse = await _client.DeleteAsync($"/api/v1/owners/me/pets/{createdPet!.Id}");
+        deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    private async Task RegisterAndLoginAsync(string email, string password)
+    {
+        var registerResponse = await _client.PostAsJsonAsync("/api/v1/auth/register", new RegisterRequest
+        {
+            Email = email,
+            Password = password,
+            FirstName = "Test",
+            LastName = "User"
+        });
+
+        registerResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var loginResponse = await _client.PostAsJsonAsync("/api/v1/auth/login", new LoginRequest
+        {
+            Email = email,
+            Password = password
+        });
+
+        loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var loginJson = await loginResponse.Content.ReadAsStringAsync();
+        using var loginDoc = JsonDocument.Parse(loginJson);
+        var accessToken = loginDoc.RootElement.GetProperty("accessToken").GetString();
+
+        accessToken.Should().NotBeNullOrWhiteSpace();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
     }
 }

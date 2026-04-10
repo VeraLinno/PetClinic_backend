@@ -9,6 +9,7 @@ namespace PetClinic.Api.Controllers.Admin;
 /// Admin veterinarians controller - manage veterinary staff
 /// </summary>
 [ApiController]
+[Area("Admin")]
 [Route("admin/[controller]")]
 [ApiVersion("1.0")]
 [Authorize(Policy = "Admin")]
@@ -35,13 +36,13 @@ public class AdminVeterinariansController : Controller
         try
         {
             var vets = await _adminService.GetAllVeterinariansAsync();
-            return View(vets);
+            return View("~/Views/Admin/Veterinarians/Index.cshtml", vets);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading veterinarians list");
             ModelState.AddModelError("Error", "Failed to load veterinarians");
-            return View(new List<AdminVeterinarianDto>());
+            return View("~/Views/Admin/Veterinarians/Index.cshtml", new List<AdminVeterinarianDto>());
         }
     }
 
@@ -59,7 +60,7 @@ public class AdminVeterinariansController : Controller
             if (vet == null)
                 return NotFound();
 
-            return View(vet);
+            return View("~/Views/Admin/Veterinarians/Details.cshtml", vet);
         }
         catch (Exception ex)
         {

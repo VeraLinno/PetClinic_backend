@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
 using PetClinic.Application;
+using PetClinic.Api.ViewModels;
 
 namespace PetClinic.Api.Controllers.Admin;
 
@@ -10,6 +11,7 @@ namespace PetClinic.Api.Controllers.Admin;
 /// Only accessible to users with Admin role.
 /// </summary>
 [ApiController]
+[Area("Admin")]
 [Route("admin/[controller]")]
 [ApiVersion("1.0")]
 [Authorize(Policy = "Admin")]
@@ -37,17 +39,19 @@ public class AdminDashboardController : Controller
         {
             var metrics = await _adminService.GetDashboardMetricsAsync();
             var health = await _adminService.GetSystemHealthAsync();
+            var model = new AdminDashboardPageViewModel
+            {
+                Metrics = metrics,
+                Health = health
+            };
 
-            ViewBag.Metrics = metrics;
-            ViewBag.Health = health;
-
-            return View();
+            return View("~/Views/Admin/Dashboard/Index.cshtml", model);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading admin dashboard");
             ModelState.AddModelError("Error", "Failed to load dashboard metrics");
-            return View();
+            return View("~/Views/Admin/Dashboard/Index.cshtml", new AdminDashboardPageViewModel());
         }
     }
 

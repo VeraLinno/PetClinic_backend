@@ -1,9 +1,9 @@
+@model PetClinic.Api.ViewModels.AdminAuditUserActivityPageViewModel
 @{
-    ViewData["Title"] = "User Activity Timeline";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    var activities = Model as List<PetClinic.Application.AdminAuditLogDto>;
-    var userId = ViewBag.UserId as Guid?;
-    var days = ViewBag.Days as int? ?? 30;
+    var activities = Model.Activities;
+    var userId = Model.UserId;
+    var days = Model.Days;
 }
 
 <div class="admin-header">

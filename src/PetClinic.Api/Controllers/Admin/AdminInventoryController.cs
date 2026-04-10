@@ -9,6 +9,7 @@ namespace PetClinic.Api.Controllers.Admin;
 /// Admin inventory controller - manage medication stock and inventory reports
 /// </summary>
 [ApiController]
+[Area("Admin")]
 [Route("admin/[controller]")]
 [ApiVersion("1.0")]
 [Authorize(Policy = "Admin")]
@@ -35,13 +36,13 @@ public class AdminInventoryController : Controller
         try
         {
             var inventory = await _adminService.GetInventoryReportAsync();
-            return View(inventory);
+            return View("~/Views/Admin/Inventory/Index.cshtml", inventory);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading inventory report");
             ModelState.AddModelError("Error", "Failed to load inventory report");
-            return View(new List<AdminInventoryReportDto>());
+            return View("~/Views/Admin/Inventory/Index.cshtml", new List<AdminInventoryReportDto>());
         }
     }
 
@@ -56,13 +57,13 @@ public class AdminInventoryController : Controller
         try
         {
             var lowStockMeds = await _adminService.GetLowStockMedicationsAsync();
-            return View(lowStockMeds);
+            return View("~/Views/Admin/Inventory/LowStock.cshtml", lowStockMeds);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading low stock medications");
             ModelState.AddModelError("Error", "Failed to load low stock medications");
-            return View(new List<AdminInventoryReportDto>());
+            return View("~/Views/Admin/Inventory/LowStock.cshtml", new List<AdminInventoryReportDto>());
         }
     }
 
@@ -77,7 +78,7 @@ public class AdminInventoryController : Controller
         try
         {
             var usage = await _adminService.GetMedicationUsageAsync(id);
-            return View(usage);
+            return View("~/Views/Admin/Inventory/MedicationUsage.cshtml", usage);
         }
         catch (KeyNotFoundException ex)
         {

@@ -1,28 +1,28 @@
 @inject PetClinic.Application.ITranslationService TranslationService
 @inject PetClinic.Application.ILocalizationService LocalizationService
+@inject Microsoft.Extensions.Localization.IStringLocalizer<PetClinic.Api.SharedResource> SR
 @{
     var language = LocalizationService.GetCurrentLanguage();
     var uiTranslations = (await TranslationService.GetTranslationsByCategoryAsync(language, "mvc.client"))
         .ToDictionary(t => t.Key, t => t.Value, StringComparer.OrdinalIgnoreCase);
-    string T(string key, string fallback) => uiTranslations.TryGetValue(key, out var value) ? value : fallback;
 }
 <!DOCTYPE html>
 <html lang="@language">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - @T("layout.client.title", "Pet Clinic")</title>
+    <title>@(ViewData["Title"] ?? SR["Common_Dashboard"]) - @SR["Client_Title"]</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
 </head>
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="/client">@T("layout.client.brand", "Pet Clinic")</a>
+            <a class="navbar-brand" href="/client">@SR["Client_Title"]</a>
             <div class="navbar-nav">
-                <a class="nav-link" href="/client">@T("nav.dashboard", "Dashboard")</a>
-                <a class="nav-link" href="/client/pets">@T("nav.pets", "My Pets")</a>
-                <a class="nav-link" href="/client/appointments">@T("nav.appointments", "Appointments")</a>
-                <a class="nav-link" href="/client/invoices">@T("nav.invoices", "Invoices")</a>
+                <a class="nav-link" href="/client">@SR["Common_Dashboard"]</a>
+                <a class="nav-link" href="/client/pets">@SR["Client_MyPets"]</a>
+                <a class="nav-link" href="/client/appointments">@SR["Common_Appointments"]</a>
+                <a class="nav-link" href="/client/invoices">@SR["Common_Invoices"]</a>
             </div>
             <div class="ms-auto">
                 <a class="btn btn-sm btn-outline-light me-1" href="?culture=en">EN</a>
