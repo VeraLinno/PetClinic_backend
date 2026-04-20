@@ -25,6 +25,7 @@ services:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       ASPNETCORE_URLS: ${ASPNETCORE_URLS:-http://+:5000}
       Jwt__Secret: ${JWT_SECRET:-YourSuperSecretKeyThatIsAtLeast32CharactersLongForHMACSHA256}
+      AdminAccess__RequireMfa: ${ADMIN_REQUIRE_MFA:-false}
       ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB:-petclinicdb};Username=${POSTGRES_USER:-pguser};Password=${POSTGRES_PASSWORD:-pgpassword}
     depends_on:
       db:

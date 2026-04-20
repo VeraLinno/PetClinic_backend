@@ -455,19 +455,24 @@ public class AuthService : IAuthService
 
         try
         {
-            return BCrypt.Net.BCrypt.Verify(incomingPassword, storedPasswordHash);
+            if (BCrypt.Net.BCrypt.Verify(incomingPassword, storedPasswordHash))
+            {
+                return true;
+            }
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Password hash verification failed, falling back to legacy check");
-            if (string.Equals(incomingPassword, storedPasswordHash, StringComparison.Ordinal))
-            {
-                shouldRehashPassword = true;
-                return true;
-            }
-
-            return false;
         }
+
+        if (string.Equals(incomingPassword, storedPasswordHash, StringComparison.Ordinal))
+        {
+            shouldRehashPassword = true;
+            _logger.LogInformation("Accepted legacy plain-text password hash for user login; hash will be upgraded on successful login");
+            return true;
+        }
+
+        return false;
     }
 
     private static bool ValidateTotpCode(string base32Secret, string mfaCode)

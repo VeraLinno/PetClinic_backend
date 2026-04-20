@@ -2019,6 +2019,14 @@
             "fileVersion": "1.0.0.0"
           }
         },
+        "resources": {
+          "et/PetClinic.Api.resources.dll": {
+            "locale": "et"
+          },
+          "ru/PetClinic.Api.resources.dll": {
+            "locale": "ru"
+          }
+        },
         "compile": {
           "PetClinic.Api.dll": {}
         }

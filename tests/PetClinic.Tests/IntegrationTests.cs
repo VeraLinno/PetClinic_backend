@@ -155,6 +155,43 @@ public class IntegrationTests : IAsyncLifetime
 
     [Fact]
     [Trait("Category", "Integration")]
+    public async Task Login_ShouldAcceptLegacyPlainTextPassword_AndUpgradeHash()
+    {
+        var email = $"legacy-{Guid.NewGuid():N}@test.com";
+        var password = "legacy-password";
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<PetClinicDbContext>();
+            context.Owners.Add(new Owner
+            {
+                Email = email,
+                PasswordHash = password,
+                Roles = new List<string> { "Owner" }
+            });
+            await context.SaveChangesAsync();
+        }
+
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/login", new LoginRequest
+        {
+            Email = email,
+            Password = password
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<PetClinicDbContext>();
+            var storedOwner = await context.Owners.AsNoTracking().FirstAsync(owner => owner.Email == email);
+
+            storedOwner.PasswordHash.Should().NotBe(password);
+            storedOwner.PasswordHash.Should().StartWith("$");
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
     public async Task HealthCheck_ShouldReturnOk()
     {
         // Act

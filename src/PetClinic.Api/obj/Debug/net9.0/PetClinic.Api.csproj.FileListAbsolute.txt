@@ -147,3 +147,13 @@ C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetCli
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClinic.Api.pdb
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClinic.Api.genruntimeconfig.cache
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\ref\PetClinic.Api.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\et\PetClinic.Api.resources.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\bin\Debug\net9.0\ru\PetClinic.Api.resources.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClinic.Api.Resources.SharedResource.resources
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClinic.Api.Resources.SharedResource.et.resources
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClinic.Api.Resources.SharedResource.ru.resources
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\PetClinic.Api.csproj.GenerateResource.cache
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\et\PetClinic.Api.resources.cs
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\et\PetClinic.Api.resources.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\ru\PetClinic.Api.resources.cs
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\src\PetClinic.Api\obj\Debug\net9.0\ru\PetClinic.Api.resources.dll

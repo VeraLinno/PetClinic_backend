@@ -552,3 +552,5 @@ C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetC
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Microsoft.Extensions.Options.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\Microsoft.Extensions.Primitives.dll
 C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\System.Diagnostics.DiagnosticSource.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\et\PetClinic.Api.resources.dll
+C:\Users\vvera\VisualStudioProjekts\Pet_Clinic\velinn-petclinic_charp\tests\PetClinic.Tests\bin\Debug\net9.0\ru\PetClinic.Api.resources.dll

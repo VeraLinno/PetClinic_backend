@@ -84,19 +84,19 @@ public class VisitServiceTests
         // Assert
         var updatedVisit = await _context.Visits.FindAsync(visit.Id);
         updatedVisit.Should().NotBeNull();
-        updatedVisit.CompletedAt.Should().NotBeNull();
+        updatedVisit!.CompletedAt.Should().NotBeNull();
         updatedVisit.Notes.Should().Be("Visit completed successfully");
 
         var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.VisitId == visit.Id);
         invoice.Should().NotBeNull();
-        invoice.Amount.Should().Be(150); // 50 base + 10 * 10
+        invoice!.Amount.Should().Be(150); // 50 base + 10 * 10
 
         var updatedStock = await _context.MedicationStocks.FindAsync(medication.Id);
-        updatedStock.Quantity.Should().Be(90);
+        updatedStock!.Quantity.Should().Be(90);
 
         var prescription = await _context.Prescriptions.FirstOrDefaultAsync(p => p.VisitId == visit.Id);
         prescription.Should().NotBeNull();
-        prescription.Medication.Should().Be("Aspirin");
+        prescription!.Medication.Should().Be("Aspirin");
         prescription.Quantity.Should().Be(10);
     }
 
@@ -156,7 +156,7 @@ public class VisitServiceTests
 
         // Verify rollback - stock should remain unchanged
         var stockAfter = await _context.MedicationStocks.FindAsync(medication.Id);
-        stockAfter.Quantity.Should().Be(5);
+        stockAfter!.Quantity.Should().Be(5);
     }
 
     [Fact]

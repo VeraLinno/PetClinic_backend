@@ -23,6 +23,14 @@
         },
         "runtime": {
           "PetClinic.Api.dll": {}
+        },
+        "resources": {
+          "et/PetClinic.Api.resources.dll": {
+            "locale": "et"
+          },
+          "ru/PetClinic.Api.resources.dll": {
+            "locale": "ru"
+          }
         }
       },
       "Asp.Versioning.Abstractions/8.1.0": {
